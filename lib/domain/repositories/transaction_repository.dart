@@ -1,5 +1,7 @@
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/entities/paginated_result_entity.dart';
+import 'package:catat_cuan/domain/entities/pagination_params_entity.dart';
 
 /// Result type untuk return value yang bisa sukses atau gagal
 ///
@@ -87,6 +89,46 @@ abstract class TransactionRepository {
     String startYearMonth,
     String endYearMonth,
   );
+
+  /// Mencari transaksi berdasarkan query text
+  /// Pencarian dilakukan pada note dan nama kategori
+  /// - [query]: Kata kunci pencarian
+  /// - [type]: Filter tipe transaksi (opsional)
+  /// - [limit]: Batas jumlah hasil (opsional, default 50)
+  /// Mengembalikan list transaksi yang cocok, diurut by date DESC
+  Future<Result<List<TransactionEntity>>> searchTransactions(
+    String query, {
+    TransactionType? type,
+    int? limit,
+  });
+
+  /// Mengambil transaksi dengan nama kategori untuk export
+  /// Returns list of maps containing transaction data plus category name
+  /// - [startDate]: Filter tanggal awal (opsional)
+  /// - [endDate]: Filter tanggal akhir (opsional)
+  /// - [categoryId]: Filter kategori (opsional)
+  /// - [type]: Filter tipe transaksi (opsional)
+  Future<Result<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+  });
+
+  /// Mengambil transaksi dengan pagination
+  /// - [pagination]: Parameter pagination (page, limit)
+  /// - [startDate]: Filter tanggal awal (opsional)
+  /// - [endDate]: Filter tanggal akhir (opsional)
+  /// - [categoryId]: Filter kategori (opsional)
+  /// - [type]: Filter tipe transaksi (opsional)
+  /// Mengembalikan PaginatedResult dengan data transaksi dan metadata pagination
+  Future<PaginatedResultEntity<TransactionEntity>> getTransactionsPaginated(
+    PaginationParamsEntity pagination, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+  });
 }
 
 

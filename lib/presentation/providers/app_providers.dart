@@ -30,6 +30,8 @@ export 'navigation/navigation_provider.dart';
 export 'transaction/transaction_filter_provider.dart';
 export 'transaction/transaction_list_provider.dart';
 export 'transaction/transaction_form_provider.dart';
+export 'transaction/transaction_search_provider.dart';
+export 'transaction/transaction_list_paginated_provider.dart';
 
 // Category providers
 export 'category/category_list_provider.dart';
@@ -41,6 +43,9 @@ export 'summary/monthly_summary_provider.dart';
 
 // Scan providers
 export 'scan/receipt_scan_provider.dart';
+
+// Export providers
+export 'export/export_provider.dart';
 
 // ============================================================================
 // State Classes (for backward compatibility with UI)

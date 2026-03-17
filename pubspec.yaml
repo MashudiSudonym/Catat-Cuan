@@ -69,6 +69,10 @@ dependencies:
   fl_chart: ^0.66.0
   package_info_plus: ^8.1.2
 
+  # CSV Export
+  csv: ^6.0.0
+  share_plus: ^7.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

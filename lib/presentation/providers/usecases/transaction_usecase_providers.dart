@@ -8,6 +8,8 @@ import 'package:catat_cuan/domain/usecases/transaction/get_monthly_summary_useca
 import 'package:catat_cuan/domain/usecases/transaction/get_category_breakdown_usecase.dart';
 import 'package:catat_cuan/domain/usecases/transaction/get_multi_month_summary_usecase.dart';
 import 'package:catat_cuan/domain/usecases/transaction/get_insights_usecase.dart';
+import 'package:catat_cuan/domain/usecases/search_transactions_usecase.dart';
+import 'package:catat_cuan/domain/usecases/get_transactions_paginated_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 
 /// Provider untuk AddTransactionUseCase
@@ -57,3 +59,17 @@ final getInsightsUseCaseProvider = Provider<GetInsightsUseCase>((ref) {
 final getMultiMonthSummaryUseCaseProvider = Provider<GetMultiMonthSummaryUseCase>((ref) {
   return GetMultiMonthSummaryUseCase(ref.read(transactionRepositoryProvider));
 });
+
+/// Provider untuk SearchTransactionsUseCase
+final searchTransactionsUseCaseProvider = Provider<SearchTransactionsUseCase>((ref) {
+  return SearchTransactionsUseCase(ref.read(transactionRepositoryProvider));
+});
+
+/// Provider untuk GetTransactionsPaginatedUseCase
+final getTransactionsPaginatedUseCaseProvider = Provider<GetTransactionsPaginatedUseCase>((ref) {
+  return GetTransactionsPaginatedUseCase(ref.read(transactionRepositoryProvider));
+});
+
+/// Provider untuk GetTransactionsPaginatedUseCase
+/// Note: This is exported from transaction_list_paginated_provider.dart
+/// This is kept here for backward compatibility during migration

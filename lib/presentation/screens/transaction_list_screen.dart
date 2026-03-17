@@ -6,6 +6,8 @@ import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/screens/transaction_form_screen.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_card.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
+import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
+import 'package:catat_cuan/presentation/widgets/export_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/transaction_filter_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/utils/app_colors.dart';
 import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
@@ -17,21 +19,68 @@ import 'package:intl/intl.dart';
 /// Refactored untuk SOLID compliance:
 /// - SRP: Screen hanya handle UI, business logic di notifier
 /// - DIP: Depends on provider abstractions, not concrete implementations
-class TransactionListScreen extends ConsumerWidget {
+/// - Pagination: Uses paginated provider with infinite scroll
+class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final listAsync = ref.watch(transactionListNotifierProvider);
-    final notifier = ref.read(transactionListNotifierProvider.notifier);
-    final filterState = notifier.filterState;
+  ConsumerState<TransactionListScreen> createState() => _TransactionListScreenState();
+}
+
+class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottomReached) {
+      ref.read(transactionListPaginatedNotifierProvider.notifier).loadMore();
+    }
+  }
+
+  bool get _isBottomReached {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    // Load when 80% scrolled
+    return currentScroll >= (maxScroll * 0.8);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final paginatedState = ref.watch(transactionListPaginatedNotifierProvider);
+    final filterState = ref.watch(transactionFilterNotifierProvider);
+    final searchAsync = ref.watch(transactionSearchNotifierProvider);
+    final hasSearchQuery = searchAsync.value?.isNotEmpty == true;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Transaksi'),
         actions: [
+          // Export button
+          if (paginatedState.transactions.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Ekspor CSV',
+              onPressed: () {
+                ExportOptionsBottomSheet.show(
+                  context,
+                  currentTypeFilter: filterState.type,
+                );
+              },
+            ),
           // Delete all transactions button (only visible if there are transactions)
-          if (listAsync.value?.isNotEmpty ?? false)
+          if (paginatedState.transactions.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep),
               tooltip: 'Hapus Semua Transaksi',
@@ -51,29 +100,202 @@ class TransactionListScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          // Search bar
+          TransactionSearchBar(currentTypeFilter: filterState.type),
+
           // Filter chips for quick filtering by type
           _buildFilterChips(context, ref, filterState),
 
-          // Content - using AsyncValue pattern
+          // Content - using paginated state
           Expanded(
-            child: listAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => _ErrorState(
-                error: error.toString(),
-                onRetry: () => notifier.refresh(),
-              ),
-              data: (transactions) {
-                if (transactions.isEmpty) {
-                  return _buildEmptyState(context);
-                }
-                return RefreshIndicator(
-                  onRefresh: () => notifier.refresh(),
-                  child: _buildTransactionList(context, ref, transactions),
-                );
-              },
-            ),
+            child: hasSearchQuery
+                ? _buildSearchResults(context, ref, searchAsync)
+                : _buildPaginatedContent(context, ref, paginatedState),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Build paginated transaction list (non-search mode)
+  Widget _buildPaginatedContent(
+    BuildContext context,
+    WidgetRef ref,
+    PaginatedTransactionListState state,
+  ) {
+    // Initial loading state
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Error state
+    if (state.error != null) {
+      return _ErrorState(
+        error: state.error!,
+        onRetry: () => ref.read(transactionListPaginatedNotifierProvider.notifier).refresh(),
+      );
+    }
+
+    // Empty state
+    if (state.transactions.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    // Get categories for display
+    final categories = ref.watch(categoryListNotifierProvider);
+
+    return categories.when(
+      data: (categoryData) {
+        // Group transactions by date
+        final groupedTransactions = _groupTransactionsByDate(state.transactions);
+
+        return RefreshIndicator(
+          onRefresh: () => ref.read(transactionListPaginatedNotifierProvider.notifier).refresh(),
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.only(bottom: 16),
+            itemCount: groupedTransactions.length + (state.hasNextPage ? 1 : 0),
+            itemBuilder: (context, index) {
+              // Loading indicator at bottom
+              if (index == groupedTransactions.length) {
+                return state.isLoadingMore
+                    ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : const SizedBox.shrink();
+              }
+
+              final group = groupedTransactions[index];
+              final groupDate = group['date'] as DateTime;
+              final transactions = group['transactions'] as List<TransactionEntity>;
+              final totalAmount = group['total'] as double;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Date header with total
+                  TransactionDateHeader(
+                    date: groupDate,
+                    totalAmount: totalAmount,
+                  ),
+                  // Transactions for this date
+                  ...transactions.map((transaction) {
+                    final category = categoryData.firstWhere(
+                      (c) => c.id == transaction.categoryId,
+                      orElse: () => categoryData.isNotEmpty
+                          ? categoryData.first
+                          : _createDefaultCategory(),
+                    );
+                    return TransactionCard(
+                      transaction: transaction,
+                      category: category,
+                      onEdit: () {
+                        // Navigate to edit screen (AC-LOG-006.1)
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TransactionFormScreen(
+                              transactionToEdit: transaction,
+                            ),
+                          ),
+                        );
+                      },
+                      onDelete: () {
+                        // Show delete confirmation (AC-LOG-007.2)
+                        _showDeleteDialog(context, ref, transaction);
+                      },
+                    );
+                  }),
+                ],
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => const Center(child: Text('Gagal memuat kategori')),
+    );
+  }
+
+  /// Build search results
+  Widget _buildSearchResults(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<TransactionEntity>> searchAsync,
+  ) {
+    return searchAsync.when(
+      loading: () => const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Mencari...'),
+          ],
+        ),
+      ),
+      error: (error, stack) => _ErrorState(
+        error: error.toString(),
+        onRetry: () => ref.invalidate(transactionSearchNotifierProvider),
+      ),
+      data: (transactions) {
+        if (transactions.isEmpty) {
+          return _buildNoSearchResults(context, ref);
+        }
+        return _buildTransactionList(context, ref, transactions);
+      },
+    );
+  }
+
+  /// Build empty state for no search results
+  Widget _buildNoSearchResults(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryColor = isDark
+        ? AppColors.textOnDark.withValues(alpha: 0.7)
+        : AppColors.textSecondary;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppGlassContainer.glassPill(
+              width: 100,
+              height: 100,
+              padding: EdgeInsets.zero,
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.search_off,
+                size: 50,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Tidak Ditemukan',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Coba kata kunci lain atau periksa filter Anda',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: secondaryColor,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: () {
+                ref.read(transactionSearchNotifierProvider.notifier).clear();
+              },
+              icon: const Icon(Icons.clear),
+              label: const Text('Hapus Pencarian'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -87,7 +309,7 @@ class TransactionListScreen extends ConsumerWidget {
     return TransactionFilterChip(
       selectedType: filterState.type,
       onTypeChanged: (type) {
-        final notifier = ref.read(transactionListNotifierProvider.notifier);
+        final notifier = ref.read(transactionListPaginatedNotifierProvider.notifier);
         // Use withType() to properly handle null values (for "Semua" option)
         notifier.setFilters(filterState.withType(type));
       },
@@ -289,7 +511,7 @@ class TransactionListScreen extends ConsumerWidget {
                     ),
                   );
                   // Refresh list
-                  ref.read(transactionListProvider.notifier).loadTransactions();
+                  ref.read(transactionListPaginatedNotifierProvider.notifier).refresh();
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -343,7 +565,7 @@ class TransactionListScreen extends ConsumerWidget {
                     ),
                   );
                   // Refresh list
-                  ref.read(transactionListNotifierProvider.notifier).refresh();
+                  ref.read(transactionListPaginatedNotifierProvider.notifier).refresh();
                 }
               } catch (e) {
                 if (context.mounted) {

@@ -25,6 +25,7 @@ class _CategoryManagementScreenState
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+  bool _isReorderMode = false;
 
   @override
   void initState() {
@@ -61,10 +62,16 @@ class _CategoryManagementScreenState
           ),
         ],
       ),
-      floatingActionButton: AppGlassFab(
-        onPressed: () => _navigateToAddCategory(context, state),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _isReorderMode
+          ? AppGlassFab(
+              onPressed: () => setState(() => _isReorderMode = false),
+              backgroundColor: AppColors.success,
+              child: const Icon(Icons.check),
+            )
+          : AppGlassFab(
+              onPressed: () => _navigateToAddCategory(context, state),
+              child: const Icon(Icons.add),
+            ),
     );
   }
 
@@ -72,12 +79,19 @@ class _CategoryManagementScreenState
     return AppBar(
       title: _isSearching ? _buildSearchField() : const Text('Kelola Kategori'),
       actions: [
-        if (!_isSearching)
+        if (!_isSearching) ...[
+          // Reorder button (only for active tabs, not inactive tab)
+          if (state.selectedTab != CategoryManagementTab.inactive)
+            IconButton(
+              icon: const Icon(Icons.sort),
+              onPressed: () => setState(() => _isReorderMode = true),
+              tooltip: 'Urutkan Kategori',
+            ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () => setState(() => _isSearching = true),
-          )
-        else
+          ),
+        ] else
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -160,6 +174,10 @@ class _CategoryManagementScreenState
       return _buildEmptyState();
     }
 
+    if (_isReorderMode) {
+      return _buildReorderableList(categories);
+    }
+
     return RefreshIndicator(
       onRefresh: () =>
           ref.read(categoryManagementProvider.notifier).refresh(),
@@ -184,6 +202,51 @@ class _CategoryManagementScreenState
         },
       ),
     );
+  }
+
+  Widget _buildReorderableList(List<dynamic> categories) {
+    return ReorderableListView.builder(
+      buildDefaultDragHandles: false,
+      itemCount: categories.length,
+      onReorder: (oldIndex, newIndex) => _handleReorder(
+        categories,
+        oldIndex,
+        newIndex,
+      ),
+      itemBuilder: (context, index) {
+        final item = categories[index];
+        return CategoryListItem(
+          key: ValueKey(item.category.id),
+          categoryWithCount: item,
+          showReorderHandle: true,
+          reorderIndex: index,
+          onTap: () {}, // Disabled in reorder mode
+        );
+      },
+    );
+  }
+
+  Future<void> _handleReorder(
+    List<dynamic> categories,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    // Adjust newIndex when moving down
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    // Create a copy of the categories list
+    final List<CategoryWithCountEntity> reorderedCategories =
+        categories.cast<CategoryWithCountEntity>().toList();
+    final item = reorderedCategories.removeAt(oldIndex);
+    reorderedCategories.insert(newIndex, item);
+
+    // Create list of category IDs in new order
+    final categoryIds = reorderedCategories.map((c) => c.category.id!).toList();
+
+    // Call reorder use case via notifier
+    await ref.read(categoryManagementProvider.notifier).reorderCategories(categoryIds);
   }
 
   Widget _buildEmptyState() {

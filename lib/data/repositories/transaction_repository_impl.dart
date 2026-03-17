@@ -5,6 +5,8 @@ import 'package:catat_cuan/data/models/monthly_summary_model.dart';
 import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/entities/paginated_result_entity.dart';
+import 'package:catat_cuan/domain/entities/pagination_params_entity.dart';
 import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
 
 /// Implementasi TransactionRepository dengan SQLite
@@ -347,6 +349,200 @@ class TransactionRepositoryImpl implements TransactionRepository {
     } catch (e) {
       return Result.failure(
           'Error saat mengambil ringkasan multi-bulan: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Result<List<TransactionEntity>>> searchTransactions(
+    String query, {
+    TransactionType? type,
+    int? limit,
+  }) async {
+    try {
+      final db = await _dbHelper.database;
+
+      // Search in note and category name (using JOIN)
+      final String searchPattern = '%${query.toLowerCase()}%';
+
+      String sql = '''
+        SELECT t.*
+        FROM ${DatabaseHelper.tableTransactions} t
+        INNER JOIN ${DatabaseHelper.tableCategories} c
+          ON t.${TransactionFields.categoryId} = c.${CategoryFields.id}
+        WHERE (
+          LOWER(t.${TransactionFields.note}) LIKE ?
+          OR LOWER(c.${CategoryFields.name}) LIKE ?
+        )
+      ''';
+
+      List<dynamic> args = [searchPattern, searchPattern];
+
+      if (type != null) {
+        sql += ' AND t.${TransactionFields.type} = ?';
+        args.add(type.value);
+      }
+
+      sql += ' ORDER BY t.${TransactionFields.dateTime} DESC';
+
+      if (limit != null) {
+        sql += ' LIMIT ?';
+        args.add(limit);
+      }
+
+      final List<Map<String, dynamic>> maps = await db.rawQuery(sql, args);
+
+      final transactions = maps
+          .map((map) => TransactionModel.fromMap(map).toEntity())
+          .toList();
+
+      return Result.success(transactions);
+    } catch (e) {
+      return Result.failure('Error saat mencari transaksi: ${e.toString()}');
+    }
+  }
+
+  /// Get transactions with category names for export
+  /// Returns list of maps containing transaction data plus category name
+  @override
+  Future<Result<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+  }) async {
+    try {
+      final db = await _dbHelper.database;
+
+      String sql = '''
+        SELECT
+          t.*,
+          c.${CategoryFields.name} as category_name
+        FROM ${DatabaseHelper.tableTransactions} t
+        INNER JOIN ${DatabaseHelper.tableCategories} c
+          ON t.${TransactionFields.categoryId} = c.${CategoryFields.id}
+      ''';
+
+      // Build WHERE clause dinamis
+      final List<String> whereConditions = [];
+      final List<dynamic> whereArgs = [];
+
+      if (startDate != null) {
+        whereConditions.add('date(${TransactionFields.dateTime}) >= date(?)');
+        whereArgs.add(startDate.toIso8601String());
+      }
+
+      if (endDate != null) {
+        whereConditions.add('date(${TransactionFields.dateTime}) <= date(?)');
+        whereArgs.add(endDate.toIso8601String());
+      }
+
+      if (categoryId != null) {
+        whereConditions.add('t.${TransactionFields.categoryId} = ?');
+        whereArgs.add(categoryId);
+      }
+
+      if (type != null) {
+        whereConditions.add('t.${TransactionFields.type} = ?');
+        whereArgs.add(type.value);
+      }
+
+      final whereClause = whereConditions.isNotEmpty
+          ? 'WHERE ${whereConditions.join(' AND ')}'
+          : '';
+
+      sql += '''
+        $whereClause
+        ORDER BY t.${TransactionFields.dateTime} DESC
+      ''';
+
+      final List<Map<String, dynamic>> maps = await db.rawQuery(
+        sql,
+        whereArgs.isNotEmpty ? whereArgs : null,
+      );
+
+      return Result.success(maps);
+    } catch (e) {
+      return Result.failure('Error saat mengambil transaksi: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<PaginatedResultEntity<TransactionEntity>> getTransactionsPaginated(
+    PaginationParamsEntity pagination, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+  }) async {
+    try {
+      final db = await _dbHelper.database;
+
+      // Build WHERE clause dinamis
+      final List<String> whereConditions = [];
+      final List<dynamic> whereArgs = [];
+
+      if (startDate != null) {
+        whereConditions.add('date(${TransactionFields.dateTime}) >= date(?)');
+        whereArgs.add(startDate.toIso8601String());
+      }
+
+      if (endDate != null) {
+        whereConditions.add('date(${TransactionFields.dateTime}) <= date(?)');
+        whereArgs.add(endDate.toIso8601String());
+      }
+
+      if (categoryId != null) {
+        whereConditions.add('${TransactionFields.categoryId} = ?');
+        whereArgs.add(categoryId);
+      }
+
+      if (type != null) {
+        whereConditions.add('${TransactionFields.type} = ?');
+        whereArgs.add(type.value);
+      }
+
+      final whereClause = whereConditions.isNotEmpty
+          ? 'WHERE ${whereConditions.join(' AND ')}'
+          : null;
+
+      // Get total count with filter
+      final countQuery = '''
+        SELECT COUNT(*) FROM ${DatabaseHelper.tableTransactions}
+        ${whereClause ?? ''}
+      ''';
+
+      final countResult = await db.rawQuery(
+        countQuery,
+        whereArgs.isNotEmpty ? whereArgs : null,
+      );
+      final totalItems = Sqflite.firstIntValue(countResult) ?? 0;
+
+      // Query with pagination
+      final List<Map<String, dynamic>> maps = await db.query(
+        DatabaseHelper.tableTransactions,
+        where: whereClause?.replaceFirst('WHERE ', ''),
+        whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+        orderBy: '${TransactionFields.dateTime} DESC',
+        limit: pagination.limit,
+        offset: pagination.offset,
+      );
+
+      final transactions = maps
+          .map((map) => TransactionModel.fromMap(map).toEntity())
+          .toList();
+
+      return PaginatedResultEntity.create(
+        data: transactions,
+        page: pagination.page,
+        limit: pagination.limit,
+        totalItems: totalItems,
+      );
+    } catch (e) {
+      // Return empty paginated result on error
+      return PaginatedResultEntity.empty(
+        page: pagination.page,
+        limit: pagination.limit,
+      );
     }
   }
 }

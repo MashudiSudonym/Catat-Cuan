@@ -11,6 +11,7 @@ class CategoryListItem extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool showReorderHandle;
+  final int? reorderIndex;
 
   const CategoryListItem({
     super.key,
@@ -19,6 +20,7 @@ class CategoryListItem extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.showReorderHandle = false,
+    this.reorderIndex,
   });
 
   @override
@@ -47,9 +49,9 @@ class CategoryListItem extends StatelessWidget {
             child: Row(
               children: [
                 // Reorder handle (if needed)
-                if (showReorderHandle)
+                if (showReorderHandle && reorderIndex != null)
                   ReorderableDragStartListener(
-                    index: 0, // Will be set by parent
+                    index: reorderIndex!,
                     child: const Padding(
                       padding: EdgeInsets.only(right: 12),
                       child: Icon(Icons.drag_handle, color: Colors.grey),

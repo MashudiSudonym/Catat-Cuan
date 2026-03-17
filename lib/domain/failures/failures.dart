@@ -53,3 +53,8 @@ class UnknownFailure extends Failure {
 class NotFoundFailure extends Failure {
   const NotFoundFailure(super.message);
 }
+
+/// Failure for export operation errors (e.g., CSV generation, file sharing)
+class ExportFailure extends Failure {
+  const ExportFailure(super.message);
+}
