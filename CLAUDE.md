@@ -94,15 +94,18 @@ Providers are organized by feature in `lib/presentation/providers/`:
 All providers are exported from `lib/presentation/providers/app_providers.dart` for easy importing.
 
 ### Key Providers
-- `transactionListNotifierProvider` - Transaction list state (AsyncValue)
+- `transactionListNotifierProvider` - Transaction list state (AsyncValue) - **DEPRECATED: Use transactionListPaginatedNotifierProvider**
+- `transactionListPaginatedNotifierProvider` - Paginated transaction list with infinite scroll
 - `transactionFormNotifierProvider` - Add/edit transaction form state
 - `transactionFilterNotifierProvider` - Transaction filter criteria
+- `transactionSearchNotifierProvider` - Transaction search state (AsyncValue)
 - `categoryListNotifierProvider` - Active categories by type (AsyncValue)
 - `categoryFormNotifierProvider` - Category form state
-- `categoryManagementNotifierProvider` - Category CRUD operations
+- `categoryManagementNotifierProvider` - Category CRUD operations with drag-drop reordering
 - `monthlySummaryNotifierProvider` - Monthly insights and breakdown (AsyncValue)
 - `receiptScanNotifierProvider` - OCR scanning state
 - `navigationNotifierProvider` - Bottom navigation tab state
+- `exportNotifierProvider` - CSV export state management
 
 ### Provider Pattern with Code Generation
 
@@ -206,6 +209,11 @@ SQLite with two main tables (see `DatabaseHelper`):
 
 **Important**: Database version is tracked in `_databaseVersion`. Increment and update `_onUpgrade()` when modifying schema.
 
+**Helper Methods:**
+- `getTransactionsCount({filter})` - Get total count with optional filter
+- `getTransactionsPaginated({limit, offset, filter})` - Get paginated transactions with LIMIT/OFFSET
+- `searchTransactions({query, type, limit})` - Search transactions with SQL LIKE on note and category name
+
 ## Key Features & Implementation
 
 ### 1. Transaction Entry
@@ -218,16 +226,44 @@ SQLite with two main tables (see `DatabaseHelper`):
 ### 2. Category Management
 - Default categories seeded on first launch (via `appInitializationProvider`)
 - Categories can be deactivated (not deleted) to preserve transaction history
-- Reordering via drag-and-drop
+- **Reordering via drag-and-drop**: Toggle reorder mode with FAB, drag items to reorder
+  - `ReorderCategoriesUseCase` already implemented
+  - UI uses `ReorderableListView.builder` with custom drag handles
 - Custom icons and colors
 
-### 3. Monthly Summary & Insights
+### 3. Transaction List with Pagination
+- **Infinite scroll pagination**: Loads 20 items per page automatically when scrolling
+  - `transactionListPaginatedNotifierProvider` - Paginated list state provider
+  - `GetTransactionsPaginatedUseCase` - Pagination with LIMIT/OFFSET queries
+  - `PaginationParamsEntity` - Pagination parameters (page, limit, offset)
+  - `PaginatedResultEntity` - Wrapper for paginated data with metadata
+  - Automatically loads next page when 80% scrolled
+  - Loading indicator shown during fetch
+
+### 4. Transaction Search
+- **Full-text search**: Search across transaction notes and category names
+  - `transactionSearchNotifierProvider` - Search state provider
+  - `SearchTransactionsUseCase` - SQL LIKE queries with JOIN on categories
+  - `TransactionSearchBar` widget - Search bar with 500ms debouncing
+  - Results shown in dedicated view with empty state
+  - Clear button to reset search
+
+### 5. CSV Export
+- **Export to CSV**: Export transactions with Indonesian formatting
+  - `exportNotifierProvider` - Export state management
+  - `ExportTransactionsUseCase` - Export use case with filter support
+  - `CsvExportServiceImpl` - CSV generation with `csv` package
+  - `share_plus` integration for file sharing
+  - Export options bottom sheet (all transactions or with current filter)
+  - Indonesian date format (DD/MM/YYYY) and thousand separators
+
+### 6. Monthly Summary & Insights
 - `GetMonthlySummaryUseCase` - Aggregates transactions by month
 - `GetCategoryBreakdownUseCase` - Spending per category
 - `InsightService` - Generates recommendations based on patterns
 - Charts rendered with `fl_chart`
 
-### 4. Navigation
+### 7. Navigation
 - Bottom navigation with 2 tabs: Transaksi (TransactionListScreen), Ringkasan (MonthlySummaryScreen)
 - `IndexedStack` preserves state when switching tabs
 - Routes defined as named routes for modals (transaction form, category management)
@@ -258,8 +294,29 @@ Run with: `flutter test`
 - Processes images to extract receipt amounts
 - No network call required (privacy-focused)
 
+## Dependencies
+
+### Core Dependencies
+```yaml
+dependencies:
+  flutter_riverpod: ^2.6.1      # State management
+  riverpod_annotation: ^2.6.1  # Code generation
+  sqflite: ^2.4.1               # Database
+  path: ^1.9.0                   # Path utilities
+  intl: ^0.20.1                  # Internationalization
+```
+
+### Export Dependencies (Added for CSV Export)
+```yaml
+dependencies:
+  csv: ^6.0.0                  # CSV generation
+  share_plus: ^7.2.1           # File sharing
+  path_provider: ^2.1.5        # Temp directory access
+```
+
 ## Important File Locations
 
+### Core Files
 - `lib/main.dart` - App entry point with ProviderScope
 - `lib/presentation/providers/app_providers.dart` - All provider definitions
 - `lib/presentation/utils/utils.dart` - Central export for all utilities (design system)
@@ -268,6 +325,30 @@ Run with: `flutter test`
 - `lib/data/datasources/local/database_helper.dart` - Database schema and migrations
 - `lib/domain/usecases/` - Business logic operations
 - `PLANS/` - Product requirements and specifications (PRD, specs, implementation plans)
+
+### New Feature Files (Added in Latest Update)
+
+#### Pagination
+- `lib/domain/entities/pagination_params_entity.dart` - Pagination parameters (page, limit, offset)
+- `lib/domain/entities/paginated_result_entity.dart` - Paginated data wrapper with metadata
+- `lib/domain/usecases/get_transactions_paginated_usecase.dart` - Pagination use case
+- `lib/presentation/providers/transaction/transaction_list_paginated_provider.dart` - Paginated list provider
+
+#### Transaction Search
+- `lib/domain/usecases/search_transactions_usecase.dart` - Search use case
+- `lib/presentation/providers/transaction/transaction_search_provider.dart` - Search state provider
+- `lib/presentation/widgets/transaction_search_bar.dart` - Search bar widget with debouncing
+
+#### CSV Export
+- `lib/domain/services/export_service.dart` - Export service interface
+- `lib/data/services/csv_export_service_impl.dart` - CSV generation implementation
+- `lib/domain/usecases/export_transactions_usecase.dart` - Export use case
+- `lib/presentation/providers/export/export_provider.dart` - Export state provider
+- `lib/presentation/widgets/export_bottom_sheet.dart` - Export options UI
+
+#### Category Reordering (UI Implementation)
+- `lib/presentation/screens/category_management_screen.dart` - Updated with ReorderableListView
+- `lib/presentation/widgets/category_list_item.dart` - Added reorderIndex parameter
 
 ## Design System
 
