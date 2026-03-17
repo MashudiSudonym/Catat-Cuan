@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CatatCuan",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "CatatCuan Web",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": ["--web-renderer", "canvaskit"],
+            "deviceId": "chrome"
+        },
+        {
+            "name": "CatatCuan Linux",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "deviceId": "linux"
+        }
+    ]
+}
