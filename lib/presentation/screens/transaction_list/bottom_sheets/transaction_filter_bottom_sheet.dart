@@ -217,7 +217,8 @@ class _TransactionFilterBottomSheetState
 
   Widget _buildCategoryFilter(CategoryListState categoryData) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final unselectedLabelColor = isDark ? Colors.white70 : Colors.black87;
+    final unselectedLabelColor = isDark ? Colors.white70 : AppColors.textPrimary;
+    final selectedLabelColor = Colors.white;
     final borderSideColor = isDark ? Colors.grey.shade600 : Colors.grey.shade400;
 
     return categoryData.when(
@@ -236,12 +237,6 @@ class _TransactionFilterBottomSheetState
               data: ChipThemeData(
                 selectedColor: AppColors.primary,
                 backgroundColor: Colors.transparent,
-                labelStyle: WidgetStateTextStyle.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return const TextStyle(color: Colors.white, fontWeight: FontWeight.w600);
-                  }
-                  return TextStyle(color: unselectedLabelColor);
-                }),
                 side: BorderSide(color: borderSideColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -253,7 +248,13 @@ class _TransactionFilterBottomSheetState
                 runSpacing: 8,
                 children: [
                   FilterChip(
-                    label: const Text('Semua'),
+                    label: Text(
+                      'Semua',
+                      style: TextStyle(
+                        color: categoryId == null ? selectedLabelColor : unselectedLabelColor,
+                        fontWeight: categoryId == null ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                    ),
                     selected: categoryId == null,
                     onSelected: (selected) {
                       setState(() {
@@ -262,16 +263,28 @@ class _TransactionFilterBottomSheetState
                     },
                   ),
                   ...categories.map<Widget>((cat) {
+                    final isSelected = categoryId == cat.id;
                     return FilterChip(
                       label: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(cat.icon ?? '📦'),
+                          Text(
+                            cat.icon ?? '📦',
+                            style: TextStyle(
+                              color: isSelected ? selectedLabelColor : unselectedLabelColor,
+                            ),
+                          ),
                           const SizedBox(width: 4),
-                          Text(cat.name),
+                          Text(
+                            cat.name,
+                            style: TextStyle(
+                              color: isSelected ? selectedLabelColor : unselectedLabelColor,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
-                      selected: categoryId == cat.id,
+                      selected: isSelected,
                       onSelected: (selected) {
                         setState(() {
                           categoryId = selected ? cat.id : null;
