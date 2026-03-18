@@ -288,8 +288,8 @@ class InsightAIEngine {
 
 #### Clone Repository
 ```bash
-git clone https://github.com/MashudiSudonym/catat_cuan.git
-cd catat_cuan
+git clone https://github.com/MashudiSudonym/Catat-Cuan.git
+cd Catat-Cuan
 ```
 
 #### Install Dependencies
@@ -424,8 +424,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ### 📧 Kontak
 
-- **Project**: [Catat Cuan](https://github.com/MashudiSudonym/catat_cuan)
-- **Issue**: [GitHub Issues](https://github.com/MashudiSudonym/catat_cuan/issues)
+- **Project**: [Catat Cuan](https://github.com/MashudiSudonym/Catat-Cuan)
+- **Issue**: [GitHub Issues](https://github.com/MashudiSudonym/Catat-Cuan/issues)
 
 ---
 
