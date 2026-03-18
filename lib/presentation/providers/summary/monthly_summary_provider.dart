@@ -123,7 +123,8 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
       incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
 
       // Get first transaction date for month picker
-      final transactions = await ref.read(getTransactionsUseCaseProvider);
+      final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
+      final transactions = await getTransactionsUseCase.execute();
       if (transactions.isNotEmpty) {
         firstTransactionDate = transactions
             .map((t) => t.dateTime)
@@ -142,7 +143,8 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
       incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
 
       // Get first transaction date for month picker
-      final transactions = await ref.read(getTransactionsUseCaseProvider);
+      final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
+      final transactions = await getTransactionsUseCase.execute();
       if (transactions.isNotEmpty) {
         firstTransactionDate = transactions
             .map((t) => t.dateTime)

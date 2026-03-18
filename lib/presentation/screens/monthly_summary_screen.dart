@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/summary_metrics_card.dart';
 import 'package:catat_cuan/presentation/widgets/category_breakdown_widget.dart';
@@ -57,39 +58,11 @@ class _MonthlySummaryScreenState
             // Build header based on async state
             summaryAsync.when(
               loading: () => _buildHeader(
-                MonthlySummaryData(
-                  selectedYearMonth: notifier.selectedYearMonth,
-                  summary: const MonthlySummaryEntity(
-                    yearMonth: '',
-                    totalIncome: 0,
-                    totalExpense: 0,
-                    balance: 0,
-                    transactionCount: 0,
-                    createdAt: null,
-                  ),
-                  categoryBreakdown: [],
-                  incomeBreakdown: [],
-                  trendData: [],
-                  recommendations: [],
-                ),
+                _createPlaceholderData(notifier),
                 notifier,
               ),
               error: (error, stack) => _buildHeader(
-                MonthlySummaryData(
-                  selectedYearMonth: notifier.selectedYearMonth,
-                  summary: const MonthlySummaryEntity(
-                    yearMonth: '',
-                    totalIncome: 0,
-                    totalExpense: 0,
-                    balance: 0,
-                    transactionCount: 0,
-                    createdAt: null,
-                  ),
-                  categoryBreakdown: [],
-                  incomeBreakdown: [],
-                  trendData: [],
-                  recommendations: [],
-                ),
+                _createPlaceholderData(notifier),
                 notifier,
               ),
               data: (data) => _buildHeader(data, notifier),
@@ -345,6 +318,10 @@ class _MonthlySummaryScreenState
 
   /// Format year-month to display name
   String _formatMonthYear(String yearMonth) {
+    if (yearMonth == 'all') {
+      return 'Semua Data';
+    }
+
     final parts = yearMonth.split('-');
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
@@ -355,5 +332,24 @@ class _MonthlySummaryScreenState
     ];
 
     return '${months[month - 1]} $year';
+  }
+
+  /// Create placeholder data for loading/error states
+  MonthlySummaryData _createPlaceholderData(MonthlySummaryNotifier notifier) {
+    return MonthlySummaryData(
+      selectedYearMonth: notifier.selectedYearMonth,
+      summary: MonthlySummaryEntity(
+        yearMonth: notifier.selectedYearMonth,
+        totalIncome: 0,
+        totalExpense: 0,
+        balance: 0,
+        transactionCount: 0,
+        createdAt: DateTime.now(),
+      ),
+      categoryBreakdown: [],
+      incomeBreakdown: [],
+      trendData: [],
+      recommendations: [],
+    );
   }
 }
