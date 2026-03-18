@@ -503,6 +503,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     .read(deleteTransactionUseCaseProvider)
                     .execute(transaction.id!);
                 if (context.mounted) {
+                  // Invalidate all transaction list providers and summary to trigger refresh
+                  ref.invalidate(transactionListNotifierProvider);
+                  ref.invalidate(transactionListPaginatedNotifierProvider);
+                  ref.invalidate(monthlySummaryNotifierProvider);
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Transaksi berhasil dihapus'),
@@ -510,8 +515,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  // Refresh list
-                  ref.read(transactionListPaginatedNotifierProvider.notifier).refresh();
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -557,6 +560,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               try {
                 await ref.read(deleteAllTransactionsUseCaseProvider).execute();
                 if (context.mounted) {
+                  // Invalidate all transaction list providers and summary to trigger refresh
+                  ref.invalidate(transactionListNotifierProvider);
+                  ref.invalidate(transactionListPaginatedNotifierProvider);
+                  ref.invalidate(monthlySummaryNotifierProvider);
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Semua transaksi berhasil dihapus'),
@@ -564,8 +572,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  // Refresh list
-                  ref.read(transactionListPaginatedNotifierProvider.notifier).refresh();
                 }
               } catch (e) {
                 if (context.mounted) {

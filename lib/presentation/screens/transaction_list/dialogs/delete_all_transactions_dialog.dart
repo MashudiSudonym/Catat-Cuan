@@ -59,8 +59,9 @@ class DeleteAllTransactionsHandler {
       try {
         await ref.read(deleteAllTransactionsUseCaseProvider).execute();
 
-        // Invalidate transaction list and monthly summary to trigger refresh
+        // Invalidate transaction list providers and monthly summary to trigger refresh
         ref.invalidate(transactionListNotifierProvider);
+        ref.invalidate(transactionListPaginatedNotifierProvider);
         ref.invalidate(monthlySummaryNotifierProvider);
 
         if (context.mounted) {

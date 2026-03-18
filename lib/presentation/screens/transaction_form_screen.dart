@@ -465,6 +465,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 await ref
                     .read(deleteTransactionUseCaseProvider)
                     .execute(widget.transactionToEdit!.id!);
+
+                // Invalidate transaction list providers and summary to trigger refresh
+                ref.invalidate(transactionListNotifierProvider);
+                ref.invalidate(transactionListPaginatedNotifierProvider);
+                ref.invalidate(monthlySummaryNotifierProvider);
+
                 if (mounted) {
                   messenger.showSnackBar(
                     const SnackBar(

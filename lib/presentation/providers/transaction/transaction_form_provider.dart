@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
 import 'package:catat_cuan/presentation/providers/transaction/transaction_list_provider.dart';
+import 'package:catat_cuan/presentation/providers/transaction/transaction_list_paginated_provider.dart';
 import 'package:catat_cuan/presentation/providers/summary/monthly_summary_provider.dart';
 
 part 'transaction_form_provider.g.dart';
@@ -176,8 +177,9 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
         await addTransactionUseCase.execute(transaction);
       }
 
-      // Invalidate transaction list to trigger refresh
+      // Invalidate transaction list providers to trigger refresh
       ref.invalidate(transactionListNotifierProvider);
+      ref.invalidate(transactionListPaginatedNotifierProvider);
 
       // Invalidate monthly summary to trigger refresh
       ref.invalidate(monthlySummaryNotifierProvider);
