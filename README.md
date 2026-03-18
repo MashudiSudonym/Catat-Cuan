@@ -288,7 +288,7 @@ class InsightAIEngine {
 
 #### Clone Repository
 ```bash
-git clone https://github.com/username/catat_cuan.git
+git clone https://github.com/MashudiSudonym/catat_cuan.git
 cd catat_cuan
 ```
 
@@ -424,8 +424,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ### 📧 Kontak
 
-- **Project**: [Catat Cuan](https://github.com/username/catat_cuan)
-- **Issue**: [GitHub Issues](https://github.com/username/catat_cuan/issues)
+- **Project**: [Catat Cuan](https://github.com/MashudiSudonym/catat_cuan)
+- **Issue**: [GitHub Issues](https://github.com/MashudiSudonym/catat_cuan/issues)
 
 ---
 
