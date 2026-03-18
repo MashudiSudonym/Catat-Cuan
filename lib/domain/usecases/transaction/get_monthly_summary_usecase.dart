@@ -40,6 +40,27 @@ class GetMonthlySummaryUseCase {
     );
   }
 
+  /// Retrieves summary for all transactions (all-time)
+  ///
+  /// Returns [MonthlySummaryEntity] with the summary data
+  /// Throws [Exception] if retrieval fails
+  Future<MonthlySummaryEntity> executeAll() async {
+    final result = await _repository.getAllTimeSummary();
+
+    if (result.isFailure) {
+      throw Exception(result.error ?? 'Gagal mengambil ringkasan semua data');
+    }
+
+    return result.data ?? MonthlySummaryEntity(
+      yearMonth: 'all',
+      totalIncome: 0,
+      totalExpense: 0,
+      balance: 0,
+      transactionCount: 0,
+      createdAt: DateTime.now(),
+    );
+  }
+
   /// Retrieves monthly summary for the current month
   Future<MonthlySummaryEntity> executeCurrentMonth() async {
     final now = DateTime.now();

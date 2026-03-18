@@ -38,6 +38,25 @@ class GetCategoryBreakdownUseCase {
     return result.data ?? [];
   }
 
+  /// Retrieves category breakdown for all transactions
+  ///
+  /// Parameters:
+  /// - [type]: Filter by transaction type (income/expense)
+  ///
+  /// Returns a list of [CategoryBreakdownEntity] sorted by total amount (descending)
+  /// Throws [Exception] if retrieval fails
+  Future<List<CategoryBreakdownEntity>> executeAll(
+    TransactionType type,
+  ) async {
+    final result = await _repository.getAllCategoryBreakdown(type);
+
+    if (result.isFailure) {
+      throw Exception(result.error ?? 'Gagal mengambil breakdown kategori semua data');
+    }
+
+    return result.data ?? [];
+  }
+
   /// Retrieves expense category breakdown for the current month
   Future<List<CategoryBreakdownEntity>> executeExpenseCurrentMonth() async {
     final now = DateTime.now();

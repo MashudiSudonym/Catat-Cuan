@@ -54,7 +54,46 @@ class _MonthlySummaryScreenState
         child: Column(
           children: [
             // Fixed Header with Title and Period Selector
-            _buildHeader(notifier),
+            // Build header based on async state
+            summaryAsync.when(
+              loading: () => _buildHeader(
+                MonthlySummaryData(
+                  selectedYearMonth: notifier.selectedYearMonth,
+                  summary: const MonthlySummaryEntity(
+                    yearMonth: '',
+                    totalIncome: 0,
+                    totalExpense: 0,
+                    balance: 0,
+                    transactionCount: 0,
+                    createdAt: null,
+                  ),
+                  categoryBreakdown: [],
+                  incomeBreakdown: [],
+                  trendData: [],
+                  recommendations: [],
+                ),
+                notifier,
+              ),
+              error: (error, stack) => _buildHeader(
+                MonthlySummaryData(
+                  selectedYearMonth: notifier.selectedYearMonth,
+                  summary: const MonthlySummaryEntity(
+                    yearMonth: '',
+                    totalIncome: 0,
+                    totalExpense: 0,
+                    balance: 0,
+                    transactionCount: 0,
+                    createdAt: null,
+                  ),
+                  categoryBreakdown: [],
+                  incomeBreakdown: [],
+                  trendData: [],
+                  recommendations: [],
+                ),
+                notifier,
+              ),
+              data: (data) => _buildHeader(data, notifier),
+            ),
 
             // Scrollable Content - using AsyncValue pattern
             Expanded(
@@ -71,7 +110,7 @@ class _MonthlySummaryScreenState
   }
 
   /// Build header dengan title dan period selector
-  Widget _buildHeader(MonthlySummaryNotifier notifier) {
+  Widget _buildHeader(MonthlySummaryData data, MonthlySummaryNotifier notifier) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
@@ -112,10 +151,11 @@ class _MonthlySummaryScreenState
 
             // Period Selector
             PeriodSelector(
-              selectedYearMonth: notifier.selectedYearMonth,
+              selectedYearMonth: data.selectedYearMonth,
               onMonthChanged: (yearMonth) => notifier.changeMonth(yearMonth),
               onPrevious: notifier.previousMonth,
               onNext: notifier.nextMonth,
+              firstTransactionDate: data.firstTransactionDate,
             ),
           ],
         ),
@@ -235,7 +275,8 @@ class _MonthlySummaryScreenState
 
   /// Build no transactions state (ada data transaksi tapi tidak di bulan ini)
   Widget _buildNoTransactionsState(MonthlySummaryData data) {
-    final monthYear = _formatMonthYear(data.selectedYearMonth);
+    final isAllData = data.isAllData;
+    final monthYear = isAllData ? '' : _formatMonthYear(data.selectedYearMonth);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
@@ -262,7 +303,9 @@ class _MonthlySummaryScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'Belum ada transaksi di bulan $monthYear.',
+              isAllData
+                  ? 'Belum ada transaksi sama sekali.'
+                  : 'Belum ada transaksi di bulan $monthYear.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: secondaryColor,
                   ),
@@ -270,7 +313,9 @@ class _MonthlySummaryScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'Pilih bulan lain atau mulai catat transaksi baru.',
+              isAllData
+                  ? 'Mulai catat transaksi baru untuk melihat ringkasan.'
+                  : 'Pilih bulan lain atau mulai catat transaksi baru.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: tertiaryColor,
                   ),

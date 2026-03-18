@@ -270,6 +270,42 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<Result<MonthlySummaryEntity>> getAllTimeSummary() async {
+    try {
+      final db = await _dbHelper.database;
+
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT
+          'all' as year_month,
+          SUM(CASE WHEN ${TransactionFields.type} = 'income' THEN ${TransactionFields.amount} ELSE 0 END) as total_income,
+          SUM(CASE WHEN ${TransactionFields.type} = 'expense' THEN ${TransactionFields.amount} ELSE 0 END) as total_expense,
+          SUM(CASE WHEN ${TransactionFields.type} = 'income' THEN ${TransactionFields.amount} ELSE 0 END) -
+          SUM(CASE WHEN ${TransactionFields.type} = 'expense' THEN ${TransactionFields.amount} ELSE 0 END) as balance,
+          COUNT(*) as transaction_count
+        FROM ${DatabaseHelper.tableTransactions}
+      ''');
+
+      if (maps.isEmpty) {
+        // Return empty summary jika tidak ada transaksi
+        return Result.success(MonthlySummaryEntity(
+          yearMonth: 'all',
+          totalIncome: 0,
+          totalExpense: 0,
+          balance: 0,
+          transactionCount: 0,
+          createdAt: DateTime.now(),
+        ));
+      }
+
+      final model = MonthlySummaryModel.fromMap(maps.first);
+      return Result.success(model.toEntity());
+    } catch (e) {
+      return Result.failure(
+          'Error saat mengambil ringkasan semua data: ${e.toString()}');
+    }
+  }
+
+  @override
   Future<Result<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
     String yearMonth,
     TransactionType type,
@@ -312,6 +348,50 @@ class TransactionRepositoryImpl implements TransactionRepository {
     } catch (e) {
       return Result.failure(
           'Error saat mengambil breakdown kategori: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Result<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
+    TransactionType type,
+  ) async {
+    try {
+      final db = await _dbHelper.database;
+
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT
+          c.${CategoryFields.id},
+          c.${CategoryFields.name},
+          c.${CategoryFields.icon},
+          c.${CategoryFields.color},
+          SUM(t.${TransactionFields.amount}) as total_amount,
+          COUNT(t.${TransactionFields.id}) as transaction_count
+        FROM ${DatabaseHelper.tableTransactions} t
+        JOIN ${DatabaseHelper.tableCategories} c ON t.${TransactionFields.categoryId} = c.${CategoryFields.id}
+        WHERE t.${TransactionFields.type} = ?
+          AND c.${CategoryFields.isActive} = 1
+        GROUP BY c.${CategoryFields.id}
+        ORDER BY total_amount DESC
+      ''', [type.value]);
+
+      if (maps.isEmpty) {
+        return Result.success([]);
+      }
+
+      // Hitung total amount untuk persentase
+      final totalAmount = maps.fold<double>(
+        0,
+        (sum, map) => sum + ((map['total_amount'] as num?)?.toDouble() ?? 0),
+      );
+
+      final breakdown = maps
+          .map((map) => CategoryBreakdownModel.fromMap(map).toEntity(totalAmount))
+          .toList();
+
+      return Result.success(breakdown);
+    } catch (e) {
+      return Result.failure(
+          'Error saat mengambil breakdown kategori semua data: ${e.toString()}');
     }
   }
 

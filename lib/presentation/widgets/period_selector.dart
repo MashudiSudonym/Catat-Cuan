@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/widgets/month_picker_bottom_sheet.dart';
 
 /// Widget untuk pemilihan periode (bulan/tahun)
 /// Menampilkan tombol previous/next dan dropdown untuk quick selection
@@ -9,6 +10,7 @@ class PeriodSelector extends StatelessWidget {
   final Function(String) onMonthChanged;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final DateTime? firstTransactionDate;
 
   const PeriodSelector({
     super.key,
@@ -16,6 +18,7 @@ class PeriodSelector extends StatelessWidget {
     required this.onMonthChanged,
     this.onPrevious,
     this.onNext,
+    this.firstTransactionDate,
   });
 
   @override
@@ -35,10 +38,10 @@ class PeriodSelector extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Previous Button
+          // Previous Button (disabled for "all" mode)
           _MonthNavigationButton(
             icon: Icons.chevron_left,
-            onPressed: onPrevious,
+            onPressed: selectedYearMonth == 'all' ? null : onPrevious,
           ),
 
           const SizedBox(width: 12),
@@ -48,15 +51,16 @@ class PeriodSelector extends StatelessWidget {
             child: _MonthDropdown(
               selectedYearMonth: selectedYearMonth,
               onMonthChanged: onMonthChanged,
+              firstTransactionDate: firstTransactionDate,
             ),
           ),
 
           const SizedBox(width: 12),
 
-          // Next Button
+          // Next Button (disabled for "all" mode)
           _MonthNavigationButton(
             icon: Icons.chevron_right,
-            onPressed: onNext,
+            onPressed: selectedYearMonth == 'all' ? null : onNext,
           ),
         ],
       ),
@@ -106,27 +110,16 @@ class _MonthNavigationButton extends StatelessWidget {
 }
 
 /// Widget untuk dropdown pemilihan bulan
-class _MonthDropdown extends StatefulWidget {
+class _MonthDropdown extends StatelessWidget {
   final String selectedYearMonth;
   final Function(String) onMonthChanged;
+  final DateTime? firstTransactionDate;
 
   const _MonthDropdown({
     required this.selectedYearMonth,
     required this.onMonthChanged,
+    this.firstTransactionDate,
   });
-
-  @override
-  State<_MonthDropdown> createState() => _MonthDropdownState();
-}
-
-class _MonthDropdownState extends State<_MonthDropdown> {
-  late bool _isExpanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _isExpanded = false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +128,7 @@ class _MonthDropdownState extends State<_MonthDropdown> {
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
 
     return GestureDetector(
-      onTap: () => setState(() => _isExpanded = true),
+      onTap: () => _showMonthPicker(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
@@ -148,15 +141,18 @@ class _MonthDropdownState extends State<_MonthDropdown> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              _formatMonthYear(),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
+            Expanded(
+              child: Text(
+                _formatMonthYear(),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             Icon(
-              _isExpanded ? Icons.expand_less : Icons.expand_more,
+              Icons.expand_more,
               color: secondaryColor,
               size: 20,
             ),
@@ -166,8 +162,24 @@ class _MonthDropdownState extends State<_MonthDropdown> {
     );
   }
 
+  Future<void> _showMonthPicker(BuildContext context) async {
+    final selected = await MonthPickerBottomSheet.show(
+      context,
+      selectedYearMonth: selectedYearMonth,
+      firstTransactionDate: firstTransactionDate,
+    );
+
+    if (selected != null) {
+      onMonthChanged(selected);
+    }
+  }
+
   String _formatMonthYear() {
-    final parts = widget.selectedYearMonth.split('-');
+    if (selectedYearMonth == 'all') {
+      return 'Semua Data';
+    }
+
+    final parts = selectedYearMonth.split('-');
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
 

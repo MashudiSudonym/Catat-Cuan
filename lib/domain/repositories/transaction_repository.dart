@@ -72,12 +72,23 @@ abstract class TransactionRepository {
   /// Mengembalikan Result dengan MonthlySummaryEntity jika sukses
   Future<Result<MonthlySummaryEntity>> getMonthlySummary(String yearMonth);
 
+  /// Mengambil ringkasan seluruh transaksi (all-time)
+  /// Mengembalikan Result dengan MonthlySummaryEntity jika sukses
+  Future<Result<MonthlySummaryEntity>> getAllTimeSummary();
+
   /// Mengambil breakdown kategori untuk bulan tertentu
   /// - [yearMonth]: Format "YYYY-MM" (contoh: "2024-03")
   /// - [type]: Filter tipe transaksi (income/expense)
   /// Mengembalikan list CategoryBreakdownEntity yang sudah di-sort by total amount DESC
   Future<Result<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
     String yearMonth,
+    TransactionType type,
+  );
+
+  /// Mengambil breakdown kategori untuk seluruh transaksi (all-time)
+  /// - [type]: Filter tipe transaksi (income/expense)
+  /// Mengembalikan list CategoryBreakdownEntity yang sudah di-sort by total amount DESC
+  Future<Result<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
     TransactionType type,
   );
 

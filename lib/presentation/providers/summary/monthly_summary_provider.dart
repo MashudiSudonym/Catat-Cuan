@@ -19,6 +19,7 @@ class MonthlySummaryData {
   final List<CategoryBreakdownEntity> incomeBreakdown;
   final List<MonthlySummaryEntity> trendData;
   final List<RecommendationEntity> recommendations;
+  final DateTime? firstTransactionDate;
 
   const MonthlySummaryData({
     required this.selectedYearMonth,
@@ -27,6 +28,7 @@ class MonthlySummaryData {
     required this.incomeBreakdown,
     required this.trendData,
     required this.recommendations,
+    this.firstTransactionDate,
   });
 
   /// Check apakah ada transaksi di bulan ini
@@ -41,14 +43,19 @@ class MonthlySummaryData {
   /// Check apakah ada data trend
   bool get hasTrendData => trendData.isNotEmpty;
 
+  /// Check apakah mode "all data" sedang aktif
+  bool get isAllData => selectedYearMonth == 'all';
+
   /// Get tahun dari selectedYearMonth
-  int get year {
+  int? get year {
+    if (isAllData) return null;
     final parts = selectedYearMonth.split('-');
     return int.parse(parts[0]);
   }
 
   /// Get bulan dari selectedYearMonth
-  int get month {
+  int? get month {
+    if (isAllData) return null;
     final parts = selectedYearMonth.split('-');
     return int.parse(parts[1]);
   }
@@ -85,25 +92,68 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
     final getMultiMonthSummaryUseCase = ref.read(getMultiMonthSummaryUseCaseProvider);
     final insightService = ref.read(insightServiceProvider);
 
+    // Check if "all data" mode
+    final isAllData = yearMonth == 'all';
+
     // Load trend data (last 6 months including current month)
-    final trendData = await getMultiMonthSummaryUseCase.executeLastNMonths(
-      referenceYearMonth: yearMonth,
-      monthCount: 6,
-    );
+    // Skip trend data for "all" mode
+    final trendData = isAllData
+        ? <MonthlySummaryEntity>[]
+        : await getMultiMonthSummaryUseCase.executeLastNMonths(
+            referenceYearMonth: yearMonth,
+            monthCount: 6,
+          );
 
     // Load summary dan breakdown secara parallel
-    final results = await Future.wait<dynamic>([
-      getMonthlySummaryUseCase.execute(yearMonth),
-      getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.expense),
-      getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.income),
-    ]);
+    MonthlySummaryEntity summary;
+    List<CategoryBreakdownEntity> expenseBreakdown;
+    List<CategoryBreakdownEntity> incomeBreakdown;
+    DateTime? firstTransactionDate;
 
-    final summary = results[0] as MonthlySummaryEntity;
-    final expenseBreakdown = results[1] as List<CategoryBreakdownEntity>;
-    final incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
+    if (isAllData) {
+      // Get all-time summary and breakdown
+      final results = await Future.wait<dynamic>([
+        getMonthlySummaryUseCase.executeAll(),
+        getCategoryBreakdownUseCase.executeAll(TransactionType.expense),
+        getCategoryBreakdownUseCase.executeAll(TransactionType.income),
+      ]);
 
-    // Generate recommendations
-    final recommendations = insightService.generateInsights(summary, expenseBreakdown);
+      summary = results[0] as MonthlySummaryEntity;
+      expenseBreakdown = results[1] as List<CategoryBreakdownEntity>;
+      incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
+
+      // Get first transaction date for month picker
+      final transactions = await ref.read(getTransactionsUseCaseProvider);
+      if (transactions.isNotEmpty) {
+        firstTransactionDate = transactions
+            .map((t) => t.dateTime)
+            .reduce((a, b) => a.isBefore(b) ? a : b);
+      }
+    } else {
+      // Load specific month data
+      final results = await Future.wait<dynamic>([
+        getMonthlySummaryUseCase.execute(yearMonth),
+        getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.expense),
+        getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.income),
+      ]);
+
+      summary = results[0] as MonthlySummaryEntity;
+      expenseBreakdown = results[1] as List<CategoryBreakdownEntity>;
+      incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
+
+      // Get first transaction date for month picker
+      final transactions = await ref.read(getTransactionsUseCaseProvider);
+      if (transactions.isNotEmpty) {
+        firstTransactionDate = transactions
+            .map((t) => t.dateTime)
+            .reduce((a, b) => a.isBefore(b) ? a : b);
+      }
+    }
+
+    // Generate recommendations (skip for "all" mode)
+    final recommendations = isAllData
+        ? <RecommendationEntity>[]
+        : insightService.generateInsights(summary, expenseBreakdown);
 
     return MonthlySummaryData(
       selectedYearMonth: yearMonth,
@@ -112,6 +162,7 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
       incomeBreakdown: incomeBreakdown,
       trendData: trendData,
       recommendations: recommendations,
+      firstTransactionDate: firstTransactionDate,
     );
   }
 
@@ -126,6 +177,13 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
   /// Navigasi ke bulan sebelumnya
   void previousMonth() {
     final current = _selectedYearMonth ?? _getCurrentYearMonth();
+
+    // If currently in "all" mode, go to current month
+    if (current == 'all') {
+      goToCurrentMonth();
+      return;
+    }
+
     final parts = current.split('-');
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
@@ -137,6 +195,13 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
   /// Navigasi ke bulan selanjutnya
   void nextMonth() {
     final current = _selectedYearMonth ?? _getCurrentYearMonth();
+
+    // If currently in "all" mode, go to current month
+    if (current == 'all') {
+      goToCurrentMonth();
+      return;
+    }
+
     final parts = current.split('-');
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
