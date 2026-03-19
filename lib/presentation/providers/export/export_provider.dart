@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/entities/export_action_entity.dart';
 import 'package:catat_cuan/domain/usecases/export_transactions_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
@@ -11,16 +12,19 @@ class ExportState {
   final bool isLoading;
   final String? filePath;
   final String? errorMessage;
+  final ExportAction? lastAction;
 
   const ExportState({
     this.isLoading = false,
     this.filePath,
     this.errorMessage,
+    this.lastAction,
   });
 
   factory ExportState.idle() => const ExportState();
   factory ExportState.loading() => const ExportState(isLoading: true);
-  factory ExportState.success(String filePath) => ExportState(filePath: filePath);
+  factory ExportState.success(String filePath, [ExportAction? action]) =>
+      ExportState(filePath: filePath, lastAction: action);
   factory ExportState.error(String message) => ExportState(errorMessage: message);
 
   bool get isIdle => !isLoading && filePath == null && errorMessage == null;
@@ -79,6 +83,119 @@ class ExportNotifier extends _$ExportNotifier {
     } else {
       state = ExportState.error(result.failure!.message);
     }
+  }
+
+  /// Save transactions to CSV file on device storage
+  Future<void> saveTransactionsToCsv({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+    String? fileNameSuffix,
+  }) async {
+    state = ExportState.loading();
+
+    final exportService = ref.read(exportServiceProvider);
+    final transactionRepository = ref.read(transactionRepositoryProvider);
+
+    try {
+      // Get transactions with filters (returns List<Map<String, dynamic>>)
+      final transactionsResult = await transactionRepository.getTransactionsWithCategoryNames(
+        startDate: startDate,
+        endDate: endDate,
+        categoryId: categoryId,
+        type: type,
+      );
+
+      if (transactionsResult.isFailure) {
+        state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
+        return;
+      }
+
+      final transactions = transactionsResult.data ?? [];
+
+      if (transactions.isEmpty) {
+        state = ExportState.error('Tidak ada transaksi untuk diekspor');
+        return;
+      }
+
+      // Generate file name
+      final fileName = fileNameSuffix ?? _generateFileNameSuffix();
+
+      // Save to CSV
+      final result = await exportService.saveTransactionsToCsv(
+        transactions: transactions,
+        fileName: fileName,
+      );
+
+      if (result.isSuccess) {
+        state = ExportState.success(result.data!, ExportAction.saveToDevice);
+      } else {
+        state = ExportState.error(result.failure!.message);
+      }
+    } catch (e) {
+      state = ExportState.error('Gagal mengekspor: ${e.toString()}');
+    }
+  }
+
+  /// Share transactions via share_plus
+  Future<void> shareTransactionsToCsv({
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+    TransactionType? type,
+    String? fileNameSuffix,
+  }) async {
+    state = ExportState.loading();
+
+    final exportService = ref.read(exportServiceProvider);
+    final transactionRepository = ref.read(transactionRepositoryProvider);
+
+    try {
+      // Get transactions with filters (returns List<Map<String, dynamic>>)
+      final transactionsResult = await transactionRepository.getTransactionsWithCategoryNames(
+        startDate: startDate,
+        endDate: endDate,
+        categoryId: categoryId,
+        type: type,
+      );
+
+      if (transactionsResult.isFailure) {
+        state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
+        return;
+      }
+
+      final transactions = transactionsResult.data ?? [];
+
+      if (transactions.isEmpty) {
+        state = ExportState.error('Tidak ada transaksi untuk diekspor');
+        return;
+      }
+
+      // Generate file name
+      final fileName = fileNameSuffix ?? _generateFileNameSuffix();
+
+      // Share CSV
+      final result = await exportService.shareTransactionsToCsv(
+        transactions: transactions,
+        fileName: fileName,
+      );
+
+      if (result.isSuccess) {
+        state = ExportState.success(result.data!, ExportAction.share);
+      } else {
+        state = ExportState.error(result.failure!.message);
+      }
+    } catch (e) {
+      state = ExportState.error('Gagal mengekspor: ${e.toString()}');
+    }
+  }
+
+  /// Generate filename suffix from current date
+  /// Format: DD_MM_YYYY (e.g., 15_03_2024)
+  String _generateFileNameSuffix() {
+    final now = DateTime.now();
+    return '${now.day}_${now.month}_${now.year}';
   }
 
   /// Reset export state to idle
