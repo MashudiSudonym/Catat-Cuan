@@ -84,6 +84,11 @@ class SummaryMetricsCard extends StatelessWidget {
 
   /// Format bulan-tahun untuk display (contoh: "Maret 2024")
   String _formatMonthYear() {
+    // Handle "all" case for all-time summary
+    if (summary.yearMonth == 'all') {
+      return 'Semua Waktu';
+    }
+
     final parts = summary.yearMonth.split('-');
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
