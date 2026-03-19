@@ -34,6 +34,35 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final exportState = ref.watch(exportNotifierProvider);
 
+    // Listen for export state changes
+    ref.listen(exportNotifierProvider, (previous, next) {
+      if (next.isSuccess && next.isIdle == false) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Ekspor berhasil: ${next.filePath}'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          // Reset state
+          ref.read(exportNotifierProvider.notifier).reset();
+        }
+      } else if (next.isError) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(next.errorMessage ?? 'Gagal mengekspor'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          // Reset state
+          ref.read(exportNotifierProvider.notifier).reset();
+        }
+      }
+    });
+
     return DraggableScrollableSheet(
       initialChildSize: 0.4,
       minChildSize: 0.3,
@@ -155,35 +184,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       categoryId: categoryId,
       type: type,
     );
-
-    // Show result
-    ref.listen(exportNotifierProvider, (previous, next) {
-      if (next.isSuccess && next.isIdle == false) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Ekspor berhasil: ${next.filePath}'),
-              backgroundColor: AppColors.success,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          // Reset state
-          ref.read(exportNotifierProvider.notifier).reset();
-        }
-      } else if (next.isError) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(next.errorMessage ?? 'Gagal mengekspor'),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          // Reset state
-          ref.read(exportNotifierProvider.notifier).reset();
-        }
-      }
-    });
   }
 }
 

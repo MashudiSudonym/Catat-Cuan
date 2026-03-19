@@ -152,6 +152,14 @@ class _MonthlySummaryScreenState
             child: SummaryMetricsCard(summary: data.summary),
           ),
 
+          // Recommendations Widget
+          if (data.hasRecommendations)
+            SliverToBoxAdapter(
+              child: RecommendationCard(
+                recommendations: data.recommendations,
+              ),
+            ),
+
           // Trend Chart (NEW)
           if (data.hasTrendData)
             SliverToBoxAdapter(
@@ -173,14 +181,6 @@ class _MonthlySummaryScreenState
               child: IncomeBreakdownWidget(
                 breakdown: data.incomeBreakdown,
                 totalIncome: data.summary.totalIncome,
-              ),
-            ),
-
-          // Recommendations Widget
-          if (data.hasRecommendations)
-            SliverToBoxAdapter(
-              child: RecommendationCard(
-                recommendations: data.recommendations,
               ),
             ),
 

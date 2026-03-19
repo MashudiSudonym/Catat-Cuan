@@ -152,10 +152,8 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
       }
     }
 
-    // Generate recommendations (skip for "all" mode)
-    final recommendations = isAllData
-        ? <RecommendationEntity>[]
-        : insightService.generateInsights(summary, expenseBreakdown);
+    // Generate recommendations
+    final recommendations = insightService.generateInsights(summary, expenseBreakdown);
 
     return MonthlySummaryData(
       selectedYearMonth: yearMonth,
