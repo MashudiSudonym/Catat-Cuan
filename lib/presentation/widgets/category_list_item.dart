@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
-import 'package:catat_cuan/presentation/utils/color_helper.dart' show ColorHelper;
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
+
+// ColorHelper is exported from utils.dart via color_helper.dart
 
 /// Widget untuk menampilkan item kategori di daftar
 class CategoryListItem extends StatelessWidget {
@@ -40,21 +41,21 @@ class CategoryListItem extends StatelessWidget {
       direction: onDelete != null ? DismissDirection.endToStart : DismissDirection.none,
       background: _buildDismissBackground(context),
       child: AppGlassContainer.glassCard(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.lgAll,
             child: Row(
               children: [
                 // Reorder handle (if needed)
                 if (showReorderHandle && reorderIndex != null)
                   ReorderableDragStartListener(
                     index: reorderIndex!,
-                    child: const Padding(
-                      padding: EdgeInsets.only(right: 12),
-                      child: Icon(Icons.drag_handle, color: Colors.grey),
+                    child: Padding(
+                      padding: AppSpacing.only(right: AppSpacing.md),
+                      child: const Icon(Icons.drag_handle, color: Colors.grey),
                     ),
                   ),
 
@@ -65,7 +66,7 @@ class CategoryListItem extends StatelessWidget {
                   isActive: category.isActive,
                 ),
 
-                const SizedBox(width: 16),
+                const AppSpacingWidget.horizontalLG(),
 
                 // Category details
                 Expanded(
@@ -83,7 +84,7 @@ class CategoryListItem extends StatelessWidget {
                             ),
                       ),
 
-                      const SizedBox(height: 4),
+                      const AppSpacingWidget.verticalXS(),
 
                       // Transaction count and type
                       Row(
@@ -91,15 +92,12 @@ class CategoryListItem extends StatelessWidget {
                           // Transaction count badge
                           if (transactionCount > 0)
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                               decoration: BoxDecoration(
                                 color: category.isActive
                                     ? Colors.blue.withValues(alpha: 0.1)
                                     : Colors.grey.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadius.mdAll,
                               ),
                               child: Text(
                                 '$transactionCount transaksi',
@@ -117,19 +115,16 @@ class CategoryListItem extends StatelessWidget {
 
                           if (transactionCount > 0 &&
                               !category.isActive) ...[
-                            const SizedBox(width: 8),
+                            const AppSpacingWidget.horizontalSM(),
                           ],
 
                                           // Inactive label
                           if (!category.isActive)
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                               decoration: BoxDecoration(
                                 color: Colors.orange.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadius.mdAll,
                               ),
                               child: Text(
                                 'Tidak Aktif',
@@ -167,12 +162,12 @@ class CategoryListItem extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: 20),
+      padding: AppSpacing.only(right: 20),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.expense.withValues(alpha: 0.2)
             : Colors.red.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mdAll,
       ),
       child: Icon(
         Icons.delete_outline,
@@ -196,22 +191,19 @@ class _CategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppContainer(
+      color: isActive
+          ? color.withValues(alpha: 0.15)
+          : Colors.grey.withValues(alpha: 0.1),
+      borderRadius: AppRadius.lgAll,
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        color: isActive
-            ? color.withValues(alpha: 0.15)
-            : Colors.grey.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(
-          icon,
-          style: TextStyle(
-            fontSize: 24,
-            color: isActive ? color : Colors.grey,
-          ),
+      alignment: Alignment.center,
+      child: Text(
+        icon,
+        style: TextStyle(
+          fontSize: 24,
+          color: isActive ? color : Colors.grey,
         ),
       ),
     );

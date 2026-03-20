@@ -5,7 +5,7 @@ import 'package:catat_cuan/presentation/widgets/category_list_item.dart';
 import 'package:catat_cuan/presentation/screens/category_form_screen.dart';
 import 'package:catat_cuan/presentation/widgets/deactivate_category_dialog.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
 
@@ -110,7 +110,7 @@ class _CategoryManagementScreenState
               child: Row(
                 children: [
                   Icon(Icons.refresh),
-                  SizedBox(width: 12),
+                  AppSpacingWidget.horizontalMD(),
                   Text('Refresh'),
                 ],
               ),
@@ -252,7 +252,7 @@ class _CategoryManagementScreenState
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: AppSpacing.xxxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -267,14 +267,14 @@ class _CategoryManagementScreenState
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 20),
+            const AppSpacingWidget.verticalXL(),
             Text(
               'Tidak Ada Kategori',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               'Tekan tombol + untuk menambah kategori baru',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -291,7 +291,7 @@ class _CategoryManagementScreenState
   Widget _buildErrorState(String error) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.xxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -306,14 +306,14 @@ class _CategoryManagementScreenState
                 color: AppColors.error,
               ),
             ),
-            const SizedBox(height: 20),
+            const AppSpacingWidget.verticalXL(),
             Text(
               'Terjadi Kesalahan',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               error,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -321,7 +321,7 @@ class _CategoryManagementScreenState
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             ElevatedButton.icon(
               onPressed: () =>
                   ref.read(categoryManagementProvider.notifier).refresh(),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/month_picker_bottom_sheet.dart';
 
 /// Widget untuk pemilihan periode (bulan/tahun)
@@ -26,7 +26,7 @@ class PeriodSelector extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.getSurfaceColor(isDark),
         border: Border(
@@ -44,7 +44,7 @@ class PeriodSelector extends StatelessWidget {
             onPressed: selectedYearMonth == 'all' ? null : onPrevious,
           ),
 
-          const SizedBox(width: 12),
+          const AppSpacingWidget.horizontalMD(),
 
           // Month Display & Dropdown
           Expanded(
@@ -55,7 +55,7 @@ class PeriodSelector extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 12),
+          const AppSpacingWidget.horizontalMD(),
 
           // Next Button (disabled for "all" mode)
           _MonthNavigationButton(
@@ -87,14 +87,14 @@ class _MonthNavigationButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mdAll,
         child: Container(
-          padding: const EdgeInsets.all(8),
+          padding: AppSpacing.all(AppSpacing.sm),
           decoration: BoxDecoration(
             border: Border.all(
               color: AppColors.textTertiary.withValues(alpha: 0.3),
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mdAll,
           ),
           child: Icon(
             icon,
@@ -130,10 +130,10 @@ class _MonthDropdown extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showMonthPicker(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.getBackgroundColor(isDark),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           border: Border.all(
             color: AppColors.textTertiary.withValues(alpha: isDark ? 0.2 : 0.3),
           ),
@@ -209,10 +209,10 @@ class PeriodSelectorCompact extends StatelessWidget {
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.getSurfaceColor(isDark),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mdAll,
       ),
       child: Row(
         children: [
@@ -225,7 +225,7 @@ class PeriodSelectorCompact extends StatelessWidget {
             padding: EdgeInsets.zero,
           ),
 
-          const SizedBox(width: 8),
+          const AppSpacingWidget.horizontalSM(),
 
           // Month Display
           Expanded(
@@ -240,7 +240,7 @@ class PeriodSelectorCompact extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 8),
+          const AppSpacingWidget.horizontalSM(),
 
           // Next Button
           IconButton(

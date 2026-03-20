@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import '../utils/app_colors.dart';
-import 'base/base.dart';
 import '../utils/utils.dart';
+import 'base/base.dart';
 
 /// Toggle button untuk memilih tipe transaksi (Pemasukan/Pengeluaran)
 /// Menggunakan design pill-shape sesuai UI reference
@@ -29,7 +28,7 @@ class TransactionTypeToggle extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 12),
+        const AppSpacingWidget.verticalMD(),
         AppGlassContainer.subtle(
           padding: EdgeInsets.zero,
           child: Row(
@@ -79,12 +78,12 @@ class _TypeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppRadius.mdAll,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: AppSpacing.symmetric(vertical: AppSpacing.md + AppSpacing.xs),
         decoration: BoxDecoration(
           color: isSelected ? color : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -94,7 +93,7 @@ class _TypeButton extends StatelessWidget {
               color: isSelected ? Colors.white : color,
               size: 24,
             ),
-            const SizedBox(height: 4),
+            const AppSpacingWidget.verticalXS(),
             Text(
               label,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -195,17 +194,17 @@ class TransactionTypeIconButton extends StatelessWidget {
         onTypeChanged(isIncome ? TransactionType.expense : TransactionType.income);
       } : null,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.lgAll,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           border: Border.all(color: color),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: color),
-            const SizedBox(width: 8),
+            const AppSpacingWidget.horizontalSM(),
             Text(
               isIncome ? 'Pemasukan' : 'Pengeluaran',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -213,7 +212,7 @@ class TransactionTypeIconButton extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 8),
+            const AppSpacingWidget.horizontalSM(),
             Icon(Icons.swap_vert, color: color, size: 20),
           ],
         ),

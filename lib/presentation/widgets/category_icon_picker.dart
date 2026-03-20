@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/presentation/utils/category_constants.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Widget untuk memilih icon kategori
 class CategoryIconPicker extends StatefulWidget {
@@ -58,11 +58,11 @@ class _CategoryIconPickerState extends State<CategoryIconPicker> {
             hintText: 'Cari icon...',
             prefixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.mdAll,
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
+            contentPadding: AppSpacing.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
             ),
           ),
           onChanged: (value) {
@@ -70,7 +70,7 @@ class _CategoryIconPickerState extends State<CategoryIconPicker> {
           },
         ),
 
-        const SizedBox(height: 16),
+        const AppSpacingWidget.verticalLG(),
 
         // Icon grid
         GridView.builder(
@@ -78,8 +78,8 @@ class _CategoryIconPickerState extends State<CategoryIconPicker> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            crossAxisSpacing: AppSpacing.sm,
+            mainAxisSpacing: AppSpacing.sm,
             childAspectRatio: 1,
           ),
           itemCount: _filteredIcons.length,
@@ -96,7 +96,7 @@ class _CategoryIconPickerState extends State<CategoryIconPicker> {
                             alpha: 0.1,
                           )
                       : Colors.grey.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mdAll,
                   border: Border.all(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary

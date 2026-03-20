@@ -76,7 +76,7 @@ class AppErrorState extends StatelessWidget {
                       onPressed: onDismiss,
                       child: Text(dismissLabel ?? 'Tutup'),
                     ),
-                    const SizedBox(width: 8),
+                    const AppSpacingWidget.horizontalSM(),
                   ],
                   if (onRetry != null)
                     ElevatedButton(

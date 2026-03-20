@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import '../utils/app_colors.dart';
+import '../utils/utils.dart';
 
 /// Filter chips untuk memfilter tipe transaksi di list
 /// Menampilkan opsi: Semua, Pemasukan, Pengeluaran
@@ -17,7 +17,7 @@ class TransactionFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: AppSpacing.horizontal(AppSpacing.lg),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -27,7 +27,7 @@ class TransactionFilterChip extends StatelessWidget {
               isSelected: selectedType == null,
               onTap: () => onTypeChanged(null),
             ),
-            const SizedBox(width: 8),
+            const AppSpacingWidget.horizontalSM(),
             _FilterChip(
               label: 'Pemasukan',
               icon: Icons.arrow_downward,
@@ -35,7 +35,7 @@ class TransactionFilterChip extends StatelessWidget {
               color: AppColors.income,
               onTap: () => onTypeChanged(TransactionType.income),
             ),
-            const SizedBox(width: 8),
+            const AppSpacingWidget.horizontalSM(),
             _FilterChip(
               label: 'Pengeluaran',
               icon: Icons.arrow_upward,
@@ -75,7 +75,7 @@ class _FilterChip extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 14),
-            const SizedBox(width: 4),
+            const AppSpacingWidget.horizontalXS(),
           ],
           Flexible(
             child: Text(
@@ -155,7 +155,7 @@ class TransactionFilterTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: AppSpacing.horizontal(AppSpacing.lg),
       child: Row(
         children: [
           Expanded(
@@ -165,7 +165,7 @@ class TransactionFilterTabs extends StatelessWidget {
               onTap: () => onTypeChanged(null),
             ),
           ),
-          const SizedBox(width: 8),
+          const AppSpacingWidget.horizontalSM(),
           Expanded(
             child: _FilterTab(
               label: 'Pemasukan',
@@ -174,7 +174,7 @@ class TransactionFilterTabs extends StatelessWidget {
               onTap: () => onTypeChanged(TransactionType.income),
             ),
           ),
-          const SizedBox(width: 8),
+          const AppSpacingWidget.horizontalSM(),
           Expanded(
             child: _FilterTab(
               label: 'Pengeluaran',
@@ -209,10 +209,10 @@ class _FilterTab extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: AppSpacing.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? tabColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.smAll,
           border: Border.all(
             color: isSelected ? tabColor : Colors.grey.shade300,
           ),

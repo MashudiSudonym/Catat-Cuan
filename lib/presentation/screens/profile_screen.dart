@@ -196,7 +196,7 @@ class ProfileScreen extends ConsumerWidget {
                       category.emoji,
                       style: const TextStyle(fontSize: 10),
                     ),
-                    const SizedBox(width: 4),
+                    const AppSpacingWidget.horizontalXS(),
                     Text(
                       category.title,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -8,7 +8,7 @@ import 'package:catat_cuan/presentation/widgets/income_breakdown_widget.dart';
 import 'package:catat_cuan/presentation/widgets/income_vs_expense_trend_widget.dart';
 import 'package:catat_cuan/presentation/widgets/recommendation_card.dart';
 import 'package:catat_cuan/presentation/widgets/period_selector.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
 /// Screen untuk menampilkan ringkasan bulanan transaksi
@@ -95,7 +95,7 @@ class _MonthlySummaryScreenState
           children: [
             // Title Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
               child: Row(
                 children: [
                   Icon(
@@ -103,7 +103,7 @@ class _MonthlySummaryScreenState
                     color: AppColors.primary,
                     size: 24,
                   ),
-                  const SizedBox(width: 12),
+                  const AppSpacingWidget.horizontalMD(),
                   Text(
                     'Ringkasan Bulanan',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -186,7 +186,7 @@ class _MonthlySummaryScreenState
 
           // Bottom spacing
           const SliverToBoxAdapter(
-            child: SizedBox(height: 24),
+            child: AppSpacingWidget.verticalXXL(),
           ),
         ],
       ),
@@ -201,7 +201,7 @@ class _MonthlySummaryScreenState
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.xxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -210,7 +210,7 @@ class _MonthlySummaryScreenState
               size: 64,
               color: AppColors.error,
             ),
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             Text(
               'Terjadi Kesalahan',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -218,7 +218,7 @@ class _MonthlySummaryScreenState
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               'Gagal memuat data ringkasan. Silakan coba lagi.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -226,7 +226,7 @@ class _MonthlySummaryScreenState
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const AppSpacingWidget.verticalXXL(),
             ElevatedButton.icon(
               onPressed: notifier.refresh,
               icon: const Icon(Icons.refresh),
@@ -234,9 +234,9 @@ class _MonthlySummaryScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+                padding: AppSpacing.symmetric(
+                  horizontal: AppSpacing.xxl,
+                  vertical: AppSpacing.md,
                 ),
               ),
             ),
@@ -257,7 +257,7 @@ class _MonthlySummaryScreenState
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.xxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -266,7 +266,7 @@ class _MonthlySummaryScreenState
               size: 64,
               color: tertiaryColor,
             ),
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             Text(
               'Tidak Ada Transaksi',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -274,7 +274,7 @@ class _MonthlySummaryScreenState
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               isAllData
                   ? 'Belum ada transaksi sama sekali.'
@@ -284,7 +284,7 @@ class _MonthlySummaryScreenState
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               isAllData
                   ? 'Mulai catat transaksi baru untuk melihat ringkasan.'

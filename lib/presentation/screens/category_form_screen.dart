@@ -90,7 +90,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.lgAll,
           child: Form(
             key: _formKey,
             child: Column(
@@ -113,22 +113,22 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                   textInputAction: TextInputAction.next,
                 ),
 
-                const SizedBox(height: 16),
+                const AppSpacingWidget.verticalLG(),
 
                 // Type selector (only for create mode)
                 if (!isEditMode) _buildTypeSelector(state),
 
-                const SizedBox(height: 16),
+                const AppSpacingWidget.verticalLG(),
 
                 // Color picker
                 _buildColorPicker(state),
 
-                const SizedBox(height: 16),
+                const AppSpacingWidget.verticalLG(),
 
                 // Icon picker
                 _buildIconPicker(state),
 
-                const SizedBox(height: 24),
+                const AppSpacingWidget.verticalXXL(),
 
                 // Submit error
                 if (state.submitError != null) ...[
@@ -137,7 +137,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline, color: AppColors.error),
-                        const SizedBox(width: 12),
+                        const AppSpacingWidget.horizontalMD(),
                         Expanded(
                           child: Text(
                             state.submitError!,
@@ -147,7 +147,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const AppSpacingWidget.verticalLG(),
                 ],
 
                 // Submit button
@@ -156,7 +156,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                       ? null
                       : () => _submitForm(state),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: AppSpacing.symmetric(vertical: AppSpacing.lg),
                   ),
                   child: state.isSubmitting
                       ? const SizedBox(
@@ -184,7 +184,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                 fontWeight: FontWeight.w500,
               ),
         ),
-        const SizedBox(height: 8),
+        const AppSpacingWidget.verticalSM(),
         SegmentedButton<CategoryType>(
           segments: const [
             ButtonSegment(
@@ -219,15 +219,15 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                 fontWeight: FontWeight.w500,
               ),
         ),
-        const SizedBox(height: 8),
+        const AppSpacingWidget.verticalSM(),
         InkWell(
           onTap: () => _showColorPicker(context),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.all(AppSpacing.md),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.mdAll,
             ),
             child: Row(
               children: [
@@ -236,10 +236,10 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                   height: 40,
                   decoration: BoxDecoration(
                     color: ColorHelper.hexToColorWithFallback(_selectedColor),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.smAll,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const AppSpacingWidget.horizontalMD(),
                 Expanded(
                   child: Text(
                     'Pilih warna',
@@ -265,15 +265,15 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                 fontWeight: FontWeight.w500,
               ),
         ),
-        const SizedBox(height: 8),
+        const AppSpacingWidget.verticalSM(),
         InkWell(
           onTap: () => _showIconPicker(context, state),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.all(AppSpacing.md),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.mdAll,
             ),
             child: Row(
               children: [
@@ -282,7 +282,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                   height: 40,
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.smAll,
                   ),
                   child: Center(
                     child: Text(
@@ -291,7 +291,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const AppSpacingWidget.horizontalMD(),
                 Expanded(
                   child: Text(
                     'Pilih icon',

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../app_colors.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Mixin providing common screen behaviors
 /// Use this mixin to add consistent UI patterns to your State classes
@@ -16,7 +16,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
       ),
     );
   }
@@ -32,7 +32,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
         action: message.toLowerCase().contains('gagal')
             ? SnackBarAction(
                 label: 'OK',
@@ -55,7 +55,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         backgroundColor: AppColors.info,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
       ),
     );
   }
@@ -71,7 +71,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         backgroundColor: AppColors.warning,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
       ),
     );
   }
@@ -118,7 +118,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         title: Row(
           children: [
             Icon(Icons.error, color: AppColors.error, size: 24),
-            const SizedBox(width: 12),
+            AppSpacingWidget.horizontalMD(),
             Expanded(child: Text(title)),
           ],
         ),
@@ -146,7 +146,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         title: Row(
           children: [
             Icon(Icons.check_circle, color: AppColors.success, size: 24),
-            const SizedBox(width: 12),
+            AppSpacingWidget.horizontalMD(),
             Expanded(child: Text(title)),
           ],
         ),
@@ -173,7 +173,7 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
         content: Row(
           children: [
             const CircularProgressIndicator(),
-            const SizedBox(width: 16),
+            AppSpacingWidget.horizontalLG(),
             Expanded(child: Text(message)),
           ],
         ),
@@ -279,7 +279,7 @@ mixin ConsumerScreenStateMixin<T extends ConsumerStatefulWidget>
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
       ),
     );
   }
@@ -295,7 +295,7 @@ mixin ConsumerScreenStateMixin<T extends ConsumerStatefulWidget>
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
         duration: duration,
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.lgAll,
       ),
     );
   }

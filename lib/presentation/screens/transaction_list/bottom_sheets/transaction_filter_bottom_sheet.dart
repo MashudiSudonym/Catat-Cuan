@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
-import 'package:catat_cuan/presentation/utils/glassmorphism/app_glassmorphism.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:intl/intl.dart';
 
 /// Bottom sheet untuk filter transaksi
@@ -85,12 +84,12 @@ class _TransactionFilterBottomSheetState
                   Expanded(
                     child: ListView(
                       controller: scrollController,
-                      padding: const EdgeInsets.all(16),
+                      padding: AppSpacing.lgAll,
                       children: [
                         _buildTypeFilter(),
-                        const SizedBox(height: 24),
+                        const AppSpacingWidget.verticalXXL(),
                         _buildDateRangeFilter(),
-                        const SizedBox(height: 24),
+                        const AppSpacingWidget.verticalXXL(),
                         _buildCategoryFilter(categories),
                       ],
                     ),
@@ -108,19 +107,19 @@ class _TransactionFilterBottomSheetState
   Widget _buildHandle() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      margin: AppSpacing.symmetric(vertical: AppSpacing.md),
       width: 40,
       height: 4,
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(2), // Non-standard (2px) - handle
       ),
     );
   }
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -153,7 +152,7 @@ class _TransactionFilterBottomSheetState
                 fontWeight: FontWeight.w500,
               ),
         ),
-        const SizedBox(height: 12),
+        const AppSpacingWidget.verticalMD(),
         SegmentedButton<TransactionType?>(
           segments: const [
             ButtonSegment(value: null, label: Text('Semua')),
@@ -187,7 +186,7 @@ class _TransactionFilterBottomSheetState
                 fontWeight: FontWeight.w500,
               ),
         ),
-        const SizedBox(height: 12),
+        const AppSpacingWidget.verticalMD(),
         Row(
           children: [
             Expanded(
@@ -199,7 +198,7 @@ class _TransactionFilterBottomSheetState
                     : 'Dari Tanggal'),
               ),
             ),
-            const SizedBox(width: 8),
+            const AppSpacingWidget.horizontalSM(),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _pickEndDate(),
@@ -232,20 +231,20 @@ class _TransactionFilterBottomSheetState
                     fontWeight: FontWeight.w500,
                   ),
             ),
-            const SizedBox(height: 12),
+            const AppSpacingWidget.verticalMD(),
             ChipTheme(
               data: ChipThemeData(
                 selectedColor: AppColors.primary,
                 backgroundColor: Colors.transparent,
                 side: BorderSide(color: borderSideColor),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadius.smAll,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               ),
               child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: [
                   FilterChip(
                     label: Text(
@@ -274,7 +273,7 @@ class _TransactionFilterBottomSheetState
                               color: isSelected ? selectedLabelColor : unselectedLabelColor,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const AppSpacingWidget.horizontalXS(),
                           Text(
                             cat.name,
                             style: TextStyle(
@@ -305,7 +304,7 @@ class _TransactionFilterBottomSheetState
 
   Widget _buildActionButtons() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.lgAll,
       child: Row(
         children: [
           Expanded(
@@ -314,7 +313,7 @@ class _TransactionFilterBottomSheetState
               child: const Text('Batal'),
             ),
           ),
-          const SizedBox(width: 8),
+          const AppSpacingWidget.horizontalSM(),
           Expanded(
             child: ElevatedButton(
               onPressed: () {

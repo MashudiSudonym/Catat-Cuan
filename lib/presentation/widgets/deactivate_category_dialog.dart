@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Dialog konfirmasi untuk menonaktifkan kategori
 class DeactivateCategoryDialog extends StatelessWidget {
@@ -26,12 +27,12 @@ class DeactivateCategoryDialog extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           if (transactionCount > 0) ...[
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.mdAll,
               decoration: BoxDecoration(
                 color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadius.smAll,
                 border: Border.all(
                   color: Colors.orange.withValues(alpha: 0.3),
                 ),
@@ -46,7 +47,7 @@ class DeactivateCategoryDialog extends StatelessWidget {
                         color: Colors.orange[700],
                         size: 20,
                       ),
-                      const SizedBox(width: 8),
+                      const AppSpacingWidget.horizontalSM(),
                       Text(
                         'Peringatan',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -56,7 +57,7 @@ class DeactivateCategoryDialog extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const AppSpacingWidget.verticalSM(),
                   Text(
                     'Kategori ini digunakan oleh $transactionCount transaksi. '
                     'Kategori dengan transaksi tidak dapat dinonaktifkan.',

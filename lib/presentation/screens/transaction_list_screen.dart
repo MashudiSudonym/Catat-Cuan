@@ -9,8 +9,7 @@ import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
 import 'package:catat_cuan/presentation/widgets/export_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/transaction_filter_bottom_sheet.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
-import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:intl/intl.dart';
 
@@ -153,14 +152,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           onRefresh: () => ref.read(transactionListPaginatedNotifierProvider.notifier).refresh(),
           child: ListView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: AppSpacing.only(bottom: AppSpacing.lg),
             itemCount: groupedTransactions.length + (state.hasNextPage ? 1 : 0),
             itemBuilder: (context, index) {
               // Loading indicator at bottom
               if (index == groupedTransactions.length) {
                 return state.isLoadingMore
                     ? const Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: AppSpacing.lgAll,
                         child: Center(child: CircularProgressIndicator()),
                       )
                     : const SizedBox.shrink();
@@ -230,7 +229,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: 16),
+            AppSpacingWidget.verticalLG(),
             Text('Mencari...'),
           ],
         ),
@@ -256,7 +255,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: AppSpacing.xxxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -271,14 +270,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 20),
+            const AppSpacingWidget.verticalXL(),
             Text(
               'Tidak Ditemukan',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               'Coba kata kunci lain atau periksa filter Anda',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -286,7 +285,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             TextButton.icon(
               onPressed: () {
                 ref.read(transactionSearchNotifierProvider.notifier).clear();
@@ -321,7 +320,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: AppSpacing.xxxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -336,14 +335,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 20),
+            const AppSpacingWidget.verticalXL(),
             Text(
               'Belum ada transaksi',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               'Tekan tombol Tambah di navigasi bawah untuk menambah transaksi baru',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -371,7 +370,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         final groupedTransactions = _groupTransactionsByDate(transactions);
 
         return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: AppSpacing.only(bottom: AppSpacing.lg),
           itemCount: groupedTransactions.length,
           itemBuilder: (context, index) {
             final group = groupedTransactions[index];
@@ -612,7 +611,7 @@ class _ErrorState extends StatelessWidget {
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.xxlAll,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -627,14 +626,14 @@ class _ErrorState extends StatelessWidget {
                 color: AppColors.error,
               ),
             ),
-            const SizedBox(height: 20),
+            const AppSpacingWidget.verticalXL(),
             Text(
               'Terjadi Kesalahan',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const AppSpacingWidget.verticalSM(),
             Text(
               error,
               textAlign: TextAlign.center,
@@ -642,7 +641,7 @@ class _ErrorState extends StatelessWidget {
                     color: secondaryColor,
                   ),
             ),
-            const SizedBox(height: 24),
+            const AppSpacingWidget.verticalXXL(),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),

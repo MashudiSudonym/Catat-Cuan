@@ -78,13 +78,13 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.lgAll,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Image preview
                 _buildImagePreview(scanState),
-                const SizedBox(height: 24),
+                const AppSpacingWidget.verticalXXL(),
 
                 // Scan buttons
                 if (!scanState.hasResult) _buildScanButtons(scanState),
@@ -92,7 +92,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
                 // Result section
                 if (scanState.hasResult) _buildResultSection(scanState),
 
-                const SizedBox(height: 80), // Extra space for loading
+                const SizedBox(height: 80), // Non-standard (80px) - extra space for loading
               ],
             ),
           ),
@@ -108,7 +108,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const CircularProgressIndicator(),
-                      const SizedBox(height: 16),
+                      const AppSpacingWidget.verticalLG(),
                       Text(
                         scanState.isProcessing
                             ? 'Membaca struk...'
@@ -140,7 +140,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
               size: 64,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
             ),
-            const SizedBox(height: 16),
+            const AppSpacingWidget.verticalLG(),
             Text(
               'Ambil foto struk atau pilih dari galeri',
               style: TextStyle(
@@ -158,7 +158,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
     final imageFile = File(scanState.imagePath!);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppRadius.mdAll,
       child: FutureBuilder<Size>(
         future: _getImageSize(imageFile),
         builder: (context, snapshot) {
@@ -170,7 +170,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
 
             // Calculate height based on screen width and image aspect ratio
             // But limit max height to prevent taking too much screen space
-            final screenWidth = MediaQuery.of(context).size.width - 32; // 32 = horizontal padding (16 * 2)
+            final screenWidth = MediaQuery.of(context).size.width - (AppSpacing.lg * 2); // Horizontal padding (16 * 2)
             final calculatedHeight = screenWidth / aspectRatio;
             final maxHeight = MediaQuery.of(context).size.height * 0.6; // Max 60% of screen height
             final finalHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
@@ -217,12 +217,12 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           icon: const Icon(Icons.camera_alt_outlined),
           label: const Text('Ambil Foto'),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: AppSpacing.symmetric(vertical: AppSpacing.lg),
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
           ),
         ),
-        const SizedBox(height: 12),
+        const AppSpacingWidget.verticalMD(),
         OutlinedButton.icon(
           onPressed: scanState.isLoading
               ? null
@@ -231,7 +231,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           icon: const Icon(Icons.photo_library_outlined),
           label: const Text('Pilih dari Galeri'),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: AppSpacing.symmetric(vertical: AppSpacing.lg),
             foregroundColor: AppColors.primary,
           ),
         ),
@@ -264,7 +264,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
                 isConfident ? Icons.check_circle : Icons.warning,
                 color: isConfident ? AppColors.success : AppColors.warning,
               ),
-              const SizedBox(width: 12),
+              const AppSpacingWidget.horizontalMD(),
               Expanded(
                 child: Text(
                   isConfident
@@ -279,7 +279,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const AppSpacingWidget.verticalXXL(),
 
         // Date and Time picker row
         Row(
@@ -316,7 +316,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const AppSpacingWidget.horizontalMD(),
             // Time picker field
             Expanded(
               child: InkWell(
@@ -339,7 +339,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const AppSpacingWidget.verticalLG(),
 
         // Editable amount field
         TextField(
@@ -365,7 +365,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
             }
           },
         ),
-        const SizedBox(height: 24),
+        const AppSpacingWidget.verticalXXL(),
 
         // Retake button
         OutlinedButton.icon(

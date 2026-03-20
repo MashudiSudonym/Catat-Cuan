@@ -103,17 +103,17 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.lgAll,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Scan struk button
               _buildScanButton(),
-              const SizedBox(height: 16),
+              const AppSpacingWidget.verticalLG(),
 
               // Large currency input field (sesuai reference design)
               _buildCurrencyInput(formState),
-              const SizedBox(height: 24),
+              const AppSpacingWidget.verticalXXL(),
 
               // Type toggle (Pemasukan/Pengeluaran) - AC-LOG-001.1
               TransactionTypeToggle(
@@ -123,9 +123,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 },
               ),
               if (formState.validationErrors.containsKey('type')) ...[
-                const SizedBox(height: 4),
+                const AppSpacingWidget.verticalXS(),
                 Padding(
-                  padding: const EdgeInsets.only(left: 16),
+                  padding: AppSpacing.only(left: AppSpacing.lg),
                   child: Text(
                     formState.validationErrors['type']!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -134,25 +134,25 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+              const AppSpacingWidget.verticalXXL(),
 
               // Category grid (menggantikan dropdown) - AC-LOG-001.1
               _buildCategoryGrid(formState),
-              const SizedBox(height: 24),
+              const AppSpacingWidget.verticalXXL(),
 
               // Date & Time inputs - AC-LOG-001.1
               Row(
                 children: [
                   Expanded(child: _buildDateField(formState)),
-                  const SizedBox(width: 12),
+                  const AppSpacingWidget.horizontalMD(),
                   Expanded(child: _buildTimeField(formState)),
                 ],
               ),
-              const SizedBox(height: 24),
+              const AppSpacingWidget.verticalXXL(),
 
               // Note input (opsional) - AC-LOG-001.1
               _buildNoteField(formState),
-              const SizedBox(height: 32),
+              const AppSpacingWidget.verticalXXXL(),
 
               // Submit button - AC-LOG-002.3
               _buildSubmitButton(formState),

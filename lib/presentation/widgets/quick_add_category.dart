@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
-import 'package:catat_cuan/presentation/utils/category_constants.dart';
-import 'package:catat_cuan/presentation/utils/color_helper.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
 /// Bottom sheet untuk menambah kategori dengan cepat
 /// Icon dan warna otomatis dideteksi dari nama kategori
@@ -69,29 +69,33 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: keyboardHeight),
+      padding: AppSpacing.only(bottom: keyboardHeight),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Handle
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
+            Padding(
+              padding: AppSpacing.only(top: AppSpacing.md),
+              child: Center(
+                child: AppContainer(
+                  width: 40,
+                  height: 4,
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: AppRadius.xsAll,
+                  alignment: Alignment.center,
+                  child: const SizedBox.shrink(),
+                ),
               ),
             ),
 
             // Header
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.lgAll,
               child: Row(
                 children: [
                   Icon(
@@ -102,7 +106,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                         ? Colors.green
                         : Colors.red,
                   ),
-                  const SizedBox(width: 12),
+                  const AppSpacingWidget.horizontalMD(),
                   Text(
                     'Tambah Kategori ${widget.type.displayName}',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -120,7 +124,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
 
             // Form
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: AppSpacing.horizontal(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -140,36 +144,28 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                     onSubmitted: _isSubmitting ? null : (_) => _submit(),
                   ),
 
-                  const SizedBox(height: 12),
+                  const AppSpacingWidget.verticalMD(),
 
                   // Auto-detected icon and color preview
                   if (_previewIcon != null && _previewColor != null)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey.withValues(alpha: 0.2),
-                        ),
-                      ),
+                    AppContainer(
+                      padding: AppSpacing.all(AppSpacing.md),
+                      color: Colors.grey.withValues(alpha: 0.05),
+                      borderRadius: AppRadius.mdAll,
                       child: Row(
                         children: [
-                          Container(
+                          AppContainer(
                             width: 45,
                             height: 45,
-                            decoration: BoxDecoration(
-                              color: ColorHelper.hexToColorWithFallback(_previewColor!),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _previewIcon!,
-                                style: const TextStyle(fontSize: 28),
-                              ),
+                            color: ColorHelper.hexToColorWithFallback(_previewColor!),
+                            borderRadius: AppRadius.circular(10),
+                            alignment: Alignment.center,
+                            child: Text(
+                              _previewIcon!,
+                              style: const TextStyle(fontSize: 28),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const AppSpacingWidget.horizontalMD(),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +179,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                                         fontWeight: FontWeight.w500,
                                       ),
                                 ),
-                                const SizedBox(height: 2),
+                                const AppSpacingWidget.horizontalXS(),
                                 Text(
                                   'Terdeteksi dari nama kategori',
                                   style: Theme.of(context)
@@ -206,7 +202,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                       ),
                     ),
 
-                  const SizedBox(height: 12),
+                  const AppSpacingWidget.verticalMD(),
 
                   // Info text
                   Text(
@@ -218,13 +214,13 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                     textAlign: TextAlign.center,
                   ),
 
-                  const SizedBox(height: 12),
+                  const AppSpacingWidget.verticalMD(),
 
                   // Submit button
                   ElevatedButton(
                     onPressed: _isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: AppSpacing.symmetric(vertical: AppSpacing.lg),
                     ),
                     child: _isSubmitting
                         ? const SizedBox(
@@ -235,7 +231,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                         : const Text('Tambah Kategori'),
                   ),
 
-                  const SizedBox(height: 16),
+                  const AppSpacingWidget.verticalLG(),
                 ],
               ),
             ),

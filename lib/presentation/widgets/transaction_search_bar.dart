@@ -73,10 +73,10 @@ class _TransactionSearchBarState extends ConsumerState<TransactionSearchBar> {
           if (_controller.text.isNotEmpty)
             InkWell(
               onTap: _clearSearch,
-              borderRadius: BorderRadius.circular(12),
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.clear, size: 20),
+              borderRadius: AppRadius.mdAll,
+              child: Padding(
+                padding: AppSpacing.all(AppSpacing.xs),
+                child: const Icon(Icons.clear, size: 20),
               ),
             ),
         ],

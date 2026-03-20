@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
-import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
 /// Widget untuk menampilkan breakdown kategori pengeluaran dalam bentuk pie chart
@@ -25,7 +24,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
       final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
       final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
       return AppGlassContainer.glassCard(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
         child: Center(
           child: Column(
             children: [
@@ -34,7 +33,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
                 size: 48,
                 color: tertiaryColor,
               ),
-              const SizedBox(height: 12),
+              const AppSpacingWidget.verticalMD(),
               Text(
                 'Belum ada data pengeluaran',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -78,7 +77,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
     }
 
     return AppGlassContainer.glassCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,7 +89,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
                 color: AppColors.primary,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              const AppSpacingWidget.horizontalSM(),
               Text(
                 'Breakdown Pengeluaran',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -100,7 +99,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const AppSpacingWidget.verticalLG(),
 
           // Pie Chart
           SizedBox(
@@ -117,12 +116,12 @@ class CategoryBreakdownWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const AppSpacingWidget.verticalLG(),
 
           // Legend
           _buildLegend(chartData, isDark),
 
-          const SizedBox(height: 8),
+          const AppSpacingWidget.verticalSM(),
         ],
       ),
     );
@@ -165,7 +164,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
     return Column(
       children: data.map((item) {
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: AppSpacing.symmetric(vertical: AppSpacing.xs),
           child: Row(
             children: [
               // Color indicator
@@ -174,10 +173,10 @@ class CategoryBreakdownWidget extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   color: item.color,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: AppRadius.circular(3), // Non-standard (3px)
                 ),
               ),
-              const SizedBox(width: 8),
+              const AppSpacingWidget.horizontalSM(),
 
               // Category name
               Expanded(
@@ -201,7 +200,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
               ),
 
               // Percentage
-              const SizedBox(width: 8),
+              const AppSpacingWidget.horizontalSM(),
               Text(
                 '${item.percentage.toStringAsFixed(1)}%',
                 style: TextStyle(

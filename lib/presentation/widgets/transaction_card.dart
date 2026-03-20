@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:intl/intl.dart';
-import '../utils/app_colors.dart';
-import '../utils/currency_formatter.dart';
+import '../utils/utils.dart';
 import 'base/base.dart';
 
 /// Card item untuk menampilkan transaksi dalam list
@@ -36,12 +35,12 @@ class TransactionCard extends StatelessWidget {
     final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
 
     return AppGlassContainer.glassCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.mdAll,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.lgAll,
           child: Row(
             children: [
               // Category Icon
@@ -49,7 +48,7 @@ class TransactionCard extends StatelessWidget {
                 icon: category.icon ?? '📦',
                 color: categoryColor,
               ),
-              const SizedBox(width: 12),
+              const AppSpacingWidget.horizontalMD(),
 
               // Transaction Details
               Expanded(
@@ -63,7 +62,7 @@ class TransactionCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const AppSpacingWidget.verticalXS(),
                     // Date & Time
                     Text(
                       _formatDateTime(),
@@ -74,7 +73,7 @@ class TransactionCard extends StatelessWidget {
                     // Note (if any)
                     if (transaction.note != null &&
                         transaction.note!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const AppSpacingWidget.horizontalXS(),
                       Text(
                         transaction.note!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -176,7 +175,7 @@ class TransactionCard extends StatelessWidget {
           child: Row(
             children: [
               const Icon(Icons.edit_outlined, size: 20),
-              const SizedBox(width: 12),
+              const AppSpacingWidget.horizontalMD(),
               Text(
                 'Edit',
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -189,7 +188,7 @@ class TransactionCard extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.delete_outline, size: 20, color: AppColors.expense),
-              const SizedBox(width: 12),
+              const AppSpacingWidget.horizontalMD(),
               Text(
                 'Hapus',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -216,20 +215,15 @@ class _CategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppContainer(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: AppRadius.lgAll,
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(
-          icon,
-          style: TextStyle(
-            fontSize: 24,
-          ),
-        ),
+      alignment: Alignment.center,
+      child: Text(
+        icon,
+        style: const TextStyle(fontSize: 24),
       ),
     );
   }
@@ -271,7 +265,7 @@ class TransactionDateHeader extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: AppSpacing.only(left: AppSpacing.lg, top: AppSpacing.lg, right: AppSpacing.lg, bottom: AppSpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -330,10 +324,10 @@ class SwipeableTransactionCard extends StatelessWidget {
       },
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
+        padding: AppSpacing.only(right: 20),
         decoration: BoxDecoration(
           color: AppColors.expense,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
         ),
         child: const Icon(
           Icons.delete,
@@ -399,14 +393,14 @@ class CompactTransactionCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
         child: Row(
           children: [
             Text(
               category.icon ?? '📦',
               style: const TextStyle(fontSize: 20),
             ),
-            const SizedBox(width: 12),
+            const AppSpacingWidget.horizontalMD(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -26,7 +26,7 @@ class RecommendationCard extends StatelessWidget {
       children: [
         // Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
           child: Row(
             children: [
               Icon(
@@ -34,7 +34,7 @@ class RecommendationCard extends StatelessWidget {
                 color: AppColors.primary,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              const AppSpacingWidget.horizontalSM(),
               Text(
                 'Rekomendasi',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -56,7 +56,7 @@ class RecommendationCard extends StatelessWidget {
           );
         }),
 
-        const SizedBox(height: 8),
+        const AppSpacingWidget.verticalSM(),
       ],
     );
   }
@@ -80,29 +80,27 @@ class _RecommendationItem extends StatelessWidget {
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
 
     return AppGlassContainer.glassCard(
-      margin: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: isFirst ? 12 : 8,
-        top: isFirst ? 0 : 8,
+      margin: AppSpacing.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: isFirst ? AppSpacing.md : AppSpacing.sm,
+        top: isFirst ? 0 : AppSpacing.sm,
       ),
       padding: AppSpacing.all(AppSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Icon
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: priorityColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
+          AppContainer(
+            padding: AppSpacing.all(AppSpacing.sm),
+            color: priorityColor.withValues(alpha: 0.15),
+            borderRadius: AppRadius.smAll,
             child: Text(
               recommendation.type.icon,
               style: const TextStyle(fontSize: 20),
             ),
           ),
-          const SizedBox(width: 12),
+          const AppSpacingWidget.horizontalMD(),
 
           // Content
           Expanded(
@@ -125,7 +123,7 @@ class _RecommendationItem extends StatelessWidget {
                     _PriorityBadge(priority: recommendation.priority),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const AppSpacingWidget.horizontalSM(),
 
                 // Message
                 Text(
@@ -138,7 +136,7 @@ class _RecommendationItem extends StatelessWidget {
 
                 // Value display (if any)
                 if (recommendation.value != null) ...[
-                  const SizedBox(height: 8),
+                  const AppSpacingWidget.verticalSM(),
                   _ValueIndicator(
                     value: recommendation.value!,
                     type: recommendation.type,
@@ -178,12 +176,9 @@ class _PriorityBadge extends StatelessWidget {
       RecommendationPriority.low => ('Rendah', AppColors.success),
     };
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return AppContainer.pill(
+      padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      color: color.withValues(alpha: 0.15),
       child: Text(
         label,
         style: TextStyle(
@@ -258,9 +253,9 @@ class _ValueIndicator extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const AppSpacingWidget.horizontalXS(),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: AppRadius.xsAll,
           child: LinearProgressIndicator(
             value: percentage / 100,
             backgroundColor: tertiaryColor,

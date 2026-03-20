@@ -24,7 +24,7 @@ class IncomeBreakdownWidget extends StatelessWidget {
       final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
       final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
       return AppGlassContainer.glassCard(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
         child: Padding(
           padding: AppSpacing.all(AppSpacing.xxl),
           child: Center(

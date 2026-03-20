@@ -88,7 +88,7 @@ class _CurrencyInputFieldState extends ConsumerState<CurrencyInputField> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 8),
+          const AppSpacingWidget.verticalSM(),
         ],
         AppGlassContainer.glassCard(
           padding: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xl),
@@ -129,9 +129,9 @@ class _CurrencyInputFieldState extends ConsumerState<CurrencyInputField> {
           ),
         ),
         if (hasError) ...[
-          const SizedBox(height: 8),
+          const AppSpacingWidget.verticalSM(),
           Padding(
-            padding: const EdgeInsets.only(left: 16),
+            padding: AppSpacing.only(left: AppSpacing.lg),
             child: Text(
               widget.errorText!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(

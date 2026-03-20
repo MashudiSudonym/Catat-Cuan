@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import '../utils/app_colors.dart';
+import '../utils/utils.dart';
+import 'base/base.dart';
 
 /// Grid selection untuk kategori transaksi
 /// Menampilkan kategori dalam grid 4 kolom dengan icon dan nama
@@ -27,7 +28,7 @@ class CategoryGrid extends StatelessWidget {
     if (categories.isEmpty) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: AppSpacing.xxxlAll,
           child: Text('Tidak ada kategori tersedia'),
         ),
       );
@@ -42,15 +43,15 @@ class CategoryGrid extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 12),
+        const AppSpacingWidget.verticalMD(),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             childAspectRatio: 1,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            crossAxisSpacing: AppSpacing.sm,
+            mainAxisSpacing: AppSpacing.sm,
           ),
           itemCount: showAddButton && onAddCategory != null
               ? categories.length + 1
@@ -171,7 +172,7 @@ class _CategoryItemState extends State<_CategoryItem>
             color: widget.isSelected
                 ? widget.color
                 : widget.color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.mdAll,
             border: Border.all(
               color: widget.isSelected
                   ? widget.color
@@ -183,22 +184,19 @@ class _CategoryItemState extends State<_CategoryItem>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Icon
-              Container(
+              AppContainer(
                 width: 32,
                 height: 32,
-                decoration: BoxDecoration(
-                  color: widget.isSelected
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : widget.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.icon,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: widget.isSelected ? Colors.white : widget.color,
-                    ),
+                color: widget.isSelected
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : widget.color.withValues(alpha: 0.1),
+                borderRadius: AppRadius.smAll,
+                alignment: Alignment.center,
+                child: Text(
+                  widget.icon,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: widget.isSelected ? Colors.white : widget.color,
                   ),
                 ),
               ),
@@ -243,7 +241,7 @@ class _AddCategoryItem extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.mdAll,
           border: Border.all(
             color: Colors.grey.shade300,
             width: 1,
@@ -252,19 +250,16 @@ class _AddCategoryItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            AppContainer(
               width: 32,
               height: 32,
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.add,
-                  size: 18,
-                  color: Colors.grey,
-                ),
+              color: Colors.grey.withValues(alpha: 0.1),
+              borderRadius: AppRadius.smAll,
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.add,
+                size: 18,
+                color: Colors.grey,
               ),
             ),
             const SizedBox(height: 6),
@@ -319,10 +314,10 @@ class CategoryChips extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 8),
+        const AppSpacingWidget.verticalSM(),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: categories.map((category) {
             final isSelected = selectedCategoryId == category.id;
             final color = _getCategoryColor(category);
@@ -332,7 +327,7 @@ class CategoryChips extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(category.icon ?? '📦'),
-                  const SizedBox(width: 4),
+                  const AppSpacingWidget.horizontalXS(),
                   Text(category.name),
                 ],
               ),

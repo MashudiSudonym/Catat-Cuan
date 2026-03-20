@@ -76,7 +76,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(),
-                        SizedBox(height: 16),
+                        AppSpacingWidget.verticalLG(),
                         Text('Mengekspor transaksi...'),
                       ],
                     ),

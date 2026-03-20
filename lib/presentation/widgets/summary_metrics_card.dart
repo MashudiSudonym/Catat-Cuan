@@ -22,7 +22,7 @@ class SummaryMetricsCard extends StatelessWidget {
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
     return AppGlassContainer.glassCard(
-      margin: const EdgeInsets.all(16),
+      margin: AppSpacing.lgAll,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,15 +34,15 @@ class SummaryMetricsCard extends StatelessWidget {
                   color: textColor,
                 ),
           ),
-          const SizedBox(height: 16),
+          const AppSpacingWidget.verticalLG(),
 
           // Metrics Grid
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+            mainAxisSpacing: AppSpacing.md,
+            crossAxisSpacing: AppSpacing.md,
             childAspectRatio: 1.5,
             children: [
               _MetricCard(
@@ -130,12 +130,11 @@ class _MetricCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Icon
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
+          AppContainer(
+            padding: AppSpacing.all(AppSpacing.xs + 2),
+            color: iconColor.withValues(alpha: 0.2),
+            borderRadius: AppRadius.smAll,
+            alignment: Alignment.center,
             child: Icon(
               icon,
               color: iconColor,

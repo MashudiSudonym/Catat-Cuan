@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:catat_cuan/presentation/utils/app_colors.dart';
-import 'package:catat_cuan/presentation/utils/glassmorphism/app_glassmorphism.dart';
+import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'dart:ui';
 
 /// Bottom sheet untuk memilih bulan dan tahun
@@ -54,13 +54,13 @@ class _MonthPickerBottomSheetState extends State<MonthPickerBottomSheet> {
       expand: false,
       builder: (context, scrollController) {
         return ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: adjustedBlur, sigmaY: adjustedBlur),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.getGlassOverlay(isDark: isDark, alpha: adjustedAlpha),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
                 border: Border(
                   top: BorderSide(
                     color: AppColors.getGlassBorder(isDark: isDark),
@@ -76,11 +76,11 @@ class _MonthPickerBottomSheetState extends State<MonthPickerBottomSheet> {
                   Expanded(
                     child: ListView(
                       controller: scrollController,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: AppSpacing.vertical(AppSpacing.sm),
                       children: [
                         // Opsi "Semua Data"
                         _buildAllDataOption(isDark),
-                        const Divider(height: 24),
+                        const Divider(height: AppSpacing.xxl),
                         // Daftar bulan
                         _buildMonthList(isDark),
                       ],
@@ -97,12 +97,12 @@ class _MonthPickerBottomSheetState extends State<MonthPickerBottomSheet> {
 
   Widget _buildHandle(bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      margin: AppSpacing.vertical(AppSpacing.md),
       width: 40,
       height: 4,
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: AppRadius.circular(2), // Non-standard (2px)
       ),
     );
   }
@@ -111,14 +111,14 @@ class _MonthPickerBottomSheetState extends State<MonthPickerBottomSheet> {
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Row(
         children: [
           Icon(
             Icons.calendar_today,
             color: AppColors.primary,
           ),
-          const SizedBox(width: 12),
+          const AppSpacingWidget.horizontalMD(),
           Text(
             'Pilih Periode',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -176,7 +176,7 @@ class _MonthPickerBottomSheetState extends State<MonthPickerBottomSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
           child: Text(
             'Bulan',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -235,7 +235,7 @@ class _MonthOptionTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.15)
@@ -249,21 +249,20 @@ class _MonthOptionTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primary
-                    : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
-                borderRadius: BorderRadius.circular(8),
-              ),
+            AppContainer(
+              padding: AppSpacing.all(AppSpacing.sm),
+              color: isSelected
+                  ? AppColors.primary
+                  : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+              borderRadius: AppRadius.smAll,
+              alignment: Alignment.center,
               child: Icon(
                 icon,
                 size: 20,
                 color: isSelected ? Colors.white : textColor.withValues(alpha: 0.7),
               ),
             ),
-            const SizedBox(width: 12),
+            const AppSpacingWidget.horizontalMD(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
