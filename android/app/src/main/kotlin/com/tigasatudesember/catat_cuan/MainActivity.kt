@@ -1,4 +1,4 @@
-package com.example.catat_cuan
+package com.tigasatudesember.catat_cuan
 
 import io.flutter.embedding.android.FlutterActivity
 
