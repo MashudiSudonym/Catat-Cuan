@@ -4,6 +4,8 @@ import 'package:catat_cuan/domain/entities/export_action_entity.dart';
 import 'package:catat_cuan/domain/usecases/export_transactions_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 part 'export_provider.g.dart';
 
@@ -66,6 +68,7 @@ class ExportNotifier extends _$ExportNotifier {
     TransactionType? type,
     String? fileNameSuffix,
   }) async {
+    AppLogger.d('Starting export with filters');
     state = ExportState.loading();
 
     final exportUseCase = ref.read(exportTransactionsUseCaseProvider);
@@ -79,8 +82,10 @@ class ExportNotifier extends _$ExportNotifier {
     );
 
     if (result.isSuccess) {
+      AppLogger.i('Export successful: ${result.data}');
       state = ExportState.success(result.data!);
     } else {
+      AppLogger.w('Export failed: ${result.failure?.message}');
       state = ExportState.error(result.failure!.message);
     }
   }
@@ -93,6 +98,7 @@ class ExportNotifier extends _$ExportNotifier {
     TransactionType? type,
     String? fileNameSuffix,
   }) async {
+    AppLogger.d('Starting CSV save to device');
     state = ExportState.loading();
 
     final exportService = ref.read(exportServiceProvider);
@@ -108,6 +114,7 @@ class ExportNotifier extends _$ExportNotifier {
       );
 
       if (transactionsResult.isFailure) {
+        AppLogger.w('Failed to load transactions for export');
         state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
         return;
       }
@@ -115,6 +122,7 @@ class ExportNotifier extends _$ExportNotifier {
       final transactions = transactionsResult.data ?? [];
 
       if (transactions.isEmpty) {
+        AppLogger.i('No transactions to export');
         state = ExportState.error('Tidak ada transaksi untuk diekspor');
         return;
       }
@@ -129,12 +137,15 @@ class ExportNotifier extends _$ExportNotifier {
       );
 
       if (result.isSuccess) {
+        AppLogger.i('CSV saved successfully: ${result.data}');
         state = ExportState.success(result.data!, ExportAction.saveToDevice);
       } else {
+        AppLogger.w('CSV save failed: ${result.failure?.message}');
         state = ExportState.error(result.failure!.message);
       }
-    } catch (e) {
-      state = ExportState.error('Gagal mengekspor: ${e.toString()}');
+    } catch (e, stackTrace) {
+      AppLogger.e('CSV save operation failed', e, stackTrace);
+      state = ExportState.error(ErrorMessageMapper.getUserMessage(e));
     }
   }
 
@@ -146,6 +157,7 @@ class ExportNotifier extends _$ExportNotifier {
     TransactionType? type,
     String? fileNameSuffix,
   }) async {
+    AppLogger.d('Starting CSV share');
     state = ExportState.loading();
 
     final exportService = ref.read(exportServiceProvider);
@@ -161,6 +173,7 @@ class ExportNotifier extends _$ExportNotifier {
       );
 
       if (transactionsResult.isFailure) {
+        AppLogger.w('Failed to load transactions for share');
         state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
         return;
       }
@@ -168,6 +181,7 @@ class ExportNotifier extends _$ExportNotifier {
       final transactions = transactionsResult.data ?? [];
 
       if (transactions.isEmpty) {
+        AppLogger.i('No transactions to share');
         state = ExportState.error('Tidak ada transaksi untuk diekspor');
         return;
       }
@@ -182,12 +196,15 @@ class ExportNotifier extends _$ExportNotifier {
       );
 
       if (result.isSuccess) {
+        AppLogger.i('CSV shared successfully');
         state = ExportState.success(result.data!, ExportAction.share);
       } else {
+        AppLogger.w('CSV share failed: ${result.failure?.message}');
         state = ExportState.error(result.failure!.message);
       }
-    } catch (e) {
-      state = ExportState.error('Gagal mengekspor: ${e.toString()}');
+    } catch (e, stackTrace) {
+      AppLogger.e('CSV share operation failed', e, stackTrace);
+      state = ExportState.error(ErrorMessageMapper.getUserMessage(e));
     }
   }
 

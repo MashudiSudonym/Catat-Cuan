@@ -1,5 +1,7 @@
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
 
@@ -129,10 +131,17 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
 
   /// Load semua kategori dengan count
   Future<void> _loadCategories() async {
+    AppLogger.d('Loading categories with transaction counts');
+
     final getCategoriesWithCountUseCase = ref.read(getCategoriesWithCountUseCaseProvider);
 
     try {
       final result = await getCategoriesWithCountUseCase.execute();
+
+      AppLogger.i('Categories loaded: '
+          '${result.incomeCategories.length} income, '
+          '${result.expenseCategories.length} expense, '
+          '${result.inactiveCategories.length} inactive');
 
       state = state.copyWith(
         incomeCategories: result.incomeCategories,
@@ -140,9 +149,10 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
         inactiveCategories: result.inactiveCategories,
         isLoading: false,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to load categories', e, stackTrace);
       state = state.copyWith(
-        error: e.toString(),
+        error: ErrorMessageMapper.getUserMessage(e),
         isLoading: false,
         incomeCategories: [],
         expenseCategories: [],
@@ -153,72 +163,97 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
 
   /// Switch tab
   void switchTab(CategoryManagementTab tab) {
+    AppLogger.d('Switching to tab: $tab');
     state = state.copyWith(selectedTab: tab);
   }
 
   /// Set search query
   void setSearchQuery(String query) {
+    AppLogger.d('Setting search query: "$query"');
     state = state.copyWith(searchQuery: query);
   }
 
   /// Clear search
   void clearSearch() {
+    AppLogger.d('Clearing search query');
     state = state.copyWith(searchQuery: '');
   }
 
   /// Deactivate kategori
   Future<bool> deactivateCategory(int categoryId) async {
+    AppLogger.d('Deactivating category: $categoryId');
+
     final deactivateCategoryUseCase = ref.read(deactivateCategoryUseCaseProvider);
 
     try {
       await deactivateCategoryUseCase.execute(categoryId);
+      AppLogger.i('Category deactivated successfully: $categoryId');
       await _loadCategories(); // Refresh data
       return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('Failed to deactivate category', e, stackTrace);
+      state = state.copyWith(error: userMessage);
       return false;
     }
   }
 
   /// Reactivate kategori
   Future<bool> reactivateCategory(int categoryId) async {
+    AppLogger.d('Reactivating category: $categoryId');
+
     final reactivateCategoryUseCase = ref.read(reactivateCategoryUseCaseProvider);
 
     try {
       await reactivateCategoryUseCase.execute(categoryId);
+      AppLogger.i('Category reactivated successfully: $categoryId');
       await _loadCategories(); // Refresh data
       return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('Failed to reactivate category', e, stackTrace);
+      state = state.copyWith(error: userMessage);
       return false;
     }
   }
 
   /// Reorder kategori (hanya untuk tab yang sedang aktif)
   Future<void> reorderCategories(List<int> categoryIds) async {
+    AppLogger.d('Reordering ${categoryIds.length} categories');
+
     final reorderCategoriesUseCase = ref.read(reorderCategoriesUseCaseProvider);
 
     try {
       await reorderCategoriesUseCase.execute(categoryIds);
+      AppLogger.i('Categories reordered successfully');
       await _loadCategories(); // Refresh data
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('Failed to reorder categories', e, stackTrace);
+      state = state.copyWith(error: userMessage);
     }
   }
 
   /// Get transaction count untuk kategori (untuk warning dialog)
   Future<int> getTransactionCount(int categoryId) async {
+    AppLogger.d('Getting transaction count for category: $categoryId');
+
     final deactivateCategoryUseCase = ref.read(deactivateCategoryUseCaseProvider);
-    return await deactivateCategoryUseCase.getTransactionCount(categoryId);
+    final count = await deactivateCategoryUseCase.getTransactionCount(categoryId);
+
+    AppLogger.d('Transaction count for category $categoryId: $count');
+    return count;
   }
 
   /// Clear error
   void clearError() {
+    AppLogger.d('Clearing error state');
     state = state.copyWith(error: null);
   }
 
   /// Refresh data (pull to refresh)
   Future<void> refresh() async {
+    AppLogger.d('Refreshing categories');
     await _loadCategories();
   }
 }

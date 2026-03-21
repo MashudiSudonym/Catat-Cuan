@@ -2,6 +2,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// Implementation of OCR service using Google ML Kit
 ///
@@ -11,7 +12,9 @@ import 'package:catat_cuan/domain/services/ocr_service.dart';
 class ReceiptOcrServiceImpl implements OcrService {
   final TextRecognizer _textRecognizer;
 
-  ReceiptOcrServiceImpl() : _textRecognizer = TextRecognizer();
+  ReceiptOcrServiceImpl() : _textRecognizer = TextRecognizer() {
+    AppLogger.d('ReceiptOcrService initialized');
+  }
 
   /// Extracts text from an image file
   ///
@@ -19,18 +22,25 @@ class ReceiptOcrServiceImpl implements OcrService {
   /// Returns a failure result if text extraction fails.
   @override
   Future<Result<String>> extractText(String imagePath) async {
+    AppLogger.d('Starting OCR extraction for: $imagePath');
+
     try {
       // Create InputImage from file path
       final inputImage = InputImage.fromFilePath(imagePath);
+      AppLogger.d('InputImage created successfully');
 
       // Process OCR
       final RecognizedText recognizedText =
           await _textRecognizer.processImage(inputImage);
 
+      final extractedText = recognizedText.text;
+      AppLogger.i('OCR extraction successful, text length: ${extractedText.length}');
+
       // Return the extracted text
-      return Result.success(recognizedText.text);
-    } catch (e) {
-      return Result.failure(OcrFailure('Gagal membaca struk: ${e.toString()}'));
+      return Result.success(extractedText);
+    } catch (e, stackTrace) {
+      AppLogger.e('OCR extraction failed', e, stackTrace);
+      return Result.failure(const OcrFailure('Gagal membaca struk'));
     }
   }
 
@@ -40,6 +50,7 @@ class ReceiptOcrServiceImpl implements OcrService {
   /// to prevent memory leaks.
   @override
   void dispose() {
+    AppLogger.d('Disposing ReceiptOcrService');
     _textRecognizer.close();
   }
 }

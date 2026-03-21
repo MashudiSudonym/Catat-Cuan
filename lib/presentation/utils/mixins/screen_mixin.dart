@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 /// Mixin providing common screen behaviors
 /// Use this mixin to add consistent UI patterns to your State classes
@@ -263,6 +265,53 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
   void popRouteUntil(RoutePredicate predicate) {
     Navigator.of(context).popUntil(predicate);
   }
+
+  /// Log error with stack trace
+  void logError(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
+    AppLogger.e(message, error, stackTrace);
+  }
+
+  /// Log info message
+  void logInfo(String message) {
+    AppLogger.i(message);
+  }
+
+  /// Log debug message
+  void logDebug(String message) {
+    AppLogger.d(message);
+  }
+
+  /// Log warning message
+  void logWarning(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
+    AppLogger.w(message, error, stackTrace);
+  }
+
+  /// Show error with automatic logging
+  void showErrorWithLogging(
+    dynamic error, [
+    StackTrace? stackTrace,
+  ]) {
+    final message = ErrorMessageMapper.getUserMessage(error);
+    AppLogger.e(message, error, stackTrace);
+    showErrorSnackBar(message);
+  }
+
+  /// Show success with logging
+  void showSuccessWithLogging(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    AppLogger.i(message);
+    showSuccessSnackBar(message, duration: duration);
+  }
 }
 
 /// Mixin for ConsumerState with Riverpod
@@ -333,5 +382,52 @@ mixin ConsumerScreenStateMixin<T extends ConsumerStatefulWidget>
   /// Unfocus keyboard
   void unfocusKeyboard() {
     FocusScope.of(context).unfocus();
+  }
+
+  /// Log error with stack trace
+  void logError(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
+    AppLogger.e(message, error, stackTrace);
+  }
+
+  /// Log info message
+  void logInfo(String message) {
+    AppLogger.i(message);
+  }
+
+  /// Log debug message
+  void logDebug(String message) {
+    AppLogger.d(message);
+  }
+
+  /// Log warning message
+  void logWarning(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
+    AppLogger.w(message, error, stackTrace);
+  }
+
+  /// Show error with automatic logging
+  void showErrorWithLogging(
+    dynamic error, [
+    StackTrace? stackTrace,
+  ]) {
+    final message = ErrorMessageMapper.getUserMessage(error);
+    AppLogger.e(message, error, stackTrace);
+    showErrorSnackBar(message);
+  }
+
+  /// Show success with logging
+  void showSuccessWithLogging(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    AppLogger.i(message);
+    showSuccessSnackBar(message, duration: duration);
   }
 }

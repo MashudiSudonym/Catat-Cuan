@@ -2,6 +2,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/services/permission_service.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// Implementation of permission service
 ///
@@ -16,23 +17,30 @@ class PermissionServiceImpl implements PermissionService {
   /// Returns failure if permission is permanently denied.
   @override
   Future<Result<bool>> requestCameraPermission() async {
+    AppLogger.d('Requesting camera permission');
+
     try {
       final status = await Permission.camera.request();
+      AppLogger.d('Camera permission status: ${status.name}');
 
       if (status.isGranted) {
+        AppLogger.i('Camera permission granted');
         return Result.success(true);
       } else if (status.isPermanentlyDenied) {
+        AppLogger.w('Camera permission permanently denied');
         return Result.failure(
           const PermissionFailure(
             'Izin kamera diperlukan. Silakan aktifkan di Pengaturan.',
           ),
         );
       } else {
+        AppLogger.i('Camera permission denied (not permanent)');
         return Result.success(false);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to request camera permission', e, stackTrace);
       return Result.failure(
-        UnknownFailure('Gagal meminta izin: ${e.toString()}'),
+        UnknownFailure('Gagal meminta izin kamera'),
       );
     }
   }
@@ -45,24 +53,31 @@ class PermissionServiceImpl implements PermissionService {
   /// Returns failure if permission is permanently denied.
   @override
   Future<Result<bool>> requestStoragePermission() async {
+    AppLogger.d('Requesting storage/photos permission');
+
     try {
       // For Android 13+ use photos permission
       final status = await Permission.photos.request();
+      AppLogger.d('Storage permission status: ${status.name}');
 
       if (status.isGranted) {
+        AppLogger.i('Storage permission granted');
         return Result.success(true);
       } else if (status.isPermanentlyDenied) {
+        AppLogger.w('Storage permission permanently denied');
         return Result.failure(
           const PermissionFailure(
             'Izin galeri diperlukan. Silakan aktifkan di Pengaturan.',
           ),
         );
       } else {
+        AppLogger.i('Storage permission denied (not permanent)');
         return Result.success(false);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to request storage permission', e, stackTrace);
       return Result.failure(
-        UnknownFailure('Gagal meminta izin: ${e.toString()}'),
+        UnknownFailure('Gagal meminta izin galeri'),
       );
     }
   }
@@ -70,13 +85,17 @@ class PermissionServiceImpl implements PermissionService {
   /// Checks if camera permission is currently granted
   @override
   Future<bool> checkCameraPermission() async {
-    return await Permission.camera.status.isGranted;
+    final isGranted = await Permission.camera.status.isGranted;
+    AppLogger.d('Camera permission check: $isGranted');
+    return isGranted;
   }
 
   /// Checks if storage/photos permission is currently granted
   @override
   Future<bool> checkStoragePermission() async {
-    return await Permission.photos.status.isGranted;
+    final isGranted = await Permission.photos.status.isGranted;
+    AppLogger.d('Storage permission check: $isGranted');
+    return isGranted;
   }
 
   /// Opens the app settings page
@@ -85,17 +104,22 @@ class PermissionServiceImpl implements PermissionService {
   /// needs to manually enable them.
   @override
   Future<Result<bool>> openSettings() async {
+    AppLogger.d('Opening app settings');
+
     try {
       final opened = await openAppSettings();
       if (opened) {
+        AppLogger.i('App settings opened successfully');
         return Result.success(true);
       }
+      AppLogger.w('Failed to open app settings');
       return Result.failure(
-        const UnknownFailure('Gagal membuka pengaturan'),
+        UnknownFailure('Gagal membuka pengaturan'),
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Error opening app settings', e, stackTrace);
       return Result.failure(
-        UnknownFailure('Gagal membuka pengaturan: ${e.toString()}'),
+        UnknownFailure('Gagal membuka pengaturan'),
       );
     }
   }

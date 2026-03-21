@@ -9,15 +9,27 @@ import 'package:catat_cuan/presentation/screens/profile_screen.dart';
 import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 void main() async {
+  // Initialize logger first (before any other operations)
+  AppLogger.initialize();
+  AppLogger.i('Application starting...');
+
   // Initialize date formatting for Indonesian locale
-  await initializeDateFormatting('id_ID');
+  try {
+    await initializeDateFormatting('id_ID');
+    AppLogger.i('Date formatting initialized for id_ID locale');
+  } catch (e, stackTrace) {
+    AppLogger.e('Failed to initialize date formatting', e, stackTrace);
+  }
 
   const app = ProviderScope(
     child: MyApp(),
   );
   runApp(app);
+  AppLogger.i('Application started successfully');
 }
 
 class MyApp extends ConsumerWidget {
@@ -41,7 +53,12 @@ class MyApp extends ConsumerWidget {
       home: initialization.when(
         data: (_) => const HomeScreen(),
         loading: () => const _InitializationScreen(),
-        error: (error, _) => _ErrorScreen(error: error.toString()),
+        error: (error, stackTrace) {
+          AppLogger.e('App initialization failed', error, stackTrace);
+          return _ErrorScreen(
+            message: ErrorMessageMapper.getUserMessage(error),
+          );
+        },
       ),
     );
   }
@@ -199,16 +216,16 @@ class _InitializationScreen extends StatelessWidget {
 
 /// Error screen shown if initialization fails
 class _ErrorScreen extends StatelessWidget {
-  final String error;
+  final String message;
 
-  const _ErrorScreen({required this.error});
+  const _ErrorScreen({required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: AppSpacing.xxxlAll,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -225,19 +242,34 @@ class _ErrorScreen extends StatelessWidget {
                   color: Theme.of(context).colorScheme.error,
                 ),
               ),
-              const SizedBox(height: 20),
+              AppSpacingWidget.verticalXXL(),
               Text(
                 'Terjadi Kesalahan',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              AppSpacingWidget.verticalMD(),
               Text(
-                error,
+                message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              AppSpacingWidget.verticalXXL(),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Attempt to restart the app
+                  AppLogger.i('User requested app restart after error');
+                  main();
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                 ),
               ),
             ],

@@ -1,5 +1,7 @@
 import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 import 'package:catat_cuan/presentation/providers/services/service_providers.dart';
 
@@ -80,6 +82,8 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
 
   /// Scan struk dari kamera
   Future<void> scanFromCamera() async {
+    AppLogger.d('Starting camera scan');
+
     // Reset state sebelum memulai
     state = state.copyWith(
       isScanning: true,
@@ -90,8 +94,10 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     final permissionService = ref.read(permissionServiceProvider);
 
     // 1. Request permission kamera
+    AppLogger.d('Requesting camera permission');
     final permissionResult = await permissionService.requestCameraPermission();
     if (permissionResult.isFailure || !permissionResult.data!) {
+      AppLogger.w('Camera permission denied');
       state = state.copyWith(
         isScanning: false,
         errorMessage: permissionResult.failure?.message ?? 'Izin kamera diperlukan',
@@ -102,8 +108,10 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     final imagePickerService = ref.read(imagePickerServiceProvider);
 
     // 2. Ambil gambar dari kamera
+    AppLogger.d('Capturing image from camera');
     final imageResult = await imagePickerService.pickImageFromCamera();
     if (imageResult.isFailure) {
+      AppLogger.w('Failed to capture image from camera');
       state = state.copyWith(
         isScanning: false,
         errorMessage: imageResult.failure?.message ?? 'Gagal mengambil gambar',
@@ -112,6 +120,7 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     }
 
     final imagePath = imageResult.data!;
+    AppLogger.i('Image captured: $imagePath');
     state = state.copyWith(imagePath: imagePath);
 
     // 3. Proses OCR
@@ -120,6 +129,8 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
 
   /// Scan struk dari galeri
   Future<void> scanFromGallery() async {
+    AppLogger.d('Starting gallery scan');
+
     // Reset state sebelum memulai
     state = state.copyWith(
       isScanning: true,
@@ -130,8 +141,10 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     final permissionService = ref.read(permissionServiceProvider);
 
     // 1. Request permission galeri
+    AppLogger.d('Requesting storage permission');
     final permissionResult = await permissionService.requestStoragePermission();
     if (permissionResult.isFailure || !permissionResult.data!) {
+      AppLogger.w('Storage permission denied');
       state = state.copyWith(
         isScanning: false,
         errorMessage: permissionResult.failure?.message ?? 'Izin galeri diperlukan',
@@ -142,8 +155,10 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     final imagePickerService = ref.read(imagePickerServiceProvider);
 
     // 2. Ambil gambar dari galeri
+    AppLogger.d('Picking image from gallery');
     final imageResult = await imagePickerService.pickImageFromGallery();
     if (imageResult.isFailure) {
+      AppLogger.w('Failed to pick image from gallery');
       state = state.copyWith(
         isScanning: false,
         errorMessage: imageResult.failure?.message ?? 'Gagal memilih gambar',
@@ -152,6 +167,7 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
     }
 
     final imagePath = imageResult.data!;
+    AppLogger.i('Image selected: $imagePath');
     state = state.copyWith(imagePath: imagePath);
 
     // 3. Proses OCR
@@ -160,6 +176,7 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
 
   /// Proses OCR dari gambar
   Future<void> _processOcr(String imagePath) async {
+    AppLogger.d('Starting OCR processing');
     state = state.copyWith(isProcessing: true);
 
     final scanReceiptUseCase = ref.read(scanReceiptUseCaseProvider);
@@ -168,17 +185,20 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
       // Gunakan use case untuk scan
       final result = await scanReceiptUseCase.execute(imagePath);
 
+      AppLogger.i('OCR processing successful: extracted amount = ${result.extractedAmount}');
       state = state.copyWith(
         isScanning: false,
         isProcessing: false,
         scanResult: result,
         errorMessage: null,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('OCR processing failed', e, stackTrace);
       state = state.copyWith(
         isScanning: false,
         isProcessing: false,
-        errorMessage: e.toString(),
+        errorMessage: userMessage,
       );
     }
   }

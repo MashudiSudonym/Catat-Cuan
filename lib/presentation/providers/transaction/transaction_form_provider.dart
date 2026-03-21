@@ -2,6 +2,8 @@ import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/presentation/states/transaction_form_state.dart';
 import 'package:catat_cuan/presentation/states/validators/transaction_form_validator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
 import 'package:catat_cuan/presentation/providers/transaction/transaction_list_provider.dart';
@@ -132,8 +134,11 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
 
   /// Submit form
   Future<bool> submit() async {
+    AppLogger.d('Submitting transaction form: ${state.isEditMode ? "edit" : "add"} mode');
+
     // Validasi form (AC-LOG-002.3)
     if (!state.isValid) {
+      AppLogger.w('Form validation failed');
       state = state.copyWith(
         submitError: 'Mohon lengkapi semua field yang wajib diisi',
       );
@@ -170,11 +175,16 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
         updatedAt: DateTime.now(),
       );
 
+      AppLogger.i('Executing transaction use case: '
+          '${state.type!.value} - ${state.nominal}');
+
       // Execute use case
       if (state.isEditMode) {
         await updateTransactionUseCase.execute(transaction);
+        AppLogger.i('Transaction updated successfully');
       } else {
         await addTransactionUseCase.execute(transaction);
+        AppLogger.i('Transaction added successfully');
       }
 
       // Invalidate transaction list providers to trigger refresh
@@ -187,9 +197,11 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
       // Reset form setelah sukses (AC-LOG-004.1)
       state = _getInitialState();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('Transaction form submit failed', e, stackTrace);
       state = state.copyWith(
-        submitError: e.toString(),
+        submitError: userMessage,
         isSubmitting: false,
       );
       return false;

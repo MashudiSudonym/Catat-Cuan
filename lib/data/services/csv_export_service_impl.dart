@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/services/export_service.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// CSV Export service implementation
 /// Implements ExportService for CSV export functionality
@@ -14,21 +15,27 @@ class CsvExportServiceImpl implements ExportService {
     required List<Map<String, dynamic>> transactions,
     required String fileName,
   }) async {
+    AppLogger.d('Starting CSV export save: $fileName (${transactions.length} transactions)');
+
     try {
       // Get export directory
       final exportDir = await _getExportDirectory();
+      AppLogger.d('Export directory: ${exportDir.path}');
 
       // Generate CSV file
       final file = await _generateCsvFile(transactions, fileName, exportDir);
+      AppLogger.i('CSV file saved successfully: ${file.path}');
 
       // Verify file exists
       if (await file.exists()) {
         return Result.success(file.path);
       } else {
+        AppLogger.w('CSV file not found after save: ${file.path}');
         return Result.failure(ExportFailure('File tidak ditemukan setelah disimpan'));
       }
-    } catch (e) {
-      return Result.failure(ExportFailure('Gagal menyimpan: ${e.toString()}'));
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to save CSV file', e, stackTrace);
+      return Result.failure(ExportFailure('Gagal menyimpan file'));
     }
   }
 
@@ -37,20 +44,25 @@ class CsvExportServiceImpl implements ExportService {
     required List<Map<String, dynamic>> transactions,
     required String fileName,
   }) async {
+    AppLogger.d('Starting CSV export share: $fileName (${transactions.length} transactions)');
+
     try {
       // Generate CSV file in temp directory
       final tempDir = await getTemporaryDirectory();
       final file = await _generateCsvFile(transactions, fileName, tempDir);
+      AppLogger.d('CSV file generated in temp: ${file.path}');
 
       // Share the file
       await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'Export Transaksi - Catat Cuan',
       );
+      AppLogger.i('CSV file shared successfully');
 
       return Result.success(file.path);
-    } catch (e) {
-      return Result.failure(ExportFailure('Gagal membagikan: ${e.toString()}'));
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to share CSV file', e, stackTrace);
+      return Result.failure(ExportFailure('Gagal membagikan file'));
     }
   }
 
@@ -72,6 +84,7 @@ class CsvExportServiceImpl implements ExportService {
 
     // Create directory if it doesn't exist
     if (!await exportDir.exists()) {
+      AppLogger.d('Creating export directory: ${exportDir.path}');
       await exportDir.create(recursive: true);
     }
 
@@ -85,6 +98,8 @@ class CsvExportServiceImpl implements ExportService {
     String fileName,
     Directory directory,
   ) async {
+    AppLogger.d('Generating CSV file with ${transactions.length} rows');
+
     // Define CSV headers in Indonesian
     const headers = [
       'ID',
@@ -111,6 +126,7 @@ class CsvExportServiceImpl implements ExportService {
 
     // Generate CSV string
     final csvString = const ListToCsvConverter().convert(rows);
+    AppLogger.d('CSV string generated (${csvString.length} characters)');
 
     // Write to file
     final file = File('${directory.path}/$fileName.csv');

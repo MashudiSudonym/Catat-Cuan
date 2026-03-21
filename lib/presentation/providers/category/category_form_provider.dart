@@ -1,5 +1,7 @@
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
 
@@ -166,11 +168,14 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
 
   /// Submit form
   Future<bool> submit() async {
+    AppLogger.d('Submitting category form: ${state.isEditMode ? "edit" : "add"} mode');
+
     // Clear previous error
     state = state.copyWith(submitError: null);
 
     // Validasi form
     if (!state.isValid) {
+      AppLogger.w('Category form validation failed');
       state = state.copyWith(
         submitError: 'Mohon lengkapi semua field yang wajib diisi',
       );
@@ -199,11 +204,16 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
         updatedAt: DateTime.now(),
       );
 
+      AppLogger.i('Executing category use case: '
+          '${state.type.value} - ${state.name.trim()}');
+
       // Execute use case
       if (state.isEditMode) {
         await updateCategoryUseCase.execute(category);
+        AppLogger.i('Category updated successfully');
       } else {
         await addCategoryUseCase.execute(category);
+        AppLogger.i('Category added successfully');
       }
 
       // Reset form setelah sukses
@@ -211,9 +221,11 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
         type: CategoryType.expense,
       );
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      final userMessage = ErrorMessageMapper.getUserMessage(e);
+      AppLogger.e('Category form submit failed', e, stackTrace);
       state = state.copyWith(
-        submitError: e.toString(),
+        submitError: userMessage,
         isSubmitting: false,
       );
       return false;
