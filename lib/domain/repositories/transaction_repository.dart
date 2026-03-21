@@ -54,6 +54,11 @@ abstract class TransactionRepository {
   /// Mengembalikan Result dengan error jika gagal
   Future<Result<void>> deleteAllTransactions();
 
+  /// Menghapus beberapa transaksi sekaligus (batch delete)
+  /// - [ids]: Daftar ID transaksi yang akan dihapus
+  /// Mengembalikan Result dengan error jika gagal
+  Future<Result<void>> deleteMultipleTransactions(List<int> ids);
+
   /// Mengambil transaksi dengan filter
   /// - [startDate]: Filter tanggal awal (inclusive), null = tidak ada filter
   /// - [endDate]: Filter tanggal akhir (inclusive), null = tidak ada filter

@@ -55,47 +55,183 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return currentScroll >= (maxScroll * 0.8);
   }
 
+  /// Build app bar actions based on selection mode
+  List<Widget> _buildAppBarActions(
+    BuildContext context,
+    WidgetRef ref,
+    PaginatedTransactionListState paginatedState,
+    TransactionFilterState filterState,
+    TransactionSelectionState selectionState,
+    List<TransactionEntity> currentTransactions,
+    bool hasSearchQuery,
+  ) {
+    // Selection mode is active
+    if (selectionState.isSelectionModeActive) {
+      return [
+        // Select All / Deselect All button
+        if (currentTransactions.isNotEmpty)
+          TextButton(
+            onPressed: () => _toggleSelectAll(ref, currentTransactions),
+            child: Text(
+              selectionState.selectedIds.length == currentTransactions.length
+                  ? 'Batal Pilih'
+                  : 'Pilih Semua',
+            ),
+          ),
+
+        // Delete button (only show when items are selected)
+        if (selectionState.hasSelection)
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Hapus ${selectionState.selectedCount} Transaksi',
+            onPressed: () => _showBatchDeleteDialog(context, ref, selectionState),
+          ),
+
+        // Cancel button (X)
+        IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Keluar Mode Pilihan',
+          onPressed: () => _exitSelectionMode(ref),
+        ),
+      ];
+    }
+
+    // Normal mode
+    return [
+      // Export button
+      if (paginatedState.transactions.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.file_download),
+          tooltip: 'Ekspor CSV',
+          onPressed: () {
+            ExportOptionsBottomSheet.show(
+              context,
+              currentTypeFilter: filterState.type,
+            );
+          },
+        ),
+
+      // Filter button (AC-LOG-005.3)
+      IconButton(
+        icon: Icon(
+          filterState.hasActiveFilter ? Icons.filter_list_alt : Icons.filter_list,
+          color: filterState.hasActiveFilter ? AppColors.primary : null,
+        ),
+        onPressed: () {
+          TransactionFilterBottomSheetHelper.show(context, ref, filterState);
+        },
+      ),
+    ];
+  }
+
+  /// Exit selection mode
+  void _exitSelectionMode(WidgetRef ref) {
+    ref.read(transactionSelectionNotifierProvider.notifier).clearSelection();
+  }
+
+  /// Toggle select all / deselect all
+  void _toggleSelectAll(WidgetRef ref, List<TransactionEntity> transactions) {
+    final allIds = transactions.map((t) => t.id!).toList();
+    ref.read(transactionSelectionNotifierProvider.notifier).toggleSelectAll(allIds);
+  }
+
+  /// Show batch delete confirmation dialog
+  void _showBatchDeleteDialog(
+    BuildContext context,
+    WidgetRef ref,
+    TransactionSelectionState selectionState,
+  ) {
+    final count = selectionState.selectedCount;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Transaksi'),
+        content: Text(
+          '$count transaksi akan dihapus secara permanen.\n\n'
+          'Apakah Anda yakin?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                final ids = selectionState.selectedIds.toList();
+                await ref
+                    .read(deleteMultipleTransactionsUseCaseProvider)
+                    .execute(ids);
+
+                if (context.mounted) {
+                  // Exit selection mode
+                  _exitSelectionMode(ref);
+
+                  // Invalidate all transaction list providers and summary to trigger refresh
+                  ref.invalidate(transactionListNotifierProvider);
+                  ref.invalidate(transactionListPaginatedNotifierProvider);
+                  ref.invalidate(monthlySummaryNotifierProvider);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$count transaksi berhasil dihapus'),
+                      backgroundColor: AppColors.success,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal menghapus transaksi: $e'),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.expense,
+            ),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final paginatedState = ref.watch(transactionListPaginatedNotifierProvider);
     final filterState = ref.watch(transactionFilterNotifierProvider);
     final searchAsync = ref.watch(transactionSearchNotifierProvider);
+    final selectionState = ref.watch(transactionSelectionNotifierProvider);
     final hasSearchQuery = searchAsync.value?.isNotEmpty == true;
+
+    // Get current transaction list for select all functionality
+    final currentTransactions = hasSearchQuery
+        ? (searchAsync.value ?? [])
+        : paginatedState.transactions;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Riwayat Transaksi'),
-        actions: [
-          // Export button
-          if (paginatedState.transactions.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.file_download),
-              tooltip: 'Ekspor CSV',
-              onPressed: () {
-                ExportOptionsBottomSheet.show(
-                  context,
-                  currentTypeFilter: filterState.type,
-                );
-              },
-            ),
-          // Delete all transactions button (only visible if there are transactions)
-          if (paginatedState.transactions.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              tooltip: 'Hapus Semua Transaksi',
-              onPressed: () => _showDeleteAllDialog(context, ref),
-            ),
-          // Filter button (AC-LOG-005.3)
-          IconButton(
-            icon: Icon(
-              filterState.hasActiveFilter ? Icons.filter_list_alt : Icons.filter_list,
-              color: filterState.hasActiveFilter ? AppColors.primary : null,
-            ),
-            onPressed: () {
-              TransactionFilterBottomSheetHelper.show(context, ref, filterState);
-            },
-          ),
-        ],
+        title: Text(
+          selectionState.isSelectionModeActive
+              ? '${selectionState.selectedCount} dipilih'
+              : 'Riwayat Transaksi',
+        ),
+        actions: _buildAppBarActions(
+          context,
+          ref,
+          paginatedState,
+          filterState,
+          selectionState,
+          currentTransactions,
+          hasSearchQuery,
+        ),
       ),
       body: Column(
         children: [
@@ -142,6 +278,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
     // Get categories for display
     final categories = ref.watch(categoryListNotifierProvider);
+    final selectionState = ref.watch(transactionSelectionNotifierProvider);
 
     return categories.when(
       data: (categoryData) {
@@ -186,9 +323,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           ? categoryData.first
                           : _createDefaultCategory(),
                     );
+                    final isSelected = selectionState.selectedIds.contains(transaction.id!);
                     return TransactionCard(
                       transaction: transaction,
                       category: category,
+                      isSelected: isSelected,
+                      isSelectionMode: selectionState.isSelectionModeActive,
+                      onLongPress: () {
+                        ref.read(transactionSelectionNotifierProvider.notifier)
+                            .toggleSelectionMode(transaction.id!);
+                      },
+                      onSelectionToggle: () {
+                        ref.read(transactionSelectionNotifierProvider.notifier)
+                            .toggleSelection(transaction.id!);
+                      },
                       onEdit: () {
                         // Navigate to edit screen (AC-LOG-006.1)
                         Navigator.push(
@@ -363,6 +511,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   ) {
     // Get categories for display
     final categories = ref.watch(categoryListNotifierProvider);
+    final selectionState = ref.watch(transactionSelectionNotifierProvider);
 
     return categories.when(
       data: (categoryData) {
@@ -394,9 +543,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                         ? categoryData.first
                         : _createDefaultCategory(),
                   );
+                  final isSelected = selectionState.selectedIds.contains(transaction.id!);
                   return TransactionCard(
                     transaction: transaction,
                     category: category,
+                    isSelected: isSelected,
+                    isSelectionMode: selectionState.isSelectionModeActive,
+                    onLongPress: () {
+                      ref.read(transactionSelectionNotifierProvider.notifier)
+                          .toggleSelectionMode(transaction.id!);
+                    },
+                    onSelectionToggle: () {
+                      ref.read(transactionSelectionNotifierProvider.notifier)
+                          .toggleSelection(transaction.id!);
+                    },
                     onEdit: () {
                       // Navigate to edit screen (AC-LOG-006.1)
                       Navigator.push(
@@ -531,63 +691,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               foregroundColor: AppColors.expense,
             ),
             child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteAllDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Semua Transaksi'),
-        content: const Text(
-          '⚠️ PERINGATAN!\n\n'
-          'Semua transaksi akan dihapus secara permanen. '
-          'Tindakan ini TIDAK DAPAT dibatalkan.\n\n'
-          'Apakah Anda yakin ingin melanjutkan?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await ref.read(deleteAllTransactionsUseCaseProvider).execute();
-                if (context.mounted) {
-                  // Invalidate all transaction list providers and summary to trigger refresh
-                  ref.invalidate(transactionListNotifierProvider);
-                  ref.invalidate(transactionListPaginatedNotifierProvider);
-                  ref.invalidate(monthlySummaryNotifierProvider);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Semua transaksi berhasil dihapus'),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus transaksi: $e'),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.error,
-            ),
-            child: const Text('Hapus Semua'),
           ),
         ],
       ),

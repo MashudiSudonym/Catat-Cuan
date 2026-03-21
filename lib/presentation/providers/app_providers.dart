@@ -32,6 +32,7 @@ export 'transaction/transaction_list_provider.dart';
 export 'transaction/transaction_form_provider.dart';
 export 'transaction/transaction_search_provider.dart';
 export 'transaction/transaction_list_paginated_provider.dart';
+export 'transaction/transaction_selection_provider.dart';
 
 // Category providers
 export 'category/category_list_provider.dart';

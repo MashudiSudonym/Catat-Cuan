@@ -14,6 +14,10 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool showDateGroup;
+  final bool isSelected;
+  final bool isSelectionMode;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSelectionToggle;
 
   const TransactionCard({
     super.key,
@@ -23,6 +27,10 @@ class TransactionCard extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.showDateGroup = false,
+    this.isSelected = false,
+    this.isSelectionMode = false,
+    this.onLongPress,
+    this.onSelectionToggle,
   });
 
   @override
@@ -34,80 +42,106 @@ class TransactionCard extends StatelessWidget {
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
 
-    return AppGlassContainer.glassCard(
-      margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.mdAll,
-        child: Padding(
-          padding: AppSpacing.lgAll,
-          child: Row(
-            children: [
-              // Category Icon
-              _CategoryIcon(
-                icon: category.icon ?? '📦',
-                color: categoryColor,
-              ),
-              const AppSpacingWidget.horizontalMD(),
-
-              // Transaction Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Category Name
-                    Text(
-                      category.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const AppSpacingWidget.verticalXS(),
-                    // Date & Time
-                    Text(
-                      _formatDateTime(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: secondaryColor,
-                      ),
-                    ),
-                    // Note (if any)
-                    if (transaction.note != null &&
-                        transaction.note!.isNotEmpty) ...[
-                      const AppSpacingWidget.horizontalXS(),
-                      Text(
-                        transaction.note!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: tertiaryColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Amount
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+    return Stack(
+      children: [
+        AppGlassContainer.glassCard(
+          margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+          child: InkWell(
+            onTap: isSelectionMode ? onSelectionToggle : onTap,
+            onLongPress: onLongPress,
+            borderRadius: AppRadius.mdAll,
+            child: Padding(
+              padding: AppSpacing.lgAll,
+              child: Row(
                 children: [
-                  Text(
-                    _formatAmount(),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: amountColor,
-                      fontWeight: FontWeight.bold,
+                  // Checkbox in selection mode
+                  if (isSelectionMode) ...[
+                    _buildCheckbox(context),
+                    const AppSpacingWidget.horizontalMD(),
+                  ],
+
+                  // Category Icon
+                  _CategoryIcon(
+                    icon: category.icon ?? '📦',
+                    color: categoryColor,
+                  ),
+                  const AppSpacingWidget.horizontalMD(),
+
+                  // Transaction Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Category Name
+                        Text(
+                          category.name,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const AppSpacingWidget.verticalXS(),
+                        // Date & Time
+                        Text(
+                          _formatDateTime(),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: secondaryColor,
+                          ),
+                        ),
+                        // Note (if any)
+                        if (transaction.note != null &&
+                            transaction.note!.isNotEmpty) ...[
+                          const AppSpacingWidget.horizontalXS(),
+                          Text(
+                            transaction.note!,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: tertiaryColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+
+                  // Amount
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatAmount(),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: amountColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Action Menu (only show when not in selection mode)
+                  if (!isSelectionMode && (onEdit != null || onDelete != null))
+                    _buildActionMenu(context, secondaryColor),
                 ],
               ),
-
-              // Action Menu
-              if (onEdit != null || onDelete != null)
-                _buildActionMenu(context, secondaryColor),
-            ],
+            ),
           ),
         ),
-      ),
+
+        // Selected indicator overlay
+        if (isSelectionMode && isSelected)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: AppRadius.mdAll,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -199,6 +233,41 @@ class TransactionCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCheckbox(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onSelectionToggle,
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isSelected
+              ? AppColors.primary
+              : (isDark
+                  ? AppColors.getGlassSurface(isDark: true, alpha: 0.3)
+                  : AppColors.getGlassSurface(isDark: false, alpha: 0.5)),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : (isDark
+                    ? AppColors.textOnDark.withValues(alpha: 0.3)
+                    : AppColors.textSecondary.withValues(alpha: 0.3)),
+            width: 2,
+          ),
+        ),
+        child: isSelected
+            ? Icon(
+                Icons.check,
+                size: 16,
+                color: Colors.white,
+              )
+            : null,
+      ),
     );
   }
 }
@@ -296,6 +365,10 @@ class SwipeableTransactionCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool isSelected;
+  final bool isSelectionMode;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSelectionToggle;
 
   const SwipeableTransactionCard({
     super.key,
@@ -304,10 +377,29 @@ class SwipeableTransactionCard extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
+    this.isSelected = false,
+    this.isSelectionMode = false,
+    this.onLongPress,
+    this.onSelectionToggle,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Disable swipe when in selection mode
+    if (isSelectionMode) {
+      return TransactionCard(
+        transaction: transaction,
+        category: category,
+        onTap: onTap,
+        onEdit: onEdit,
+        onDelete: onDelete,
+        isSelected: isSelected,
+        isSelectionMode: isSelectionMode,
+        onLongPress: onLongPress,
+        onSelectionToggle: onSelectionToggle,
+      );
+    }
+
     return Dismissible(
       key: Key('transaction_${transaction.id}'),
       direction: DismissDirection.endToStart,
@@ -339,6 +431,10 @@ class SwipeableTransactionCard extends StatelessWidget {
         category: category,
         onTap: onTap,
         onEdit: onEdit,
+        isSelected: isSelected,
+        isSelectionMode: isSelectionMode,
+        onLongPress: onLongPress,
+        onSelectionToggle: onSelectionToggle,
       ),
     );
   }
@@ -375,12 +471,20 @@ class CompactTransactionCard extends StatelessWidget {
   final TransactionEntity transaction;
   final CategoryEntity category;
   final VoidCallback? onTap;
+  final bool isSelected;
+  final bool isSelectionMode;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSelectionToggle;
 
   const CompactTransactionCard({
     super.key,
     required this.transaction,
     required this.category,
     this.onTap,
+    this.isSelected = false,
+    this.isSelectionMode = false,
+    this.onLongPress,
+    this.onSelectionToggle,
   });
 
   @override
@@ -391,11 +495,17 @@ class CompactTransactionCard extends StatelessWidget {
     final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
 
     return InkWell(
-      onTap: onTap,
+      onTap: isSelectionMode ? onSelectionToggle : onTap,
+      onLongPress: onLongPress,
       child: Padding(
         padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
         child: Row(
           children: [
+            // Checkbox in selection mode
+            if (isSelectionMode) ...[
+              _buildCompactCheckbox(context),
+              const AppSpacingWidget.horizontalMD(),
+            ],
             Text(
               category.icon ?? '📦',
               style: const TextStyle(fontSize: 20),
@@ -429,6 +539,41 @@ class CompactTransactionCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompactCheckbox(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onSelectionToggle,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isSelected
+              ? AppColors.primary
+              : (isDark
+                  ? AppColors.getGlassSurface(isDark: true, alpha: 0.3)
+                  : AppColors.getGlassSurface(isDark: false, alpha: 0.5)),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : (isDark
+                    ? AppColors.textOnDark.withValues(alpha: 0.3)
+                    : AppColors.textSecondary.withValues(alpha: 0.3)),
+            width: 1.5,
+          ),
+        ),
+        child: isSelected
+            ? Icon(
+                Icons.check,
+                size: 14,
+                color: Colors.white,
+              )
+            : null,
       ),
     );
   }

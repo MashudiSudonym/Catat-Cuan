@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/usecases/add_transaction.dart';
 import 'package:catat_cuan/domain/usecases/delete_transaction.dart';
 import 'package:catat_cuan/domain/usecases/delete_all_transactions.dart';
+import 'package:catat_cuan/domain/usecases/delete_multiple_transactions_usecase.dart';
 import 'package:catat_cuan/domain/usecases/get_transactions.dart';
 import 'package:catat_cuan/domain/usecases/update_transaction.dart';
 import 'package:catat_cuan/domain/usecases/transaction/get_monthly_summary_usecase.dart';
@@ -30,6 +31,11 @@ final deleteTransactionUseCaseProvider = Provider<DeleteTransactionUseCase>((ref
 /// Provider untuk DeleteAllTransactionsUseCase
 final deleteAllTransactionsUseCaseProvider = Provider<DeleteAllTransactionsUseCase>((ref) {
   return DeleteAllTransactionsUseCase(ref.read(transactionRepositoryProvider));
+});
+
+/// Provider untuk DeleteMultipleTransactionsUseCase
+final deleteMultipleTransactionsUseCaseProvider = Provider<DeleteMultipleTransactionsUseCase>((ref) {
+  return DeleteMultipleTransactionsUseCase(ref.read(transactionRepositoryProvider));
 });
 
 /// Provider untuk GetTransactionsUseCase

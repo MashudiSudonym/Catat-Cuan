@@ -199,6 +199,45 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<Result<void>> deleteMultipleTransactions(List<int> ids) async {
+    AppLogger.d('Deleting ${ids.length} transactions: ${ids.take(10).join(', ')}${ids.length > 10 ? '...' : ''}');
+
+    try {
+      if (ids.isEmpty) {
+        AppLogger.w('Cannot delete empty list of transactions');
+        return Result.failure('Daftar transaksi tidak boleh kosong');
+      }
+
+      final db = await _dbHelper.database;
+
+      // Use batch delete for efficiency
+      final batchSize = ids.length;
+      var deletedCount = 0;
+
+      // Delete in a single transaction using IN clause
+      final inList = ids.map((id) => '?').join(',');
+      final rowsAffected = await db.delete(
+        DatabaseHelper.tableTransactions,
+        where: '${TransactionFields.id} IN ($inList)',
+        whereArgs: ids,
+      );
+
+      deletedCount = rowsAffected;
+
+      if (deletedCount == 0) {
+        AppLogger.w('No transactions found for deletion');
+        return Result.failure('Tidak ada transaksi yang ditemukan');
+      }
+
+      AppLogger.i('Successfully deleted $deletedCount of $batchSize transactions');
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to delete multiple transactions', e, stackTrace);
+      return Result.failure('Gagal menghapus transaksi');
+    }
+  }
+
+  @override
   Future<Result<List<TransactionEntity>>> getTransactionsByFilter({
     DateTime? startDate,
     DateTime? endDate,
