@@ -1,7 +1,7 @@
 # Catat Cuan - Project Progress Review
 
-**Review Date**: March 20, 2026
-**Project Status**: v1 Complete
+**Review Date**: March 22, 2026
+**Project Status**: ✅ v1 100% Complete
 **Coverage**: 100% of PRD In-Scope Requirements
 
 ---
@@ -97,9 +97,11 @@ These features were not specified in the PRD but were implemented to enhance the
 | **CSV Export** | Export all or filtered transactions | Data backup and analysis |
 | **Category Reordering** | Drag-and-drop with FAB toggle | Customizable category order |
 | **Transaction Filtering** | Filter by type, category, date range | Focused transaction views |
+| **Multi-select Delete** | Batch delete with confirmation | Efficient bulk operations |
 | **Theme Support** | Light/Dark mode with glassmorphism | Visual preference |
 | **App Initialization** | Default category seeding with cache | Improved first-run experience |
 | **Comprehensive Design System** | Spacing, radius, responsive, glassmorphism | UI consistency |
+| **Debug Logger** | User-friendly error handling | Better error tracking |
 
 ### CSV Export (Originally Out of Scope)
 - **Format**: CSV with Indonesian formatting (DD/MM/YYYY, thousand separators)
@@ -199,6 +201,8 @@ Based on the successful v1 implementation, potential v2 features could include:
 6. **Widgets**: Home screen widgets for quick entry
 7. **Biometrics**: Fingerprint/face authentication
 8. **Export Formats**: PDF reports, Excel exports
+
+**For detailed v2 roadmap, see**: `PLANS/ROADMAP-PRIORITAS-SELANJUTNYA.md`
 
 ---
 
