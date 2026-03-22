@@ -4,6 +4,7 @@ import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/screens/transaction_form_screen.dart';
+import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_card.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
@@ -111,6 +112,13 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           },
         ),
 
+      // Settings button
+      IconButton(
+        icon: const Icon(Icons.settings_outlined),
+        tooltip: 'Pengaturan',
+        onPressed: () => _navigateToSettings(context),
+      ),
+
       // Filter button (AC-LOG-005.3)
       IconButton(
         icon: Icon(
@@ -127,6 +135,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// Exit selection mode
   void _exitSelectionMode(WidgetRef ref) {
     ref.read(transactionSelectionNotifierProvider.notifier).clearSelection();
+  }
+
+  /// Navigate to settings screen
+  void _navigateToSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SettingsScreen(),
+      ),
+    );
   }
 
   /// Toggle select all / deselect all

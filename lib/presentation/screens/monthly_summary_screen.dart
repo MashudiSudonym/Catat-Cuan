@@ -8,6 +8,7 @@ import 'package:catat_cuan/presentation/widgets/income_breakdown_widget.dart';
 import 'package:catat_cuan/presentation/widgets/income_vs_expense_trend_widget.dart';
 import 'package:catat_cuan/presentation/widgets/recommendation_card.dart';
 import 'package:catat_cuan/presentation/widgets/period_selector.dart';
+import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
@@ -112,6 +113,12 @@ class _MonthlySummaryScreenState
                         ),
                   ),
                   const Spacer(),
+                  // Settings button
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    onPressed: () => _navigateToSettings(context),
+                    tooltip: 'Pengaturan',
+                  ),
                   // Refresh button
                   IconButton(
                     icon: const Icon(Icons.refresh),
@@ -350,6 +357,16 @@ class _MonthlySummaryScreenState
       incomeBreakdown: [],
       trendData: [],
       recommendations: [],
+    );
+  }
+
+  /// Navigate to settings screen
+  void _navigateToSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SettingsScreen(),
+      ),
     );
   }
 }

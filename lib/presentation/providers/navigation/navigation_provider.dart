@@ -21,7 +21,7 @@ class NavigationNotifier extends _$NavigationNotifier {
   }
 
   /// Jumlah tab yang tersedia
-  static const int _tabCount = 4; // Transaksi, Ringkasan, Profil & Pengaturan
+  static const int _tabCount = 2; // Transaksi & Ringkasan saja
 }
 
 /// Navigation state untuk mengelola tab yang aktif di bottom navigation

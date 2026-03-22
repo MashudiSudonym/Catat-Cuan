@@ -5,8 +5,6 @@ import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list_screen.dart';
 import 'package:catat_cuan/presentation/screens/monthly_summary_screen.dart';
 import 'package:catat_cuan/presentation/screens/transaction_form_screen.dart';
-import 'package:catat_cuan/presentation/screens/profile_screen.dart';
-import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
@@ -78,8 +76,6 @@ class HomeScreen extends ConsumerWidget {
         children: const [
           TransactionListScreen(),
           MonthlySummaryScreen(),
-          ProfileScreen(),
-          SettingsScreen(),
         ],
       ),
       floatingActionButton: _buildSeamlessFab(context, ref),
@@ -132,16 +128,6 @@ class HomeScreen extends ConsumerWidget {
             icon: Icon(Icons.bar_chart),
             activeIcon: Icon(Icons.bar_chart),
             label: 'Ringkasan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Pengaturan',
           ),
         ],
       ),
