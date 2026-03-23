@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
 /// Widget untuk menampilkan breakdown kategori pemasukan dalam bentuk pie chart
-class IncomeBreakdownWidget extends StatelessWidget {
+class IncomeBreakdownWidget extends ConsumerWidget {
   final List<CategoryBreakdownEntity> breakdown;
   final double totalIncome;
 
@@ -16,7 +18,7 @@ class IncomeBreakdownWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
@@ -124,7 +126,7 @@ class IncomeBreakdownWidget extends StatelessWidget {
             AppSpacingWidget.verticalLG(),
 
             // Legend
-            _buildLegend(chartData, isDark),
+            _buildLegend(chartData, isDark, ref),
 
             AppSpacingWidget.verticalSM(),
           ],
@@ -164,7 +166,7 @@ class IncomeBreakdownWidget extends StatelessWidget {
   }
 
   /// Build legend below chart
-  Widget _buildLegend(List<_ChartData> data, bool isDark) {
+  Widget _buildLegend(List<_ChartData> data, bool isDark, WidgetRef ref) {
     final primaryColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     return Column(
@@ -197,7 +199,7 @@ class IncomeBreakdownWidget extends StatelessWidget {
 
               // Amount
               Text(
-                CurrencyInputFormatter.formatRupiahFromDouble(item.value),
+                item.value.toCurrency(ref: ref),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

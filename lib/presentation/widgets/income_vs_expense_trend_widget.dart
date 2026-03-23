@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:intl/intl.dart';
 
 /// Widget untuk menampilkan tren pemasukan vs pengeluaran dalam bentuk bar chart
-class IncomeVsExpenseTrendWidget extends StatelessWidget {
+class IncomeVsExpenseTrendWidget extends ConsumerWidget {
   final List<MonthlySummaryEntity> summaries;
 
   const IncomeVsExpenseTrendWidget({
@@ -15,7 +17,7 @@ class IncomeVsExpenseTrendWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (summaries.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -83,7 +85,7 @@ class IncomeVsExpenseTrendWidget extends StatelessWidget {
                         }
                         final monthName = _formatMonth(summaries[monthIndex].yearMonth);
                         final type = group.x.toInt() % 2 == 0 ? 'Pemasukan' : 'Pengeluaran';
-                        final amount = CurrencyInputFormatter.formatRupiahFromDouble(rod.toY);
+                        final amount = rod.toY.toCurrency(ref: ref);
                         return BarTooltipItem(
                           '$monthName\n$type\n$amount',
                           TextStyle(

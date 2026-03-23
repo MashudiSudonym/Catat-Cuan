@@ -1,10 +1,12 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:catat_cuan/presentation/providers/app_providers.dart';
 
-/// Currency input formatter untuk Indonesian Rupiah
-/// Format: Rp 1.000.000 (dengan pemisah ribuan)
+/// Currency input formatter for dynamic currency
+/// Format depends on selected currency: IDR (Rp 1.000.000) or USD (US$ 1,000,000)
 class CurrencyInputFormatter extends TextInputFormatter {
-  static const String _prefix = 'Rp ';
+  static const String _defaultPrefix = 'Rp ';
   static const String _thousandSeparator = '.';
 
   @override
@@ -112,7 +114,7 @@ class CurrencyInputFormatter extends TextInputFormatter {
   /// Get formatted string dengan atau tanpa prefix
   static String formatAmount(double amount, {bool withPrefix = true}) {
     var formatted = formatRupiahFromDouble(amount);
-    return withPrefix ? '$_prefix$formatted' : formatted;
+    return withPrefix ? '$_defaultPrefix$formatted' : formatted;
   }
 
   /// Validate apakah string input valid untuk currency
@@ -145,6 +147,90 @@ extension CurrencyFormatterExtensionInt on int {
   /// Format int ke string Rupiah tanpa prefix
   String toRupiahWithoutPrefix() {
     var formatted = CurrencyInputFormatter.formatRupiah(this);
+    return formatted.substring(3);
+  }
+}
+
+/// Provider-aware currency formatting extension for double
+extension CurrencyFormatterExtensionWithRef on double {
+  /// Format double to currency string based on current currency setting
+  /// Example: 1000000 -> "Rp 1.000.000" (IDR) or "US$ 1,000,000" (USD)
+  String toCurrency({required WidgetRef ref, bool withPrefix = true}) {
+    final currencyOption = ref.read(currencyNotifierProvider).currencyOption;
+    final parts = toStringAsFixed(0).split('.');
+    final integerPart = _formatWithSeparator(int.parse(parts[0]), currencyOption.thousandSeparator);
+    return withPrefix ? '${currencyOption.symbol}$integerPart' : integerPart;
+  }
+
+  String _formatWithSeparator(int value, String separator) {
+    if (value == 0) return '0';
+
+    final buffer = StringBuffer();
+    final valueStr = value.toString();
+
+    // Add thousand separator from right
+    for (var i = 0; i < valueStr.length; i++) {
+      final pos = valueStr.length - i;
+      if (i > 0 && pos % 3 == 0) {
+        buffer.write(separator);
+      }
+      buffer.write(valueStr[i]);
+    }
+
+    return buffer.toString();
+  }
+
+  /// Deprecated: Use toCurrency(ref: ref) instead
+  @Deprecated('Use toCurrency(ref: ref) instead')
+  String toRupiah() {
+    return CurrencyInputFormatter.formatRupiahFromDouble(this);
+  }
+
+  /// Deprecated: Use toCurrency(ref: ref, withPrefix: false) instead
+  @Deprecated('Use toCurrency(ref: ref, withPrefix: false) instead')
+  String toRupiahWithoutPrefix() {
+    return CurrencyInputFormatter.formatAmount(this, withPrefix: false);
+  }
+}
+
+/// Provider-aware currency formatting extension for int
+extension CurrencyFormatterExtensionIntWithRef on int {
+  /// Format int to currency string based on current currency setting
+  /// Example: 1000000 -> "Rp 1.000.000" (IDR) or "US$ 1,000,000" (USD)
+  String toCurrency({required WidgetRef ref, bool withPrefix = true}) {
+    final currencyOption = ref.read(currencyNotifierProvider).currencyOption;
+    final integerPart = _formatWithSeparator(this, currencyOption.thousandSeparator);
+    return withPrefix ? '${currencyOption.symbol}$integerPart' : integerPart;
+  }
+
+  String _formatWithSeparator(int value, String separator) {
+    if (value == 0) return '0';
+
+    final buffer = StringBuffer();
+    final valueStr = value.toString();
+
+    // Add thousand separator from right
+    for (var i = 0; i < valueStr.length; i++) {
+      final pos = valueStr.length - i;
+      if (i > 0 && pos % 3 == 0) {
+        buffer.write(separator);
+      }
+      buffer.write(valueStr[i]);
+    }
+
+    return buffer.toString();
+  }
+
+  /// Deprecated: Use toCurrency(ref: ref) instead
+  @Deprecated('Use toCurrency(ref: ref) instead')
+  String toRupiah() {
+    return CurrencyInputFormatter.formatRupiah(this);
+  }
+
+  /// Deprecated: Use toCurrency(ref: ref, withPrefix: false) instead
+  @Deprecated('Use toCurrency(ref: ref, withPrefix: false) instead')
+  String toRupiahWithoutPrefix() {
+    final formatted = CurrencyInputFormatter.formatRupiah(this);
     return formatted.substring(3);
   }
 }

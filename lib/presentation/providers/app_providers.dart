@@ -19,6 +19,9 @@ export 'services/service_providers.dart';
 // Theme provider
 export 'theme/theme_provider.dart';
 
+// Currency provider
+export 'currency/currency_provider.dart';
+
 // ============================================================================
 // Feature Providers (Refactored with @riverpod)
 // ============================================================================
@@ -47,6 +50,9 @@ export 'scan/receipt_scan_provider.dart';
 
 // Export providers
 export 'export/export_provider.dart';
+
+// Onboarding providers
+export 'onboarding/onboarding_provider.dart';
 
 // ============================================================================
 // State Classes (for backward compatibility with UI)

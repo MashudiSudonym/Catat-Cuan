@@ -665,7 +665,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         title: const Text('Hapus Transaksi'),
         content: Text(
           'Apakah Anda yakin ingin menghapus transaksi ini?\n\n'
-          '${transaction.amount.toRupiah()}',
+          '${transaction.amount.toCurrency(ref: ref)}',
         ),
         actions: [
           TextButton(

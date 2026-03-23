@@ -84,7 +84,7 @@ class ProfileScreen extends ConsumerWidget {
               return transactionsAsync.when(
                 loading: () => _buildFinancialLoadingSkeleton(context),
                 error: (error, stack) => _buildFinancialError(context, error.toString()),
-                data: (transactions) => _buildQuickFinancialSummary(context, transactions),
+                data: (transactions) => _buildQuickFinancialSummary(context, ref, transactions),
               );
             },
           ),
@@ -276,7 +276,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   /// Build quick financial summary with stat cards
-  Widget _buildQuickFinancialSummary(BuildContext context, List<TransactionEntity> transactions) {
+  Widget _buildQuickFinancialSummary(BuildContext context, WidgetRef ref, List<TransactionEntity> transactions) {
     if (transactions.isEmpty) {
       return AppGlassContainer.glassCard(
         margin: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
@@ -365,7 +365,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    balance.toRupiah(),
+                    balance.toCurrency(ref: ref),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: balance >= 0 ? AppColors.primary : AppColors.error,
@@ -388,7 +388,7 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.arrow_downward,
                   iconColor: AppColors.success,
                   label: 'Pemasukan',
-                  value: monthIncome.toRupiah(),
+                  value: monthIncome.toCurrency(ref: ref),
                   subtitle: 'Bulan ini',
                 ),
               ),
@@ -400,7 +400,7 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.arrow_upward,
                   iconColor: AppColors.expense,
                   label: 'Pengeluaran',
-                  value: monthExpense.toRupiah(),
+                  value: monthExpense.toCurrency(ref: ref),
                   subtitle: 'Bulan ini',
                 ),
               ),

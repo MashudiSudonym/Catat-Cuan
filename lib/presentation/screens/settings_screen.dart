@@ -62,6 +62,50 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
+          // Currency Settings Section
+          _buildSectionHeader('Mata Uang'),
+
+          AppGlassContainer.glassCard(
+            margin: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: AppSpacing.all(AppSpacing.lg),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.attach_money_outlined,
+                        color: isDark ? Colors.white : AppColors.textPrimary,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Text(
+                        'Mata Uang',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                ...CurrencyOption.values.map((option) {
+                  final currencyState = ref.watch(currencyNotifierProvider);
+                  final isSelected = currencyState.currencyOption == option;
+                  return _CurrencyOptionTile(
+                    option: option,
+                    isSelected: isSelected,
+                    onTap: () {
+                      ref.read(currencyNotifierProvider.notifier).setCurrency(option);
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
           // App Info Section
           _buildSectionHeader('Informasi Aplikasi'),
 
@@ -185,5 +229,63 @@ class _ThemeOptionTile extends StatelessWidget {
       case ThemeModeOption.dark:
         return Icons.dark_mode;
     }
+  }
+}
+
+/// Currency option tile widget
+class _CurrencyOptionTile extends StatelessWidget {
+  final CurrencyOption option;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CurrencyOptionTile({
+    required this.option,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : (isDark ? Colors.white12 : Colors.grey.shade200),
+                borderRadius: AppRadius.smAll,
+              ),
+              child: Text(
+                '${option.symbol}1.000.000',
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                option.label,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected ? AppColors.primary : null,
+                    ),
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: AppColors.primary,
+                size: 24,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

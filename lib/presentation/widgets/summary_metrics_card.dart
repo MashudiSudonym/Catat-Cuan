@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
@@ -8,7 +10,7 @@ import 'package:catat_cuan/presentation/utils/utils.dart';
 /// - Total Pengeluaran
 /// - Saldo
 /// - Jumlah Transaksi
-class SummaryMetricsCard extends StatelessWidget {
+class SummaryMetricsCard extends ConsumerWidget {
   final MonthlySummaryEntity summary;
 
   const SummaryMetricsCard({
@@ -17,7 +19,7 @@ class SummaryMetricsCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
@@ -49,21 +51,21 @@ class SummaryMetricsCard extends StatelessWidget {
                 icon: Icons.arrow_downward,
                 iconColor: AppColors.income,
                 label: 'Pemasukan',
-                value: CurrencyInputFormatter.formatRupiahFromDouble(summary.totalIncome),
+                value: summary.totalIncome.toCurrency(ref: ref),
                 backgroundColor: AppColors.incomeLight,
               ),
               _MetricCard(
                 icon: Icons.arrow_upward,
                 iconColor: AppColors.expense,
                 label: 'Pengeluaran',
-                value: CurrencyInputFormatter.formatRupiahFromDouble(summary.totalExpense),
+                value: summary.totalExpense.toCurrency(ref: ref),
                 backgroundColor: AppColors.expenseLight,
               ),
               _MetricCard(
                 icon: summary.balance >= 0 ? Icons.account_balance_wallet : Icons.warning,
                 iconColor: summary.balance >= 0 ? AppColors.income : AppColors.expense,
                 label: 'Saldo',
-                value: CurrencyInputFormatter.formatRupiahFromDouble(summary.balance),
+                value: summary.balance.toCurrency(ref: ref),
                 backgroundColor: summary.balance >= 0
                     ? AppColors.incomeLight
                     : AppColors.expenseLight,

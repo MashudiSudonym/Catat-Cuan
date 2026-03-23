@@ -7,7 +7,7 @@ import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
 
 /// Dialog untuk konfirmasi hapus transaksi
 /// Following SRP: Only handles delete confirmation dialog
-class DeleteTransactionDialog extends StatelessWidget {
+class DeleteTransactionDialog extends ConsumerWidget {
   final TransactionEntity transaction;
 
   const DeleteTransactionDialog({
@@ -16,12 +16,12 @@ class DeleteTransactionDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
       title: const Text('Hapus Transaksi'),
       content: Text(
         'Apakah Anda yakin ingin menghapus transaksi ini?\n\n'
-        '${transaction.amount.toRupiah()}',
+        '${transaction.amount.toCurrency(ref: ref)}',
       ),
       actions: [
         TextButton(

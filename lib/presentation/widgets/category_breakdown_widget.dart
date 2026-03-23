@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
 /// Widget untuk menampilkan breakdown kategori pengeluaran dalam bentuk pie chart
-class CategoryBreakdownWidget extends StatelessWidget {
+class CategoryBreakdownWidget extends ConsumerWidget {
   final List<CategoryBreakdownEntity> breakdown;
   final double totalExpense;
 
@@ -16,7 +18,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
@@ -119,7 +121,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
           const AppSpacingWidget.verticalLG(),
 
           // Legend
-          _buildLegend(chartData, isDark),
+          _buildLegend(chartData, isDark, ref),
 
           const AppSpacingWidget.verticalSM(),
         ],
@@ -158,7 +160,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
   }
 
   /// Build legend below chart
-  Widget _buildLegend(List<_ChartData> data, bool isDark) {
+  Widget _buildLegend(List<_ChartData> data, bool isDark, WidgetRef ref) {
     final primaryColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     return Column(
@@ -191,7 +193,7 @@ class CategoryBreakdownWidget extends StatelessWidget {
 
               // Amount
               Text(
-                CurrencyInputFormatter.formatRupiahFromDouble(item.value),
+                item.value.toCurrency(ref: ref),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

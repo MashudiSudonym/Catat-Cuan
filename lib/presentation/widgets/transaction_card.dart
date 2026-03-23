@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:intl/intl.dart';
 import '../utils/utils.dart';
+import '../providers/app_providers.dart';
 import 'base/base.dart';
 
 /// Card item untuk menampilkan transaksi dalam list
 /// Menggunakan design dari transaction_history.html reference
-class TransactionCard extends StatelessWidget {
+class TransactionCard extends ConsumerWidget {
   final TransactionEntity transaction;
   final CategoryEntity category;
   final VoidCallback? onTap;
@@ -34,7 +36,7 @@ class TransactionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isIncome = transaction.type == TransactionType.income;
     final amountColor = isIncome ? AppColors.income : AppColors.expense;
     final categoryColor = _getCategoryColor();
@@ -109,7 +111,7 @@ class TransactionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        _formatAmount(),
+                        _formatAmount(ref),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: amountColor,
                           fontWeight: FontWeight.bold,
@@ -157,9 +159,9 @@ class TransactionCard extends StatelessWidget {
     return AppColors.getCategoryColor(category.id ?? 0);
   }
 
-  String _formatAmount() {
+  String _formatAmount(WidgetRef ref) {
     final prefix = transaction.type == TransactionType.income ? '+' : '-';
-    return '$prefix ${transaction.amount.toRupiahWithoutPrefix()}';
+    return '$prefix ${transaction.amount.toCurrency(ref: ref, withPrefix: false)}';
   }
 
   String _formatDateTime() {
@@ -299,7 +301,7 @@ class _CategoryIcon extends StatelessWidget {
 }
 
 /// Date group header untuk mengelompokkan transaksi berdasarkan tanggal
-class TransactionDateHeader extends StatelessWidget {
+class TransactionDateHeader extends ConsumerWidget {
   final DateTime date;
   final String? customTitle;
   final double totalAmount;
@@ -312,7 +314,7 @@ class TransactionDateHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     final now = DateTime.now();
@@ -346,7 +348,7 @@ class TransactionDateHeader extends StatelessWidget {
             ),
           ),
           Text(
-            totalAmount.toRupiah(),
+            totalAmount.toCurrency(ref: ref),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
               color: secondaryColor,
@@ -359,7 +361,7 @@ class TransactionDateHeader extends StatelessWidget {
 }
 
 /// Swipeable transaction card dengan gesture untuk edit/delete
-class SwipeableTransactionCard extends StatelessWidget {
+class SwipeableTransactionCard extends ConsumerWidget {
   final TransactionEntity transaction;
   final CategoryEntity category;
   final VoidCallback? onTap;
@@ -384,7 +386,7 @@ class SwipeableTransactionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Disable swipe when in selection mode
     if (isSelectionMode) {
       return TransactionCard(
@@ -467,7 +469,7 @@ class SwipeableTransactionCard extends StatelessWidget {
 }
 
 /// Compact version untuk list dengan spacing lebih kecil
-class CompactTransactionCard extends StatelessWidget {
+class CompactTransactionCard extends ConsumerWidget {
   final TransactionEntity transaction;
   final CategoryEntity category;
   final VoidCallback? onTap;
@@ -488,7 +490,7 @@ class CompactTransactionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isIncome = transaction.type == TransactionType.income;
     final amountColor = isIncome ? AppColors.income : AppColors.expense;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -531,7 +533,7 @@ class CompactTransactionCard extends StatelessWidget {
               ),
             ),
             Text(
-              _formatAmount(),
+              _formatAmount(ref),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: amountColor,
                 fontWeight: FontWeight.w600,
@@ -578,8 +580,8 @@ class CompactTransactionCard extends StatelessWidget {
     );
   }
 
-  String _formatAmount() {
+  String _formatAmount(WidgetRef ref) {
     final prefix = transaction.type == TransactionType.income ? '+' : '-';
-    return '$prefix ${transaction.amount.toRupiahWithoutPrefix()}';
+    return '$prefix ${transaction.amount.toCurrency(ref: ref, withPrefix: false)}';
   }
 }
