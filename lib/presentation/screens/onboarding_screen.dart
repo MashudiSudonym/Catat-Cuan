@@ -6,7 +6,7 @@ import 'package:catat_cuan/presentation/providers/onboarding/onboarding_provider
 import 'package:catat_cuan/presentation/widgets/onboarding_page.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
-import 'package:catat_cuan/main.dart';
+import 'package:catat_cuan/presentation/screens/home_screen.dart';
 
 /// Onboarding screen with 3 pages showcasing app features
 /// Uses PageView for swipe navigation and SmoothPageIndicator for page dots
@@ -83,8 +83,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   /// Build bottom section with page indicator and action button
   Widget _buildBottomSection() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return AppGlassContainer.glassSurface(
       child: Padding(
         padding: AppSpacing.all(AppSpacing.xl),
