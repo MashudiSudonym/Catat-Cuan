@@ -4,7 +4,6 @@ import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:intl/intl.dart';
 import '../utils/utils.dart';
-import '../providers/app_providers.dart';
 import 'base/base.dart';
 
 /// Card item untuk menampilkan transaksi dalam list
