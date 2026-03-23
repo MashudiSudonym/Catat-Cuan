@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
-import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
@@ -23,24 +22,27 @@ class CategoryBreakdownWidget extends ConsumerWidget {
     final textColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
 
     if (breakdown.isEmpty || totalExpense == 0) {
-      final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
-      final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
+      final tertiaryColor = isDark
+          ? AppColors.textOnDark.withValues(alpha: 0.5)
+          : AppColors.textTertiary;
+      final secondaryColor = isDark
+          ? AppColors.textOnDark.withValues(alpha: 0.7)
+          : AppColors.textSecondary;
       return AppGlassContainer.glassCard(
-        margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        margin: AppSpacing.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
         child: Center(
           child: Column(
             children: [
-              Icon(
-                Icons.pie_chart_outline,
-                size: 48,
-                color: tertiaryColor,
-              ),
+              Icon(Icons.pie_chart_outline, size: 48, color: tertiaryColor),
               const AppSpacingWidget.verticalMD(),
               Text(
                 'Belum ada data pengeluaran',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: secondaryColor,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: secondaryColor),
               ),
             ],
           ),
@@ -52,52 +54,60 @@ class CategoryBreakdownWidget extends ConsumerWidget {
     final topCategories = breakdown.take(5).toList();
     final otherCategories = breakdown.skip(5).toList();
 
-    double otherAmount = otherCategories.fold(0.0, (sum, cat) => sum + cat.totalAmount);
+    double otherAmount = otherCategories.fold(
+      0.0,
+      (sum, cat) => sum + cat.totalAmount,
+    );
     double chartTotal = totalExpense;
 
     // Siapakan data untuk chart
     final chartData = <_ChartData>[];
     for (final category in topCategories) {
-      chartData.add(_ChartData(
-        name: category.categoryName,
-        value: category.totalAmount,
-        color: _parseColor(category.categoryColor),
-        icon: category.categoryIcon,
-        percentage: (category.totalAmount / chartTotal * 100),
-      ));
+      chartData.add(
+        _ChartData(
+          name: category.categoryName,
+          value: category.totalAmount,
+          color: _parseColor(category.categoryColor),
+          icon: category.categoryIcon,
+          percentage: (category.totalAmount / chartTotal * 100),
+        ),
+      );
     }
 
     // Tambahkan "Lainnya" jika ada
     if (otherAmount > 0) {
-      chartData.add(_ChartData(
-        name: 'Lainnya',
-        value: otherAmount,
-        color: isDark ? AppColors.textOnDark.withValues(alpha: 0.3) : AppColors.textTertiary,
-        icon: '📦',
-        percentage: (otherAmount / chartTotal * 100),
-      ));
+      chartData.add(
+        _ChartData(
+          name: 'Lainnya',
+          value: otherAmount,
+          color: isDark
+              ? AppColors.textOnDark.withValues(alpha: 0.3)
+              : AppColors.textTertiary,
+          icon: '📦',
+          percentage: (otherAmount / chartTotal * 100),
+        ),
+      );
     }
 
     return AppGlassContainer.glassCard(
-      margin: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      margin: AppSpacing.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
           Row(
             children: [
-              Icon(
-                Icons.pie_chart,
-                color: AppColors.primary,
-                size: 20,
-              ),
+              Icon(Icons.pie_chart, color: AppColors.primary, size: 20),
               const AppSpacingWidget.horizontalSM(),
               Text(
                 'Breakdown Pengeluaran',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
               ),
             ],
           ),
@@ -142,17 +152,11 @@ class CategoryBreakdownWidget extends ConsumerWidget {
           fontWeight: FontWeight.bold,
           color: Colors.white,
           shadows: [
-            Shadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 2,
-            ),
+            Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 2),
           ],
         ),
         badgeWidget: item.percentage > 10
-            ? _BadgeWidget(
-                icon: item.icon,
-                size: 20,
-              )
+            ? _BadgeWidget(icon: item.icon, size: 20)
             : null,
         badgePositionPercentageOffset: .98,
       );
@@ -162,7 +166,9 @@ class CategoryBreakdownWidget extends ConsumerWidget {
   /// Build legend below chart
   Widget _buildLegend(List<_ChartData> data, bool isDark, WidgetRef ref) {
     final primaryColor = isDark ? AppColors.textOnDark : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
+    final secondaryColor = isDark
+        ? AppColors.textOnDark.withValues(alpha: 0.7)
+        : AppColors.textSecondary;
     return Column(
       children: data.map((item) {
         return Padding(
@@ -184,10 +190,7 @@ class CategoryBreakdownWidget extends ConsumerWidget {
               Expanded(
                 child: Text(
                   '${item.icon} ${item.name}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: primaryColor,
-                  ),
+                  style: TextStyle(fontSize: 13, color: primaryColor),
                 ),
               ),
 
@@ -205,10 +208,7 @@ class CategoryBreakdownWidget extends ConsumerWidget {
               const AppSpacingWidget.horizontalSM(),
               Text(
                 '${item.percentage.toStringAsFixed(1)}%',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: secondaryColor,
-                ),
+                style: TextStyle(fontSize: 12, color: secondaryColor),
               ),
             ],
           ),
@@ -250,10 +250,7 @@ class _BadgeWidget extends StatelessWidget {
   final String icon;
   final double size;
 
-  const _BadgeWidget({
-    required this.icon,
-    required this.size,
-  });
+  const _BadgeWidget({required this.icon, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -265,17 +262,11 @@ class _BadgeWidget extends StatelessWidget {
         color: Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 3,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 3),
         ],
       ),
       child: Center(
-        child: Text(
-          icon,
-          style: TextStyle(fontSize: size * 0.6),
-        ),
+        child: Text(icon, style: TextStyle(fontSize: size * 0.6)),
       ),
     );
   }
