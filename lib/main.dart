@@ -9,6 +9,7 @@ import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/screens/onboarding_screen.dart';
 
 void main() async {
   // Initialize logger first (before any other operations)
@@ -47,9 +48,9 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      // Home: HomeScreen with Bottom Navigation
+      // Home: Check onboarding first, then show HomeScreen
       home: initialization.when(
-        data: (_) => const HomeScreen(),
+        data: (_) => const _OnboardingChecker(),
         loading: () => const _InitializationScreen(),
         error: (error, stackTrace) {
           AppLogger.e('App initialization failed', error, stackTrace);
@@ -265,3 +266,30 @@ class _ErrorScreen extends StatelessWidget {
     );
   }
 }
+
+/// Widget to check onboarding state and show appropriate screen
+class _OnboardingChecker extends ConsumerWidget {
+  const _OnboardingChecker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboardingState = ref.watch(onboardingNotifierProvider);
+
+    return onboardingState.when(
+      loading: () => const _InitializationScreen(),
+      error: (error, stackTrace) {
+        AppLogger.e('Onboarding check failed', error, stackTrace);
+        // Show home screen on error
+        return const HomeScreen();
+      },
+      data: (hasSeenOnboarding) {
+        if (hasSeenOnboarding) {
+          return const HomeScreen();
+        } else {
+          return const OnboardingScreen();
+        }
+      },
+    );
+  }
+}
+
