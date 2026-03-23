@@ -202,13 +202,13 @@ class _InitializationScreen extends StatelessWidget {
 }
 
 /// Error screen shown if initialization fails
-class _ErrorScreen extends StatelessWidget {
+class _ErrorScreen extends ConsumerWidget {
   final String message;
 
   const _ErrorScreen({required this.message});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Center(
         child: Padding(
@@ -247,9 +247,9 @@ class _ErrorScreen extends StatelessWidget {
               AppSpacingWidget.verticalXXL(),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Attempt to restart the app
+                  // Attempt to restart the app by invalidating initialization
                   AppLogger.i('User requested app restart after error');
-                  main();
+                  ref.invalidate(appInitializationProvider);
                 },
                 icon: const Icon(Icons.refresh),
                 label: const Text('Coba Lagi'),
