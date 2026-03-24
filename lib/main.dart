@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
-import 'package:catat_cuan/presentation/screens/home_screen.dart';
-import 'package:catat_cuan/presentation/screens/onboarding_screen.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
@@ -39,22 +37,36 @@ class MyApp extends ConsumerWidget {
     // Watch the theme mode from theme provider
     final themeMode = ref.watch(themeModeProvider);
 
-    return MaterialApp(
-      title: 'Catat Cuan',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
-      // Home: Check onboarding first, then show HomeScreen
-      home: initialization.when(
-        data: (_) => const _OnboardingChecker(),
-        loading: () => const _InitializationScreen(),
-        error: (error, stackTrace) {
-          AppLogger.e('App initialization failed', error, stackTrace);
-          return _ErrorScreen(
-            message: ErrorMessageMapper.getUserMessage(error),
-          );
-        },
+    // Watch the router provider (for reactive redirects)
+    final router = ref.watch(routerProvider);
+
+    return initialization.when(
+      loading: () => MaterialApp(
+        title: 'Catat Cuan',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeMode,
+        home: const _InitializationScreen(),
+      ),
+      error: (error, stackTrace) {
+        AppLogger.e('App initialization failed', error, stackTrace);
+        return MaterialApp(
+          title: 'Catat Cuan',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          home: _ErrorScreen(message: ErrorMessageMapper.getUserMessage(error)),
+        );
+      },
+      data: (_) => MaterialApp.router(
+        title: 'Catat Cuan',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeMode,
+        routerConfig: router,
       ),
     );
   }
@@ -176,30 +188,3 @@ class _ErrorScreen extends ConsumerWidget {
     );
   }
 }
-
-/// Widget to check onboarding state and show appropriate screen
-class _OnboardingChecker extends ConsumerWidget {
-  const _OnboardingChecker();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final onboardingState = ref.watch(onboardingNotifierProvider);
-
-    return onboardingState.when(
-      loading: () => const _InitializationScreen(),
-      error: (error, stackTrace) {
-        AppLogger.e('Onboarding check failed', error, stackTrace);
-        // Show home screen on error
-        return const HomeScreen();
-      },
-      data: (hasSeenOnboarding) {
-        if (hasSeenOnboarding) {
-          return const HomeScreen();
-        } else {
-          return const OnboardingScreen();
-        }
-      },
-    );
-  }
-}
-

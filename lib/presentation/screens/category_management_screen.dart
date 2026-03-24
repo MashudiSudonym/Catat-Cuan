@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/category_list_item.dart';
-import 'package:catat_cuan/presentation/screens/category_form_screen.dart';
 import 'package:catat_cuan/presentation/widgets/deactivate_category_dialog.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
 
@@ -346,16 +347,7 @@ class _CategoryManagementScreenState
     BuildContext context,
     CategoryManagementState state,
   ) async {
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategoryFormScreen(
-          initialType: state.selectedTab == CategoryManagementTab.income
-              ? CategoryType.income
-              : CategoryType.expense,
-        ),
-      ),
-    );
+    final result = await context.push<bool>(AppRoutes.addCategory);
 
     if (result == true) {
       ref.read(categoryManagementProvider.notifier).refresh();
@@ -366,14 +358,7 @@ class _CategoryManagementScreenState
     BuildContext context,
     CategoryEntity category,
   ) async {
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategoryFormScreen(
-          categoryToEdit: category,
-        ),
-      ),
-    );
+    final result = await context.push<bool>(AppRoutes.editCategoryPath(category.id!));
 
     if (result == true) {
       ref.read(categoryManagementProvider.notifier).refresh();

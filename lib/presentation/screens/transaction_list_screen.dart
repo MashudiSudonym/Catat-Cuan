@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
-import 'package:catat_cuan/presentation/screens/transaction_form_screen.dart';
-import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_card.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
@@ -12,6 +10,8 @@ import 'package:catat_cuan/presentation/widgets/export_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/transaction_filter_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Screen untuk menampilkan list transaksi
@@ -139,12 +139,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   /// Navigate to settings screen
   void _navigateToSettings(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SettingsScreen(),
-      ),
-    );
+    context.push(AppRoutes.settings);
   }
 
   /// Toggle select all / deselect all
@@ -357,14 +352,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       },
                       onEdit: () {
                         // Navigate to edit screen (AC-LOG-006.1)
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TransactionFormScreen(
-                              transactionToEdit: transaction,
-                            ),
-                          ),
-                        );
+                        context.push(AppRoutes.editTransactionPath(transaction.id!));
                       },
                       onDelete: () {
                         // Show delete confirmation (AC-LOG-007.2)
@@ -577,14 +565,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     },
                     onEdit: () {
                       // Navigate to edit screen (AC-LOG-006.1)
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TransactionFormScreen(
-                            transactionToEdit: transaction,
-                          ),
-                        ),
-                      );
+                      context.push(AppRoutes.editTransactionPath(transaction.id!));
                     },
                     onDelete: () {
                       // Show delete confirmation (AC-LOG-007.2)

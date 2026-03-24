@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
@@ -438,7 +439,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
 
   /// Use scanned data and return to form
   void _useScannedData(ReceiptDataEntity result) {
-    Navigator.pop(context, result);
+    context.pop(result);
   }
 
   /// Format currency for display

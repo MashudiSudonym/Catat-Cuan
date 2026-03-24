@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list_screen.dart';
 import 'package:catat_cuan/presentation/screens/monthly_summary_screen.dart';
-import 'package:catat_cuan/presentation/screens/transaction_form_screen.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:go_router/go_router.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 
 /// Main Home Screen with Bottom Navigation
+/// DEPRECATED: This screen is replaced by HomeNavigationShell in app_router.dart
+/// Kept for backward compatibility during migration
+@Deprecated('Use HomeNavigationShell from app_router.dart instead')
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -23,19 +27,19 @@ class HomeScreen extends ConsumerWidget {
           MonthlySummaryScreen(),
         ],
       ),
-      floatingActionButton: _buildSeamlessFab(context, ref),
+      floatingActionButton: _buildSeamlessFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildSeamlessBottomNav(context, ref, selectedIndex),
     );
   }
 
   /// Build seamless glassmorphism FAB
-  Widget _buildSeamlessFab(BuildContext context, WidgetRef ref) {
+  Widget _buildSeamlessFab(BuildContext context) {
     return SeamlessGlassFab(
       icon: Icons.add,
       tooltip: 'Tambah Transaksi',
       size: SeamlessFabSize.large,
-      onPressed: () => _showAddTransactionForm(context, ref),
+      onPressed: () => context.push(AppRoutes.addTransaction),
     );
   }
 
@@ -75,20 +79,6 @@ class HomeScreen extends ConsumerWidget {
             label: 'Ringkasan',
           ),
         ],
-      ),
-    );
-  }
-
-  /// Show add transaction form (called from center button)
-  void _showAddTransactionForm(BuildContext context, WidgetRef ref) {
-    // Reset form before navigating
-    ref.read(transactionFormNotifierProvider.notifier).resetForm();
-
-    // Navigate to form screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const TransactionFormScreen(),
       ),
     );
   }

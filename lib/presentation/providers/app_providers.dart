@@ -28,6 +28,7 @@ export 'currency/currency_provider.dart';
 
 // Navigation
 export 'navigation/navigation_provider.dart';
+export 'package:catat_cuan/presentation/navigation/providers/router_provider.dart';
 
 // Transaction providers
 export 'transaction/transaction_filter_provider.dart';

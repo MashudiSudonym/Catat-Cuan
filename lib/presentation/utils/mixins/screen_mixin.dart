@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
@@ -312,6 +313,22 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
     AppLogger.i(message);
     showSuccessSnackBar(message, duration: duration);
   }
+}
+
+/// GoRouter navigation extension on BuildContext
+/// Provides convenient methods for go_router navigation
+extension GoRouterNavigation on BuildContext {
+  /// Navigate to location (replaces current route)
+  void goRoute(String location) => go(location);
+
+  /// Push new location (keeps current route in stack)
+  Future<T?> pushRoute<T extends Object?>(String location) => push<T>(location);
+
+  /// Pop current route with optional result
+  void popRoute<T extends Object?>([T? result]) => pop<T>(result);
+
+  /// Replace current location
+  void replaceRoute(String location) => replace(location);
 }
 
 /// Mixin for ConsumerState with Riverpod

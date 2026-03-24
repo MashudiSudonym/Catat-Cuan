@@ -6,7 +6,8 @@ import 'package:catat_cuan/presentation/providers/onboarding/onboarding_provider
 import 'package:catat_cuan/presentation/widgets/onboarding_page.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
-import 'package:catat_cuan/presentation/screens/home_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 
 /// Onboarding screen with 3 pages showcasing app features
 /// Uses PageView for swipe navigation and SmoothPageIndicator for page dots
@@ -137,9 +138,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   /// Handle skip button press
   void _handleSkip() {
     // Skip without marking as seen - will show again on next launch
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
+    context.go(AppRoutes.transactions);
   }
 
   /// Handle next/start button press
@@ -147,9 +146,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (_currentPage == onboardingPages.length - 1) {
       // Last page - complete onboarding and navigate to home
       ref.read(onboardingNotifierProvider.notifier).completeOnboarding();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      context.go(AppRoutes.transactions);
     } else {
       // Go to next page
       _pageController.nextPage(

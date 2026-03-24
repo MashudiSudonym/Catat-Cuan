@@ -4,13 +4,14 @@ import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
-import 'package:catat_cuan/presentation/screens/scan_receipt_screen.dart';
 import 'package:catat_cuan/presentation/widgets/currency_input_field.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_type_toggle.dart';
 import 'package:catat_cuan/presentation/widgets/category_grid.dart';
 import 'package:catat_cuan/presentation/widgets/quick_add_category.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 /// Screen untuk form input transaksi (create & edit)
@@ -323,12 +324,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
   /// Handle scan receipt action
   Future<void> _scanReceipt() async {
-    final result = await Navigator.push<ReceiptDataEntity>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ScanReceiptScreen(),
-      ),
-    );
+    final result = await context.push<ReceiptDataEntity>(AppRoutes.scanReceipt);
 
     if (result != null) {
       // Pre-fill form with scanned data
@@ -417,7 +413,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                   ),
                 );
                 // Navigate back (AC-LOG-004.3)
-                Navigator.pop(context);
+                context.pop();
               }
             },
       style: ElevatedButton.styleFrom(
@@ -453,12 +449,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('Batal'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              context.pop();
               final messenger = ScaffoldMessenger.of(context);
               final navigator = Navigator.of(context);
               try {
