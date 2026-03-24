@@ -4,7 +4,36 @@ import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
 /// Service untuk generate insight dan rekomendasi keuangan
 /// berdasarkan data transaksi bulanan
 class InsightService {
-  /// Minimal jumlah transaksi sebelum menampilkan rekomendasi
+  /// Motivational messages for Indonesian users about economics/finance
+  static const List<Map<String, String>> _motivationalMessages = [
+    {
+      'title': 'Mulai Perjalanan Finansial Anda',
+      'message':
+          'Setiap perjalanan dimulai dengan satu langkah. Catat transaksi pertama Anda dan bangun kebiasaan finansial yang sehat.',
+    },
+    {
+      'title': 'Konsistensi adalah Kunci',
+      'message':
+          'Konsistensi dalam mencatat pengeluaran adalah langkah awal menuju kebebasan finansial. Teruslah mencatat!',
+    },
+    {
+      'title': 'Setiap Rupiah Berharga',
+      'message':
+          'Memahami kemana uang Anda pergi adalah langkah pertama untuk mencapai tujuan finansial Anda.',
+    },
+    {
+      'title': 'Bangun Kebiasaan Finansial',
+      'message':
+          'Kebiasaan kecil seperti mencatat pengeluaran dapat memberikan dampak besar pada kesehatan finansial Anda jangka panjang.',
+    },
+    {
+      'title': 'Waktu untuk Mulai',
+      'message':
+          'Tidak ada waktu yang lebih baik dari sekarang untuk mulai mengelola keuangan Anda. Setiap transaksi tercatat membawa Anda lebih dekat ke tujuan.',
+    },
+  ];
+  /// Minimal jumlah transaksi sebelum menampilkan rekomendasi finansial
+  /// Di bawah jumlah ini akan menampilkan pesan motivasi
   static const int minTransactionCount = 5;
 
   /// Batas persentase kategori yang dianggap berlebihan
@@ -17,14 +46,14 @@ class InsightService {
   static const double healthyBalanceThreshold = 20.0;
 
   /// Generate rekomendasi berdasarkan ringkasan bulanan dan breakdown kategori
-  /// Hanya menampilkan rekomendasi jika jumlah transaksi >= minTransactionCount
+  /// Akan selalu menampilkan rekomendasi (finansial jika cukup data, motivasi jika kurang)
   List<RecommendationEntity> generateInsights(
     MonthlySummaryEntity summary,
     List<CategoryBreakdownEntity> breakdown,
   ) {
-    // Jangan tampilkan rekomendasi jika transaksi terlalu sedikit
+    // Jika transaksi kurang dari minimum, tampilkan pesan motivasi
     if (summary.transactionCount < minTransactionCount) {
-      return [];
+      return _getMotivationalInsights(summary.transactionCount);
     }
 
     final recommendations = <RecommendationEntity>[];
@@ -152,5 +181,22 @@ class InsightService {
     } else {
       return 'Pengeluaran terkendali';
     }
+  }
+
+  /// Get motivational insight for new/low-data users
+  List<RecommendationEntity> _getMotivationalInsights(int transactionCount) {
+    // Select message based on transaction count
+    final messageIndex = transactionCount.clamp(0, _motivationalMessages.length - 1);
+    final message = _motivationalMessages[messageIndex];
+
+    return [
+      RecommendationEntity(
+        type: RecommendationType.motivational,
+        title: message['title']!,
+        message: message['message']!,
+        value: null, // No value for motivational
+        priority: RecommendationPriority.low,
+      ),
+    ];
   }
 }

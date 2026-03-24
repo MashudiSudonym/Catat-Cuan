@@ -8,9 +8,10 @@ import 'package:catat_cuan/presentation/widgets/income_breakdown_widget.dart';
 import 'package:catat_cuan/presentation/widgets/income_vs_expense_trend_widget.dart';
 import 'package:catat_cuan/presentation/widgets/recommendation_card.dart';
 import 'package:catat_cuan/presentation/widgets/period_selector.dart';
-import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
 
 /// Screen untuk menampilkan ringkasan bulanan transaksi
 /// Menggunakan CustomScrollView untuk smooth scrolling
@@ -159,13 +160,12 @@ class _MonthlySummaryScreenState
             child: SummaryMetricsCard(summary: data.summary),
           ),
 
-          // Recommendations Widget
-          if (data.hasRecommendations)
-            SliverToBoxAdapter(
-              child: RecommendationCard(
-                recommendations: data.recommendations,
-              ),
+          // Recommendations Widget - Always show (financial insights or motivational)
+          SliverToBoxAdapter(
+            child: RecommendationCard(
+              recommendations: data.recommendations,
             ),
+          ),
 
           // Trend Chart (NEW)
           if (data.hasTrendData)
@@ -362,11 +362,6 @@ class _MonthlySummaryScreenState
 
   /// Navigate to settings screen
   void _navigateToSettings(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SettingsScreen(),
-      ),
-    );
+    context.push(AppRoutes.settings);
   }
 }

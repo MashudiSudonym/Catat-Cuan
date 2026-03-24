@@ -225,7 +225,8 @@ enum RecommendationType {
   excessiveSpending('excessive_spending'),
   potentialSavings('potential_savings'),
   imbalance('imbalance'),
-  healthy('healthy');
+  healthy('healthy'),
+  motivational('motivational');
 
   const RecommendationType(this.value);
 
@@ -250,6 +251,8 @@ enum RecommendationType {
         return 'Ketidakseimbangan';
       case RecommendationType.healthy:
         return 'Keuangan Sehat';
+      case RecommendationType.motivational:
+        return 'Motivasi';
     }
   }
 
@@ -264,6 +267,8 @@ enum RecommendationType {
         return '📉';
       case RecommendationType.healthy:
         return '✅';
+      case RecommendationType.motivational:
+        return '💡';
     }
   }
 }

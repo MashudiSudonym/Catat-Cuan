@@ -135,7 +135,8 @@ class _RecommendationItem extends StatelessWidget {
                 ),
 
                 // Value display (if any)
-                if (recommendation.value != null) ...[
+                if (recommendation.value != null &&
+                    recommendation.type != RecommendationType.motivational) ...[
                   const AppSpacingWidget.verticalSM(),
                   _ValueIndicator(
                     value: recommendation.value!,
@@ -227,6 +228,11 @@ class _ValueIndicator extends StatelessWidget {
           'Saldo',
           AppColors.success,
           value.clamp(0, 100),
+        ),
+      RecommendationType.motivational => (
+          'Motivasi',
+          AppColors.primary,
+          0.0,
         ),
     };
 
