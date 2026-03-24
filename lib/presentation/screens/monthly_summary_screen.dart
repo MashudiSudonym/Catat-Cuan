@@ -31,7 +31,7 @@ class _MonthlySummaryScreenState
   Widget build(BuildContext context) {
     final summaryAsync = ref.watch(monthlySummaryNotifierProvider);
     final notifier = ref.read(monthlySummaryNotifierProvider.notifier);
-    final currentTabIndex = ref.watch(navigationProvider).selectedIndex;
+    final currentTabIndex = ref.watch(navigationNotifierProvider).selectedIndex;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Detect tab change to summary screen (index 1)

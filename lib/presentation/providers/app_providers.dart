@@ -6,6 +6,11 @@ library;
 // Core Dependencies
 // ============================================================================
 
+// App widgets
+export 'package:catat_cuan/presentation/app/app_widget.dart';
+export 'package:catat_cuan/presentation/app/initialization_screen.dart';
+export 'package:catat_cuan/presentation/app/error_screen.dart';
+
 // Repository providers
 export 'repositories/repository_providers.dart';
 
@@ -68,57 +73,11 @@ export 'package:catat_cuan/presentation/states/transaction_form_state.dart';
 export 'package:catat_cuan/presentation/providers/summary/monthly_summary_provider.dart' show MonthlySummaryData;
 
 // ============================================================================
-// Legacy Providers (to be removed after UI migration)
-// ============================================================================
-
-// These are kept for backward compatibility during migration
-// TODO: Remove after UI is updated to use new providers
-export 'notifiers/transaction_provider.dart';
-export 'package:catat_cuan/presentation/states/transaction_list_state.dart';
-
-// ============================================================================
 // Additional Use Case Providers & Initialization
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:catat_cuan/presentation/providers/navigation/navigation_provider.dart';
-import 'package:catat_cuan/presentation/providers/transaction/transaction_filter_provider.dart';
-import 'package:catat_cuan/presentation/providers/transaction/transaction_list_provider.dart';
-import 'package:catat_cuan/presentation/providers/transaction/transaction_form_provider.dart';
-import 'package:catat_cuan/presentation/providers/category/category_list_provider.dart';
-import 'package:catat_cuan/presentation/providers/category/category_form_provider.dart';
-import 'package:catat_cuan/presentation/providers/category/category_management_provider.dart';
-import 'package:catat_cuan/presentation/providers/summary/monthly_summary_provider.dart';
-import 'package:catat_cuan/presentation/providers/scan/receipt_scan_provider.dart';
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
-
-// Aliases for backward compatibility (deprecated - use *NotifierProvider directly)
-@Deprecated('Use navigationNotifierProvider instead')
-final navigationProvider = navigationNotifierProvider;
-
-@Deprecated('Use transactionFilterNotifierProvider instead')
-final transactionFilterProvider = transactionFilterNotifierProvider;
-
-@Deprecated('Use transactionListNotifierProvider instead')
-final transactionListProvider = transactionListNotifierProvider;
-
-@Deprecated('Use transactionFormNotifierProvider instead')
-final transactionFormProvider = transactionFormNotifierProvider;
-
-@Deprecated('Use categoryListNotifierProvider instead')
-final categoryListProvider = categoryListNotifierProvider;
-
-@Deprecated('Use categoryFormNotifierProvider instead')
-final categoryFormProvider = categoryFormNotifierProvider;
-
-@Deprecated('Use categoryManagementNotifierProvider instead')
-final categoryManagementProvider = categoryManagementNotifierProvider;
-
-@Deprecated('Use monthlySummaryNotifierProvider instead')
-final monthlySummaryProvider = monthlySummaryNotifierProvider;
-
-@Deprecated('Use receiptScanNotifierProvider instead')
-final receiptScanProvider = receiptScanNotifierProvider;
 
 /// Simple cache provider to track initialization state
 final cacheProvider = StateProvider<Map<String, bool>>((ref) => {});

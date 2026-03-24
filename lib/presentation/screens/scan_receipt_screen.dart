@@ -32,11 +32,11 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scanState = ref.watch(receiptScanProvider);
+    final scanState = ref.watch(receiptScanNotifierProvider);
 
     // Listen untuk error
     ref.listen<ReceiptScanState>(
-      receiptScanProvider,
+      receiptScanNotifierProvider,
       (previous, next) {
         if (next.hasError && previous?.errorMessage != next.errorMessage) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -214,7 +214,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
         ElevatedButton.icon(
           onPressed: scanState.isLoading
               ? null
-              : () => ref.read(receiptScanProvider.notifier).scanFromCamera(),
+              : () => ref.read(receiptScanNotifierProvider.notifier).scanFromCamera(),
           icon: const Icon(Icons.camera_alt_outlined),
           label: const Text('Ambil Foto'),
           style: ElevatedButton.styleFrom(
@@ -228,7 +228,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           onPressed: scanState.isLoading
               ? null
               : () =>
-                  ref.read(receiptScanProvider.notifier).scanFromGallery(),
+                  ref.read(receiptScanNotifierProvider.notifier).scanFromGallery(),
           icon: const Icon(Icons.photo_library_outlined),
           label: const Text('Pilih dari Galeri'),
           style: ElevatedButton.styleFrom(
@@ -302,7 +302,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
                               setState(() {
                                 _selectedDateTime = null;
                                 final updatedResult = result.copyWith(extractedDate: null);
-                                ref.read(receiptScanProvider.notifier).updateScanResult(updatedResult);
+                                ref.read(receiptScanNotifierProvider.notifier).updateScanResult(updatedResult);
                               });
                             },
                           )
@@ -362,7 +362,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
             final amount = _parseCurrency(value);
             if (amount != null) {
               final updatedResult = result.copyWith(extractedAmount: amount);
-              ref.read(receiptScanProvider.notifier).updateScanResult(updatedResult);
+              ref.read(receiptScanNotifierProvider.notifier).updateScanResult(updatedResult);
             }
           },
         ),
@@ -373,7 +373,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           onPressed: () {
             _amountController.clear();
             _selectedDateTime = null;
-            ref.read(receiptScanProvider.notifier).reset();
+            ref.read(receiptScanNotifierProvider.notifier).reset();
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Foto Ulang'),
@@ -405,7 +405,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           existingTime?.second ?? now.second,
         );
         final updatedResult = result.copyWith(extractedDate: _selectedDateTime);
-        ref.read(receiptScanProvider.notifier).updateScanResult(updatedResult);
+        ref.read(receiptScanNotifierProvider.notifier).updateScanResult(updatedResult);
       });
     }
   }
@@ -432,7 +432,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
           existingDate?.second ?? 0,
         );
         final updatedResult = result.copyWith(extractedDate: _selectedDateTime);
-        ref.read(receiptScanProvider.notifier).updateScanResult(updatedResult);
+        ref.read(receiptScanNotifierProvider.notifier).updateScanResult(updatedResult);
       });
     }
   }

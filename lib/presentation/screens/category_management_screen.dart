@@ -45,13 +45,13 @@ class _CategoryManagementScreenState
   void _handleTabChange() {
     if (_tabController.indexIsChanging) {
       final tab = CategoryManagementTab.values[_tabController.index];
-      ref.read(categoryManagementProvider.notifier).switchTab(tab);
+      ref.read(categoryManagementNotifierProvider.notifier).switchTab(tab);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(categoryManagementProvider);
+    final state = ref.watch(categoryManagementNotifierProvider);
 
     return Scaffold(
       appBar: _buildAppBar(state),
@@ -99,7 +99,7 @@ class _CategoryManagementScreenState
               setState(() => _isSearching = false);
               _searchController.clear();
               ref
-                  .read(categoryManagementProvider.notifier)
+                  .read(categoryManagementNotifierProvider.notifier)
                   .setSearchQuery('');
             },
           ),
@@ -138,7 +138,7 @@ class _CategoryManagementScreenState
       ),
       style: const TextStyle(fontSize: 16),
       onChanged: (value) {
-        ref.read(categoryManagementProvider.notifier).setSearchQuery(value);
+        ref.read(categoryManagementNotifierProvider.notifier).setSearchQuery(value);
       },
     );
   }
@@ -153,7 +153,7 @@ class _CategoryManagementScreenState
       ],
       onTap: (index) {
         final tab = CategoryManagementTab.values[index];
-        ref.read(categoryManagementProvider.notifier).switchTab(tab);
+        ref.read(categoryManagementNotifierProvider.notifier).switchTab(tab);
       },
     );
   }
@@ -181,7 +181,7 @@ class _CategoryManagementScreenState
 
     return RefreshIndicator(
       onRefresh: () =>
-          ref.read(categoryManagementProvider.notifier).refresh(),
+          ref.read(categoryManagementNotifierProvider.notifier).refresh(),
       child: ListView.builder(
         itemCount: categories.length,
         itemBuilder: (context, index) {
@@ -247,7 +247,7 @@ class _CategoryManagementScreenState
     final categoryIds = reorderedCategories.map((c) => c.category.id!).toList();
 
     // Call reorder use case via notifier
-    await ref.read(categoryManagementProvider.notifier).reorderCategories(categoryIds);
+    await ref.read(categoryManagementNotifierProvider.notifier).reorderCategories(categoryIds);
   }
 
   Widget _buildEmptyState() {
@@ -325,7 +325,7 @@ class _CategoryManagementScreenState
             const AppSpacingWidget.verticalLG(),
             ElevatedButton.icon(
               onPressed: () =>
-                  ref.read(categoryManagementProvider.notifier).refresh(),
+                  ref.read(categoryManagementNotifierProvider.notifier).refresh(),
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
             ),
@@ -338,7 +338,7 @@ class _CategoryManagementScreenState
   void _handleMenuAction(String action, CategoryManagementState state) {
     switch (action) {
       case 'refresh':
-        ref.read(categoryManagementProvider.notifier).refresh();
+        ref.read(categoryManagementNotifierProvider.notifier).refresh();
         break;
     }
   }
@@ -350,7 +350,7 @@ class _CategoryManagementScreenState
     final result = await context.push<bool>(AppRoutes.addCategory);
 
     if (result == true) {
-      ref.read(categoryManagementProvider.notifier).refresh();
+      ref.read(categoryManagementNotifierProvider.notifier).refresh();
     }
   }
 
@@ -361,7 +361,7 @@ class _CategoryManagementScreenState
     final result = await context.push<bool>(AppRoutes.editCategoryPath(category.id!));
 
     if (result == true) {
-      ref.read(categoryManagementProvider.notifier).refresh();
+      ref.read(categoryManagementNotifierProvider.notifier).refresh();
     }
   }
 
@@ -381,7 +381,7 @@ class _CategoryManagementScreenState
 
     if (result == true && transactionCount == 0) {
       final success = await ref
-          .read(categoryManagementProvider.notifier)
+          .read(categoryManagementNotifierProvider.notifier)
           .deactivateCategory(category.id!);
 
       if (context.mounted && !success) {

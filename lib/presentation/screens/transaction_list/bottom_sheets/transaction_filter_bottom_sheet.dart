@@ -43,7 +43,7 @@ class _TransactionFilterBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final categories = ref.watch(categoryListProvider);
+    final categories = ref.watch(categoryListNotifierProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final adjustedBlur = GlassVariant.overlay.getAdjustedBlur(isDark: isDark);
     final adjustedAlpha = GlassVariant.overlay.getAdjustedAlpha(isDark: isDark);
@@ -421,10 +421,10 @@ class TransactionFilterBottomSheetHelper {
       builder: (context) => TransactionFilterBottomSheet(
         currentFilters: currentFilters,
         onApply: (filters) {
-          ref.read(transactionListProvider.notifier).setFilters(filters);
+          ref.read(transactionListNotifierProvider.notifier).setFilters(filters);
         },
         onClear: () {
-          ref.read(transactionListProvider.notifier).clearFilters();
+          ref.read(transactionListNotifierProvider.notifier).clearFilters();
           Navigator.pop(context);
         },
       ),
