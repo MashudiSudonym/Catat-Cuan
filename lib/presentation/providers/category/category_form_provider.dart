@@ -154,6 +154,22 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
     );
   }
 
+  /// Load kategori untuk edit berdasarkan ID
+  Future<void> loadById(int categoryId) async {
+    final getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
+    try {
+      final category = await getCategoriesUseCase.executeById(categoryId);
+      if (category != null) {
+        loadForEdit(category);
+      } else {
+        throw Exception('Kategori tidak ditemukan');
+      }
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to load category by ID: $categoryId', e, stackTrace);
+      rethrow;
+    }
+  }
+
   /// Initialize dengan tipe tertentu (untuk quick add dari transaction form)
   void initializeWithType(CategoryType type) {
     state = CategoryFormState(

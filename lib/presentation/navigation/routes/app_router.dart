@@ -9,7 +9,6 @@ import 'package:catat_cuan/presentation/screens/category_form_screen.dart';
 import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/screens/scan_receipt_screen.dart';
 import 'package:catat_cuan/presentation/screens/category_management_screen.dart';
-import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
@@ -18,7 +17,6 @@ import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 /// Navigator keys for shell routes
 /// Following SRP: Separate keys for root and shell navigation
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Create GoRouter configuration with Riverpod integration
 /// Following SOLID principles:
@@ -99,15 +97,7 @@ GoRouter createGoRouter(Ref ref) {
                       return MaterialPage(
                         key: state.pageKey,
                         child: TransactionFormScreen(
-                          transactionToEdit: TransactionEntity(
-                            id: transactionId,
-                            amount: 0,
-                            dateTime: DateTime.now(),
-                            type: TransactionType.expense,
-                            categoryId: 0,
-                            createdAt: DateTime.now(),
-                            updatedAt: DateTime.now(),
-                          ),
+                          transactionId: transactionId,
                         ),
                       );
                     },
@@ -163,7 +153,7 @@ GoRouter createGoRouter(Ref ref) {
                           return MaterialPage(
                             key: state.pageKey,
                             child: CategoryFormScreen(
-                              categoryToEdit: null, // Will be loaded by provider using categoryId
+                              categoryId: categoryId,
                             ),
                           );
                         },

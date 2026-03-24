@@ -18,10 +18,12 @@ import 'package:intl/intl.dart';
 /// Menggunakan custom widgets dengan design sesuai UI reference
 class TransactionFormScreen extends ConsumerStatefulWidget {
   final TransactionEntity? transactionToEdit;
+  final int? transactionId;
 
   const TransactionFormScreen({
     super.key,
     this.transactionToEdit,
+    this.transactionId,
   });
 
   @override
@@ -43,6 +45,13 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
             .read(transactionFormProvider.notifier)
             .loadForEdit(widget.transactionToEdit!);
         _populateNote(widget.transactionToEdit!);
+      });
+    } else if (widget.transactionId != null) {
+      // Load transaction by ID from route
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ref
+            .read(transactionFormProvider.notifier)
+            .loadById(widget.transactionId!);
       });
     }
   }

@@ -127,6 +127,22 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
     );
   }
 
+  /// Load transaksi untuk edit berdasarkan ID
+  Future<void> loadById(int transactionId) async {
+    final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
+    try {
+      final transaction = await getTransactionsUseCase.executeById(transactionId);
+      if (transaction != null) {
+        loadForEdit(transaction);
+      } else {
+        throw Exception('Transaksi tidak ditemukan');
+      }
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to load transaction by ID: $transactionId', e, stackTrace);
+      rethrow;
+    }
+  }
+
   /// Reset form ke default (AC-LOG-004.1)
   void resetForm() {
     ref.invalidateSelf();

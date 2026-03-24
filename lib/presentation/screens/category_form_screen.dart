@@ -11,11 +11,13 @@ import 'package:catat_cuan/presentation/utils/utils.dart';
 class CategoryFormScreen extends ConsumerStatefulWidget {
   final CategoryEntity? categoryToEdit;
   final CategoryType? initialType;
+  final int? categoryId;
 
   const CategoryFormScreen({
     super.key,
     this.categoryToEdit,
     this.initialType,
+    this.categoryId,
   }) : assert(
           categoryToEdit == null || initialType == null,
           'Cannot specify both categoryToEdit and initialType',
@@ -39,6 +41,12 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
     // Initialize with category to edit or default values
     if (widget.categoryToEdit != null) {
       _initializeForEdit(widget.categoryToEdit!);
+    } else if (widget.categoryId != null) {
+      // Load category by ID from route
+      _initializeForCreate();
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ref.read(categoryFormProvider.notifier).loadById(widget.categoryId!);
+      });
     } else {
       _initializeForCreate();
     }
