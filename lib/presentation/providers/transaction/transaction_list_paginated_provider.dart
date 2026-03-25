@@ -102,7 +102,7 @@ class TransactionListPaginatedNotifier extends _$TransactionListPaginatedNotifie
 
   /// Load initial data (first page)
   Future<void> _loadInitialData() async {
-    final filterState = ref.watch(transactionFilterNotifierProvider);
+    final filterState = ref.watch(transactionFilterProvider);
     final pagination = PaginationParamsEntity(page: 1, limit: _itemsPerPage);
 
     final paginatedResult = await _executePaginatedQuery(pagination, filterState);
@@ -140,7 +140,7 @@ class TransactionListPaginatedNotifier extends _$TransactionListPaginatedNotifie
       return;
     }
 
-    final filterState = ref.read(transactionFilterNotifierProvider);
+    final filterState = ref.read(transactionFilterProvider);
     final nextPage = state.currentPage + 1;
     final pagination = PaginationParamsEntity(page: nextPage, limit: _itemsPerPage);
 
@@ -165,7 +165,7 @@ class TransactionListPaginatedNotifier extends _$TransactionListPaginatedNotifie
 
   /// Set filter dan reload data (reset to first page)
   void setFilters(TransactionFilterState filters) {
-    final filterNotifier = ref.read(transactionFilterNotifierProvider.notifier);
+    final filterNotifier = ref.read(transactionFilterProvider.notifier);
     filterNotifier.setFilters(
       startDate: filters.startDate,
       endDate: filters.endDate,
@@ -178,11 +178,11 @@ class TransactionListPaginatedNotifier extends _$TransactionListPaginatedNotifie
 
   /// Clear semua filter
   void clearFilters() {
-    ref.read(transactionFilterNotifierProvider.notifier).clearFilters();
+    ref.read(transactionFilterProvider.notifier).clearFilters();
     // Auto-reload happens via watch in build()
     ref.invalidateSelf();
   }
 
   /// Get current filter state
-  TransactionFilterState get filterState => ref.read(transactionFilterNotifierProvider);
+  TransactionFilterState get filterState => ref.read(transactionFilterProvider);
 }

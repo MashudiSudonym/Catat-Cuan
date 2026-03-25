@@ -44,7 +44,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   void _onScroll() {
     if (_isBottomReached) {
-      ref.read(transactionListPaginatedNotifierProvider.notifier).loadMore();
+      ref.read(transactionListPaginatedProvider.notifier).loadMore();
     }
   }
 
@@ -134,7 +134,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   /// Exit selection mode
   void _exitSelectionMode(WidgetRef ref) {
-    ref.read(transactionSelectionNotifierProvider.notifier).clearSelection();
+    ref.read(transactionSelectionProvider.notifier).clearSelection();
   }
 
   /// Navigate to settings screen
@@ -145,7 +145,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// Toggle select all / deselect all
   void _toggleSelectAll(WidgetRef ref, List<TransactionEntity> transactions) {
     final allIds = transactions.map((t) => t.id!).toList();
-    ref.read(transactionSelectionNotifierProvider.notifier).toggleSelectAll(allIds);
+    ref.read(transactionSelectionProvider.notifier).toggleSelectAll(allIds);
   }
 
   /// Show batch delete confirmation dialog
@@ -182,9 +182,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   _exitSelectionMode(ref);
 
                   // Invalidate all transaction list providers and summary to trigger refresh
-                  ref.invalidate(transactionListNotifierProvider);
-                  ref.invalidate(transactionListPaginatedNotifierProvider);
-                  ref.invalidate(monthlySummaryNotifierProvider);
+                  ref.invalidate(transactionListProvider);
+                  ref.invalidate(transactionListPaginatedProvider);
+                  ref.invalidate(monthlySummaryProvider);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -218,10 +218,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paginatedState = ref.watch(transactionListPaginatedNotifierProvider);
-    final filterState = ref.watch(transactionFilterNotifierProvider);
-    final searchAsync = ref.watch(transactionSearchNotifierProvider);
-    final selectionState = ref.watch(transactionSelectionNotifierProvider);
+    final paginatedState = ref.watch(transactionListPaginatedProvider);
+    final filterState = ref.watch(transactionFilterProvider);
+    final searchAsync = ref.watch(transactionSearchProvider);
+    final selectionState = ref.watch(transactionSelectionProvider);
     final hasSearchQuery = searchAsync.value?.isNotEmpty == true;
 
     // Get current transaction list for select all functionality
@@ -280,7 +280,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     if (state.error != null) {
       return _ErrorState(
         error: state.error!,
-        onRetry: () => ref.read(transactionListPaginatedNotifierProvider.notifier).refresh(),
+        onRetry: () => ref.read(transactionListPaginatedProvider.notifier).refresh(),
       );
     }
 
@@ -290,8 +290,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
 
     // Get categories for display
-    final categories = ref.watch(categoryListNotifierProvider);
-    final selectionState = ref.watch(transactionSelectionNotifierProvider);
+    final categories = ref.watch(categoryListProvider);
+    final selectionState = ref.watch(transactionSelectionProvider);
 
     return categories.when(
       data: (categoryData) {
@@ -299,7 +299,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         final groupedTransactions = _groupTransactionsByDate(state.transactions);
 
         return RefreshIndicator(
-          onRefresh: () => ref.read(transactionListPaginatedNotifierProvider.notifier).refresh(),
+          onRefresh: () => ref.read(transactionListPaginatedProvider.notifier).refresh(),
           child: ListView.builder(
             controller: _scrollController,
             padding: AppSpacing.only(bottom: AppSpacing.lg),
@@ -343,11 +343,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       isSelected: isSelected,
                       isSelectionMode: selectionState.isSelectionModeActive,
                       onLongPress: () {
-                        ref.read(transactionSelectionNotifierProvider.notifier)
+                        ref.read(transactionSelectionProvider.notifier)
                             .toggleSelectionMode(transaction.id!);
                       },
                       onSelectionToggle: () {
-                        ref.read(transactionSelectionNotifierProvider.notifier)
+                        ref.read(transactionSelectionProvider.notifier)
                             .toggleSelection(transaction.id!);
                       },
                       onEdit: () {
@@ -390,7 +390,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       ),
       error: (error, stack) => _ErrorState(
         error: error.toString(),
-        onRetry: () => ref.invalidate(transactionSearchNotifierProvider),
+        onRetry: () => ref.invalidate(transactionSearchProvider),
       ),
       data: (transactions) {
         if (transactions.isEmpty) {
@@ -442,7 +442,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             const AppSpacingWidget.verticalLG(),
             TextButton.icon(
               onPressed: () {
-                ref.read(transactionSearchNotifierProvider.notifier).clear();
+                ref.read(transactionSearchProvider.notifier).clear();
               },
               icon: const Icon(Icons.clear),
               label: const Text('Hapus Pencarian'),
@@ -462,7 +462,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return TransactionFilterChip(
       selectedType: filterState.type,
       onTypeChanged: (type) {
-        final notifier = ref.read(transactionListPaginatedNotifierProvider.notifier);
+        final notifier = ref.read(transactionListPaginatedProvider.notifier);
         // Use withType() to properly handle null values (for "Semua" option)
         notifier.setFilters(filterState.withType(type));
       },
@@ -516,8 +516,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     List<TransactionEntity> transactions,
   ) {
     // Get categories for display
-    final categories = ref.watch(categoryListNotifierProvider);
-    final selectionState = ref.watch(transactionSelectionNotifierProvider);
+    final categories = ref.watch(categoryListProvider);
+    final selectionState = ref.watch(transactionSelectionProvider);
 
     return categories.when(
       data: (categoryData) {
@@ -556,11 +556,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     isSelected: isSelected,
                     isSelectionMode: selectionState.isSelectionModeActive,
                     onLongPress: () {
-                      ref.read(transactionSelectionNotifierProvider.notifier)
+                      ref.read(transactionSelectionProvider.notifier)
                           .toggleSelectionMode(transaction.id!);
                     },
                     onSelectionToggle: () {
-                      ref.read(transactionSelectionNotifierProvider.notifier)
+                      ref.read(transactionSelectionProvider.notifier)
                           .toggleSelection(transaction.id!);
                     },
                     onEdit: () {
@@ -662,9 +662,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     .execute(transaction.id!);
                 if (context.mounted) {
                   // Invalidate all transaction list providers and summary to trigger refresh
-                  ref.invalidate(transactionListNotifierProvider);
-                  ref.invalidate(transactionListPaginatedNotifierProvider);
-                  ref.invalidate(monthlySummaryNotifierProvider);
+                  ref.invalidate(transactionListProvider);
+                  ref.invalidate(transactionListPaginatedProvider);
+                  ref.invalidate(monthlySummaryProvider);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

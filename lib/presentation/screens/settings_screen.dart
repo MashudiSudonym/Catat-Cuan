@@ -10,7 +10,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeState = ref.watch(themeNotifierProvider);
+    final themeState = ref.watch(themeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -52,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
                     option: option,
                     isSelected: isSelected,
                     onTap: () {
-                      ref.read(themeNotifierProvider.notifier).setThemeMode(option);
+                      ref.read(themeProvider.notifier).setThemeMode(option);
                     },
                   );
                 }),
@@ -90,13 +90,13 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 ...CurrencyOption.values.map((option) {
-                  final currencyState = ref.watch(currencyNotifierProvider);
+                  final currencyState = ref.watch(currencyProvider);
                   final isSelected = currencyState.currencyOption == option;
                   return _CurrencyOptionTile(
                     option: option,
                     isSelected: isSelected,
                     onTap: () {
-                      ref.read(currencyNotifierProvider.notifier).setCurrency(option);
+                      ref.read(currencyProvider.notifier).setCurrency(option);
                     },
                   );
                 }),

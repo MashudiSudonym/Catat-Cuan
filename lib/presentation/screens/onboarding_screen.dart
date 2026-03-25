@@ -145,7 +145,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void _handleNext() {
     if (_currentPage == onboardingPages.length - 1) {
       // Last page - complete onboarding and navigate to home
-      ref.read(onboardingNotifierProvider.notifier).completeOnboarding();
+      ref.read(onboardingProvider.notifier).completeOnboarding();
       context.go(AppRoutes.transactions);
     } else {
       // Go to next page

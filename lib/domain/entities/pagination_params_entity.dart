@@ -1,15 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'pagination_params_entity.freezed.dart';
+
 /// Pagination parameters for paginated queries
-class PaginationParamsEntity {
-  /// Current page number (1-based)
-  final int page;
+@freezed
+abstract class PaginationParamsEntity with _$PaginationParamsEntity {
+  const PaginationParamsEntity._();
 
-  /// Number of items per page
-  final int limit;
+  const factory PaginationParamsEntity({
+    /// Current page number (1-based)
+    @Default(1) int page,
 
-  const PaginationParamsEntity({
-    this.page = 1,
-    this.limit = 20,
-  });
+    /// Number of items per page
+    @Default(20) int limit,
+  }) = _PaginationParamsEntity;
 
   /// Calculate offset for SQL queries
   /// OFFSET = (page - 1) * limit

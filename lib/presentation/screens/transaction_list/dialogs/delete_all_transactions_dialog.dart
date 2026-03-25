@@ -60,9 +60,9 @@ class DeleteAllTransactionsHandler {
         await ref.read(deleteAllTransactionsUseCaseProvider).execute();
 
         // Invalidate transaction list providers and monthly summary to trigger refresh
-        ref.invalidate(transactionListNotifierProvider);
-        ref.invalidate(transactionListPaginatedNotifierProvider);
-        ref.invalidate(monthlySummaryNotifierProvider);
+        ref.invalidate(transactionListProvider);
+        ref.invalidate(transactionListPaginatedProvider);
+        ref.invalidate(monthlySummaryProvider);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

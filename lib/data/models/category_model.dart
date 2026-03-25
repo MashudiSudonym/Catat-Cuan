@@ -1,29 +1,42 @@
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'category_model.freezed.dart';
 
 /// Model untuk mapping kategori dari/to database
-class CategoryModel {
-  final int? id;
-  final String name;
-  final String type;
-  final String color;
-  final String? icon;
-  final int sortOrder;
-  final int isActive;
-  final String createdAt;
-  final String updatedAt;
+@freezed
+abstract class CategoryModel with _$CategoryModel {
+  const CategoryModel._();
 
-  const CategoryModel({
-    this.id,
-    required this.name,
-    required this.type,
-    required this.color,
-    this.icon,
-    this.sortOrder = 0,
-    this.isActive = 1,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  const factory CategoryModel({
+    /// Primary key dari database (nullable untuk kategori baru)
+    int? id,
+
+    /// Nama kategori
+    required String name,
+
+    /// Tipe kategori sebagai string (income/expense) untuk database
+    required String type,
+
+    /// Warna kategori (hex code)
+    required String color,
+
+    /// Icon kategori (optional)
+    String? icon,
+
+    /// Urutan pengurutan
+    @Default(0) int sortOrder,
+
+    /// Status aktif/non-aktif sebagai integer (1/0) untuk database
+    @Default(1) int isActive,
+
+    /// Waktu pembuatan record sebagai ISO8601 string untuk database
+    required String createdAt,
+
+    /// Waktu terakhir update sebagai ISO8601 string untuk database
+    required String updatedAt,
+  }) = _CategoryModel;
 
   /// Convert dari Map (database row) ke CategoryModel
   factory CategoryModel.fromMap(Map<String, dynamic> map) {
@@ -84,61 +97,4 @@ class CategoryModel {
       updatedAt: entity.updatedAt.toIso8601String(),
     );
   }
-
-  /// CopyWith method untuk immutable updates
-  CategoryModel copyWith({
-    int? id,
-    String? name,
-    String? type,
-    String? color,
-    String? icon,
-    int? sortOrder,
-    int? isActive,
-    String? createdAt,
-    String? updatedAt,
-  }) {
-    return CategoryModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      type: type ?? this.type,
-      color: color ?? this.color,
-      icon: icon ?? this.icon,
-      sortOrder: sortOrder ?? this.sortOrder,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'CategoryModel{id: $id, name: $name, type: $type, color: $color, icon: $icon, sortOrder: $sortOrder, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryModel &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          name == other.name &&
-          type == other.type &&
-          color == other.color &&
-          icon == other.icon &&
-          sortOrder == other.sortOrder &&
-          isActive == other.isActive &&
-          createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      type.hashCode ^
-      color.hashCode ^
-      icon.hashCode ^
-      sortOrder.hashCode ^
-      isActive.hashCode ^
-      createdAt.hashCode ^
-      updatedAt.hashCode;
 }

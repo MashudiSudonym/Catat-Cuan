@@ -78,7 +78,7 @@ class _CurrencyInputFieldState extends ConsumerState<CurrencyInputField> {
   @override
   Widget build(BuildContext context) {
     final hasError = widget.errorText != null;
-    final currencySymbol = ref.watch(currencyNotifierProvider).currencyOption.symbol;
+    final currencySymbol = ref.watch(currencyProvider).currencyOption.symbol;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +199,7 @@ class _CompactCurrencyInputFieldState extends ConsumerState<CompactCurrencyInput
 
   @override
   Widget build(BuildContext context) {
-    final currencySymbol = ref.watch(currencyNotifierProvider).currencyOption.symbol;
+    final currencySymbol = ref.watch(currencyProvider).currencyOption.symbol;
 
     return TextFormField(
       controller: _controller,
@@ -233,7 +233,7 @@ class _DynamicCurrencyFormatter extends TextInputFormatter {
 
   _DynamicCurrencyFormatter({required this.ref});
 
-  String get _thousandSeparator => ref.read(currencyNotifierProvider).currencyOption.thousandSeparator;
+  String get _thousandSeparator => ref.read(currencyProvider).currencyOption.thousandSeparator;
 
   @override
   TextEditingValue formatEditUpdate(

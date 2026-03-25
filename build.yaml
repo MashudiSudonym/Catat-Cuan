@@ -1,0 +1,29 @@
+# Build configuration for Catat Cuan
+
+targets:
+  $default:
+    builders:
+      # Freezed - generates .freezed.dart files
+      freezed:
+        enabled: true
+        options:
+          union_key: type
+          union_value_case: pascal
+
+      # JSON serialization - generates .g.dart files for models
+      json_serializable:
+        enabled: true
+        options:
+          explicit_to_json: true
+
+      # Riverpod generator - generates .g.dart files for providers
+      riverpod_generator:
+        enabled: true
+
+      # Riverpod lint - disabled
+      riverpod_lint:
+        enabled: false
+
+      # GoRouter builder - generates router configuration
+      go_router_builder:
+        enabled: true

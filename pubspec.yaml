@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.5.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -36,8 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # State Management
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  flutter_riverpod: ^3.3.1
+  riverpod_annotation: ^4.0.2
 
   # Database
   sqflite: ^2.4.1
@@ -54,33 +54,35 @@ dependencies:
   form_field_validator: ^1.1.0
 
   # DateTime
-  timezone: ^0.10.0
+  timezone: ^0.11.0
 
   # UUID
   uuid: ^4.5.1
 
   # OCR & Image Processing
-  google_mlkit_text_recognition: ^0.12.0
+  google_mlkit_text_recognition: ^0.15.1
   image_picker: ^1.1.2
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
 
   # UI & Fonts
-  google_fonts: ^6.2.1
-  fl_chart: ^0.66.0
-  package_info_plus: ^8.1.2
+  google_fonts: ^8.0.2
+  fl_chart: ^1.2.0
+  package_info_plus: ^9.0.0
 
   # CSV Export
-  csv: ^6.0.0
-  share_plus: ^7.2.1
+  share_plus: ^12.0.1
 
   # Logging
   logger: ^2.0.0
 
   # Onboarding
-  smooth_page_indicator: ^1.2.0+3
+  smooth_page_indicator: ^2.0.1
 
   # Navigation
-  go_router: ^14.6.2
+  go_router: ^17.1.0
+
+  # Freezed for immutable data classes
+  freezed_annotation: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -96,11 +98,16 @@ dev_dependencies:
   # Testing
   mockito: ^5.4.4
   build_runner: ^2.4.13
-  riverpod_generator: ^2.6.2
-  riverpod_lint: ^2.6.2
+  riverpod_generator: ^4.0.3
+  # Temporarily disabled riverpod_lint due to analyzer_plugin compatibility issue
+  # riverpod_lint: ^2.6.2
+
+  # Freezed code generation
+  freezed: ^3.2.5
+  json_serializable: ^6.7.1
 
   # Type-safe routing (optional)
-  go_router_builder: ^2.7.1
+  go_router_builder: ^4.2.0
 
   # Integration Test
   integration_test:

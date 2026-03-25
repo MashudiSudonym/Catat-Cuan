@@ -1,69 +1,32 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'receipt_data_entity.freezed.dart';
+
 /// Entity untuk merepresentasikan data hasil scan struk
-class ReceiptDataEntity {
-  final String? rawText;
-  final double? extractedAmount;
-  final DateTime? extractedDate;
-  final String? merchantName;
-  final List<String> items;
-  final double confidenceScore;
-  final DateTime scannedAt;
+@freezed
+abstract class ReceiptDataEntity with _$ReceiptDataEntity {
+  const ReceiptDataEntity._();
 
-  const ReceiptDataEntity({
-    this.rawText,
-    this.extractedAmount,
-    this.extractedDate,
-    this.merchantName,
-    this.items = const [],
-    required this.confidenceScore,
-    required this.scannedAt,
-  });
-
-  /// CopyWith method untuk immutable updates
-  ReceiptDataEntity copyWith({
+  const factory ReceiptDataEntity({
+    /// Raw text extracted from the receipt
     String? rawText,
+
+    /// Amount extracted from the receipt
     double? extractedAmount,
+
+    /// Date extracted from the receipt
     DateTime? extractedDate,
+
+    /// Merchant/shop name
     String? merchantName,
-    List<String>? items,
-    double? confidenceScore,
-    DateTime? scannedAt,
-  }) {
-    return ReceiptDataEntity(
-      rawText: rawText ?? this.rawText,
-      extractedAmount: extractedAmount ?? this.extractedAmount,
-      extractedDate: extractedDate ?? this.extractedDate,
-      merchantName: merchantName ?? this.merchantName,
-      items: items ?? this.items,
-      confidenceScore: confidenceScore ?? this.confidenceScore,
-      scannedAt: scannedAt ?? this.scannedAt,
-    );
-  }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ReceiptDataEntity &&
-          runtimeType == other.runtimeType &&
-          rawText == other.rawText &&
-          extractedAmount == other.extractedAmount &&
-          extractedDate == other.extractedDate &&
-          merchantName == other.merchantName &&
-          items == other.items &&
-          confidenceScore == other.confidenceScore &&
-          scannedAt == other.scannedAt;
+    /// List of items detected
+    @Default([]) List<String> items,
 
-  @override
-  int get hashCode =>
-      rawText.hashCode ^
-      extractedAmount.hashCode ^
-      extractedDate.hashCode ^
-      merchantName.hashCode ^
-      items.hashCode ^
-      confidenceScore.hashCode ^
-      scannedAt.hashCode;
+    /// Confidence score (0.0 - 1.0)
+    required double confidenceScore,
 
-  @override
-  String toString() {
-    return 'ReceiptDataEntity{rawText: $rawText, extractedAmount: $extractedAmount, extractedDate: $extractedDate, merchantName: $merchantName, items: $items, confidenceScore: $confidenceScore, scannedAt: $scannedAt}';
-  }
+    /// When the receipt was scanned
+    required DateTime scannedAt,
+  }) = _ReceiptDataEntity;
 }

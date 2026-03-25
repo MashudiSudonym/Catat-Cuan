@@ -2,93 +2,14 @@ import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/states/category_form_state.dart';
+
+// Export the state for use in UI
+export 'package:catat_cuan/presentation/states/category_form_state.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
 
 part 'category_form_provider.g.dart';
-
-/// State untuk category form
-class CategoryFormState {
-  final String name;
-  final CategoryType type;
-  final String color;
-  final String? icon;
-  final Map<String, String> validationErrors;
-  final bool isSubmitting;
-  final String? submitError;
-  final bool isEditMode;
-  final CategoryEntity? editingCategory;
-
-  const CategoryFormState({
-    this.name = '',
-    required this.type,
-    this.color = '',
-    this.icon,
-    this.validationErrors = const {},
-    this.isSubmitting = false,
-    this.submitError,
-    this.isEditMode = false,
-    this.editingCategory,
-  });
-
-  CategoryFormState copyWith({
-    String? name,
-    CategoryType? type,
-    String? color,
-    String? icon,
-    Map<String, String>? validationErrors,
-    bool? isSubmitting,
-    String? submitError,
-    bool? isEditMode,
-    CategoryEntity? editingCategory,
-  }) {
-    return CategoryFormState(
-      name: name ?? this.name,
-      type: type ?? this.type,
-      color: color ?? this.color,
-      icon: icon ?? this.icon,
-      validationErrors: validationErrors ?? this.validationErrors,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      submitError: submitError ?? this.submitError,
-      isEditMode: isEditMode ?? this.isEditMode,
-      editingCategory: editingCategory ?? this.editingCategory,
-    );
-  }
-
-  /// Check apakah form valid
-  bool get isValid {
-    return name.trim().length >= 2 &&
-        name.trim().length <= 50 &&
-        validationErrors.isEmpty;
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryFormState &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          type == other.type &&
-          color == other.color &&
-          icon == other.icon &&
-          validationErrors == other.validationErrors &&
-          isSubmitting == other.isSubmitting &&
-          submitError == other.submitError &&
-          isEditMode == other.isEditMode &&
-          editingCategory == other.editingCategory;
-
-  @override
-  int get hashCode =>
-      name.hashCode ^
-      type.hashCode ^
-      color.hashCode ^
-      icon.hashCode ^
-      validationErrors.hashCode ^
-      isSubmitting.hashCode ^
-      submitError.hashCode ^
-      isEditMode.hashCode ^
-      editingCategory.hashCode;
-}
 
 /// Provider untuk category form
 /// Following SRP: Only manages form state and submission

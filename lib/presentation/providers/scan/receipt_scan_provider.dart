@@ -2,71 +2,14 @@ import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/states/receipt_scan_state.dart';
+
+// Export the state for use in UI
+export 'package:catat_cuan/presentation/states/receipt_scan_state.dart';
 
 import 'package:catat_cuan/presentation/providers/services/service_providers.dart';
 
 part 'receipt_scan_provider.g.dart';
-
-/// State untuk receipt scan
-class ReceiptScanState {
-  final bool isScanning;
-  final bool isProcessing;
-  final ReceiptDataEntity? scanResult;
-  final String? errorMessage;
-  final String? imagePath;
-
-  const ReceiptScanState({
-    this.isScanning = false,
-    this.isProcessing = false,
-    this.scanResult,
-    this.errorMessage,
-    this.imagePath,
-  });
-
-  ReceiptScanState copyWith({
-    bool? isScanning,
-    bool? isProcessing,
-    ReceiptDataEntity? scanResult,
-    String? errorMessage,
-    String? imagePath,
-  }) {
-    return ReceiptScanState(
-      isScanning: isScanning ?? this.isScanning,
-      isProcessing: isProcessing ?? this.isProcessing,
-      scanResult: scanResult ?? this.scanResult,
-      errorMessage: errorMessage ?? this.errorMessage,
-      imagePath: imagePath ?? this.imagePath,
-    );
-  }
-
-  /// Check apakah ada error
-  bool get hasError => errorMessage != null;
-
-  /// Check apakah sudah ada hasil scan
-  bool get hasResult => scanResult != null;
-
-  /// Check apakah sedang loading (scanning atau processing)
-  bool get isLoading => isScanning || isProcessing;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ReceiptScanState &&
-          runtimeType == other.runtimeType &&
-          isScanning == other.isScanning &&
-          isProcessing == other.isProcessing &&
-          scanResult == other.scanResult &&
-          errorMessage == other.errorMessage &&
-          imagePath == other.imagePath;
-
-  @override
-  int get hashCode =>
-      isScanning.hashCode ^
-      isProcessing.hashCode ^
-      scanResult.hashCode ^
-      errorMessage.hashCode ^
-      imagePath.hashCode;
-}
 
 /// Provider untuk receipt scan
 /// Following SRP: Only manages receipt scan state and OCR processing

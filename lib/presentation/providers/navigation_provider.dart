@@ -1,11 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// Provider untuk NavigationNotifier
-/// Following SRP: Simple state management for navigation
-final navigationProvider =
-    StateNotifierProvider<NavigationNotifier, NavigationState>((ref) {
-  return NavigationNotifier();
-});
+part 'navigation_provider.g.dart';
 
 /// Navigation state untuk mengelola tab yang aktif di bottom navigation
 class NavigationState {
@@ -34,9 +29,17 @@ class NavigationState {
   int get hashCode => selectedIndex.hashCode;
 }
 
-/// Notifier untuk navigation state
-class NavigationNotifier extends StateNotifier<NavigationState> {
-  NavigationNotifier() : super(const NavigationState());
+/// Provider untuk NavigationNotifier
+/// Following SRP: Simple state management for navigation
+@riverpod
+class Navigation extends _$Navigation {
+  /// Jumlah tab yang tersedia
+  static const int _tabCount = 2; // Transaksi & Ringkasan
+
+  @override
+  NavigationState build() {
+    return const NavigationState();
+  }
 
   /// Ganti tab yang aktif
   void changeTab(int index) {
@@ -44,7 +47,4 @@ class NavigationNotifier extends StateNotifier<NavigationState> {
       state = state.copyWith(selectedIndex: index);
     }
   }
-
-  /// Jumlah tab yang tersedia
-  static const int _tabCount = 2; // Transaksi & Ringkasan
 }

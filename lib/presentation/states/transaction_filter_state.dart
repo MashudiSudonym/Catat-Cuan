@@ -1,39 +1,62 @@
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'transaction_filter_state.freezed.dart';
 
 /// Filter state untuk transaction list
 /// Following SRP: Only manages filter criteria
-class TransactionFilterState {
-  final DateTime? startDate;
-  final DateTime? endDate;
-  final int? categoryId;
-  final TransactionType? type;
+@freezed
+abstract class TransactionFilterState with _$TransactionFilterState {
+  const TransactionFilterState._();
 
-  const TransactionFilterState({
-    this.startDate,
-    this.endDate,
-    this.categoryId,
-    this.type,
-  });
-
-  TransactionFilterState copyWith({
+  const factory TransactionFilterState({
+    /// Start date filter
     DateTime? startDate,
+
+    /// End date filter
     DateTime? endDate,
+
+    /// Category ID filter
     int? categoryId,
+
+    /// Transaction type filter
     TransactionType? type,
-    bool clearFilters = false,
-  }) {
-    return TransactionFilterState(
-      startDate: clearFilters ? null : (startDate ?? this.startDate),
-      endDate: clearFilters ? null : (endDate ?? this.endDate),
-      categoryId: clearFilters ? null : (categoryId ?? this.categoryId),
-      type: clearFilters ? null : (type ?? this.type),
-    );
+  }) = _TransactionFilterState;
+
+  /// Empty filter (no filters applied)
+  static const empty = TransactionFilterState();
+
+  /// Set only the type filter
+  TransactionFilterState withType(TransactionType? newType) {
+    return copyWith(type: newType);
+  }
+
+  /// Set only the category filter
+  TransactionFilterState withCategory(int? newCategory) {
+    return copyWith(categoryId: newCategory);
+  }
+
+  /// Set date range filter
+  TransactionFilterState withDateRange(DateTime? start, DateTime? end) {
+    return copyWith(startDate: start, endDate: end);
+  }
+
+  /// Clear type filter only
+  TransactionFilterState clearType() {
+    return copyWith(type: null);
+  }
+
+  /// Clear category filter only
+  TransactionFilterState clearCategory() {
+    return copyWith(categoryId: null);
+  }
+
+  /// Clear date range filter only
+  TransactionFilterState clearDateRange() {
+    return copyWith(startDate: null, endDate: null);
   }
 
   /// Check apakah sedang ada filter aktif
   bool get hasActiveFilter =>
       startDate != null || endDate != null || categoryId != null || type != null;
-
-  /// Empty filter (no filters applied)
-  static const empty = TransactionFilterState();
 }

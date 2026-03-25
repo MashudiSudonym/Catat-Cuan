@@ -17,7 +17,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = ref.watch(navigationNotifierProvider).selectedIndex;
+    final selectedIndex = ref.watch(navigationProvider).selectedIndex;
 
     return Scaffold(
       body: IndexedStack(
@@ -53,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
       showTopBorder: true,
       child: BottomNavigationBar(
         currentIndex: selectedIndex,
-        onTap: (index) => ref.read(navigationNotifierProvider.notifier).changeTab(index),
+        onTap: (index) => ref.read(navigationProvider.notifier).changeTab(index),
         backgroundColor: Colors.transparent,
         elevation: 0,
         type: BottomNavigationBarType.fixed,

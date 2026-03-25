@@ -1,35 +1,34 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'paginated_result_entity.freezed.dart';
+
 /// Wrapper for paginated data with metadata
-class PaginatedResultEntity<T> {
-  /// Data items for the current page
-  final List<T> data;
+@freezed
+abstract class PaginatedResultEntity<T> with _$PaginatedResultEntity<T> {
+  const PaginatedResultEntity._();
 
-  /// Current page number (1-based)
-  final int currentPage;
+  const factory PaginatedResultEntity({
+    /// Data items for the current page
+    required List<T> data,
 
-  /// Number of items per page
-  final int itemsPerPage;
+    /// Current page number (1-based)
+    required int currentPage,
 
-  /// Total number of items across all pages
-  final int totalItems;
+    /// Number of items per page
+    required int itemsPerPage,
 
-  /// Total number of pages
-  final int totalPages;
+    /// Total number of items across all pages
+    required int totalItems,
 
-  /// Whether there is a next page
-  final bool hasNextPage;
+    /// Total number of pages
+    required int totalPages,
 
-  /// Whether there is a previous page
-  final bool hasPreviousPage;
+    /// Whether there is a next page
+    required bool hasNextPage,
 
-  const PaginatedResultEntity({
-    required this.data,
-    required this.currentPage,
-    required this.itemsPerPage,
-    required this.totalItems,
-    required this.totalPages,
-    required this.hasNextPage,
-    required this.hasPreviousPage,
-  });
+    /// Whether there is a previous page
+    required bool hasPreviousPage,
+  }) = _PaginatedResultEntity;
 
   /// Factory constructor to create PaginatedResultEntity from raw data
   factory PaginatedResultEntity.create({

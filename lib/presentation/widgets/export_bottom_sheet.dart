@@ -35,7 +35,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exportState = ref.watch(exportNotifierProvider);
+    final exportState = ref.watch(exportProvider);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.4,
@@ -136,7 +136,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
   void _handleExport(BuildContext context, WidgetRef ref, ExportOption option) async {
     // Store notifier reference before any navigation
-    final exportNotifier = ref.read(exportNotifierProvider.notifier);
+    final exportNotifier = ref.read(exportProvider.notifier);
 
     // Get filter parameters
     DateTime? startDate;
@@ -146,7 +146,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
     if (option == ExportOption.filtered) {
       // Apply current filter
-      final filterState = ref.read(transactionFilterNotifierProvider);
+      final filterState = ref.read(transactionFilterProvider);
       startDate = filterState.startDate;
       endDate = filterState.endDate;
       categoryId = filterState.categoryId;
@@ -245,7 +245,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
           // Get final state - use a try-catch to handle disposed ref
           try {
-            final currentState = ref.read(exportNotifierProvider);
+            final currentState = ref.read(exportProvider);
 
             // Show result dialog based on state
             if (currentState.isSuccess) {
@@ -256,7 +256,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                 filePath: currentState.filePath,
               );
               // Reset state
-              ref.read(exportNotifierProvider.notifier).reset();
+              ref.read(exportProvider.notifier).reset();
             } else if (currentState.isError) {
               _showResultDialog(
                 rootContext,
@@ -264,7 +264,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                 errorMessage: currentState.errorMessage,
               );
               // Reset state
-              ref.read(exportNotifierProvider.notifier).reset();
+              ref.read(exportProvider.notifier).reset();
             } else {
               // State is still loading - this shouldn't happen but handle it
               _showResultDialog(
@@ -274,7 +274,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                 filePath: 'File CSV berhasil diproses. Silakan cek folder Documents/CatatCuan/Exports/',
               );
               // Reset state
-              ref.read(exportNotifierProvider.notifier).reset();
+              ref.read(exportProvider.notifier).reset();
             }
           } on StateError {
             // Ref was disposed - file was still saved successfully
@@ -306,7 +306,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
         }
         // Reset state
         try {
-          ref.read(exportNotifierProvider.notifier).reset();
+          ref.read(exportProvider.notifier).reset();
         } catch (e3) {
           // Failed to reset state
         }

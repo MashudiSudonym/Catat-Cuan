@@ -62,7 +62,7 @@ class ProfileScreen extends ConsumerWidget {
           // User Info Card with dynamic quote
           Consumer(
             builder: (context, ref, child) {
-              final transactionsAsync = ref.watch(transactionListNotifierProvider);
+              final transactionsAsync = ref.watch(transactionListProvider);
 
               return transactionsAsync.when(
                 loading: () => _buildUserInfoCard(context, _mockUser, null),
@@ -79,7 +79,7 @@ class ProfileScreen extends ConsumerWidget {
 
           Consumer(
             builder: (context, ref, child) {
-              final transactionsAsync = ref.watch(transactionListNotifierProvider);
+              final transactionsAsync = ref.watch(transactionListProvider);
 
               return transactionsAsync.when(
                 loading: () => _buildFinancialLoadingSkeleton(context),

@@ -42,7 +42,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     if (widget.transactionToEdit != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref
-            .read(transactionFormNotifierProvider.notifier)
+            .read(transactionFormProvider.notifier)
             .loadForEdit(widget.transactionToEdit!);
         _populateNote(widget.transactionToEdit!);
       });
@@ -50,7 +50,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       // Load transaction by ID from route
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await ref
-            .read(transactionFormNotifierProvider.notifier)
+            .read(transactionFormProvider.notifier)
             .loadById(widget.transactionId!);
       });
     }
@@ -69,11 +69,11 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = ref.watch(transactionFormNotifierProvider);
+    final formState = ref.watch(transactionFormProvider);
 
     // Listen untuk submit success
     ref.listen<TransactionFormState>(
-      transactionFormNotifierProvider,
+      transactionFormProvider,
       (previous, next) {
         // Clear error setelah submit sukses
         if (previous?.submitError != null && next.submitError == null) {
@@ -129,7 +129,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               TransactionTypeToggle(
                 selectedType: formState.type,
                 onTypeChanged: (type) {
-                  ref.read(transactionFormNotifierProvider.notifier).setType(type);
+                  ref.read(transactionFormProvider.notifier).setType(type);
                 },
               ),
               if (formState.validationErrors.containsKey('type')) ...[
@@ -178,7 +178,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     return CurrencyInputField(
       initialValue: formState.nominal,
       onChanged: (value) {
-        ref.read(transactionFormNotifierProvider.notifier).setNominal(value);
+        ref.read(transactionFormProvider.notifier).setNominal(value);
       },
       errorText: formState.validationErrors['nominal'],
       labelText: 'Nominal',
@@ -187,7 +187,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
   /// Category grid untuk memilih kategori
   Widget _buildCategoryGrid(TransactionFormState formState) {
-    final categoriesAsync = ref.watch(categoryListNotifierProvider);
+    final categoriesAsync = ref.watch(categoryListProvider);
 
     return categoriesAsync.when(
       data: (categories) {
@@ -200,7 +200,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
           categories: filteredCategories,
           selectedCategoryId: formState.categoryId,
           onCategorySelected: (categoryId) {
-            ref.read(transactionFormNotifierProvider.notifier).setCategory(categoryId);
+            ref.read(transactionFormProvider.notifier).setCategory(categoryId);
           },
           onAddCategory: () => _showQuickAddCategory(formState),
         );
@@ -240,7 +240,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
           lastDate: DateTime(2100),
         );
         if (picked != null) {
-          ref.read(transactionFormNotifierProvider.notifier).setDate(picked);
+          ref.read(transactionFormProvider.notifier).setDate(picked);
         }
       },
       child: InputDecorator(
@@ -279,7 +279,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
             picked.hour,
             picked.minute,
           );
-          ref.read(transactionFormNotifierProvider.notifier).setTime(newDateTime);
+          ref.read(transactionFormProvider.notifier).setTime(newDateTime);
         }
       },
       child: InputDecorator(
@@ -312,7 +312,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         prefixIconConstraints: BoxConstraints(minWidth: 48),
       ),
       onChanged: (value) {
-        ref.read(transactionFormNotifierProvider.notifier).setNote(value);
+        ref.read(transactionFormProvider.notifier).setNote(value);
       },
     );
   }
@@ -339,14 +339,14 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       // Pre-fill form with scanned data
       if (result.extractedAmount != null) {
         ref
-            .read(transactionFormNotifierProvider.notifier)
+            .read(transactionFormProvider.notifier)
             .setNominal(result.extractedAmount!);
       }
 
       if (result.extractedDate != null) {
         // Gunakan DateTime yang sudah diekstrak (termasuk waktu dari struk)
-        ref.read(transactionFormNotifierProvider.notifier).setDate(result.extractedDate!);
-        ref.read(transactionFormNotifierProvider.notifier).setTime(result.extractedDate!);
+        ref.read(transactionFormProvider.notifier).setDate(result.extractedDate!);
+        ref.read(transactionFormProvider.notifier).setTime(result.extractedDate!);
       }
 
       // Show success message
@@ -402,12 +402,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               }
 
               final success = await ref
-                  .read(transactionFormNotifierProvider.notifier)
+                  .read(transactionFormProvider.notifier)
                   .submit();
 
               if (success && mounted) {
                 // Clear receipt scan session after successful transaction save
-                ref.read(receiptScanNotifierProvider.notifier).reset();
+                ref.read(receiptScanProvider.notifier).reset();
 
                 // Show success snackbar (AC-LOG-004.2)
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -472,9 +472,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     .execute(widget.transactionToEdit!.id!);
 
                 // Invalidate transaction list providers and summary to trigger refresh
-                ref.invalidate(transactionListNotifierProvider);
-                ref.invalidate(transactionListPaginatedNotifierProvider);
-                ref.invalidate(monthlySummaryNotifierProvider);
+                ref.invalidate(transactionListProvider);
+                ref.invalidate(transactionListPaginatedProvider);
+                ref.invalidate(monthlySummaryProvider);
 
                 if (mounted) {
                   messenger.showSnackBar(
@@ -519,9 +519,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
     if (newCategory != null) {
       // Refresh categories and select the new category
-      ref.read(categoryListNotifierProvider.notifier).loadCategories();
+      ref.read(categoryListProvider.notifier).loadCategories();
       ref
-          .read(transactionFormNotifierProvider.notifier)
+          .read(transactionFormProvider.notifier)
           .setCategory(newCategory.id);
 
       if (mounted) {

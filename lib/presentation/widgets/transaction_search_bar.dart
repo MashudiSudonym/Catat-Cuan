@@ -36,7 +36,7 @@ class _TransactionSearchBarState extends ConsumerState<TransactionSearchBar> {
     // Debounce search untuk menghindari query berlebihan
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      ref.read(transactionSearchNotifierProvider.notifier).search(
+      ref.read(transactionSearchProvider.notifier).search(
             query,
             type: widget.currentTypeFilter,
           );
@@ -45,7 +45,7 @@ class _TransactionSearchBarState extends ConsumerState<TransactionSearchBar> {
 
   void _clearSearch() {
     _controller.clear();
-    ref.read(transactionSearchNotifierProvider.notifier).clear();
+    ref.read(transactionSearchProvider.notifier).clear();
   }
 
   @override

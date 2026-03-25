@@ -1,27 +1,39 @@
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'transaction_model.freezed.dart';
 
 /// Model untuk mapping transaksi dari/to database
-class TransactionModel {
-  final int? id;
-  final double amount;
-  final String type;
-  final String dateTime;
-  final int categoryId;
-  final String? note;
-  final String createdAt;
-  final String updatedAt;
+@freezed
+abstract class TransactionModel with _$TransactionModel {
+  const TransactionModel._();
 
-  const TransactionModel({
-    this.id,
-    required this.amount,
-    required this.type,
-    required this.dateTime,
-    required this.categoryId,
-    this.note,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  const factory TransactionModel({
+    /// Primary key dari database (nullable untuk transaksi baru)
+    int? id,
+
+    /// Nominal transaksi
+    required double amount,
+
+    /// Tipe transaksi sebagai string (income/expense) untuk database
+    required String type,
+
+    /// Waktu transaksi sebagai ISO8601 string untuk database
+    required String dateTime,
+
+    /// Foreign key ke kategori
+    required int categoryId,
+
+    /// Catatan tambahan (opsional)
+    String? note,
+
+    /// Waktu pembuatan record sebagai ISO8601 string untuk database
+    required String createdAt,
+
+    /// Waktu terakhir update sebagai ISO8601 string untuk database
+    required String updatedAt,
+  }) = _TransactionModel;
 
   /// Convert dari Map (database row) ke TransactionModel
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
@@ -78,57 +90,4 @@ class TransactionModel {
       updatedAt: entity.updatedAt.toIso8601String(),
     );
   }
-
-  /// CopyWith method untuk immutable updates
-  TransactionModel copyWith({
-    int? id,
-    double? amount,
-    String? type,
-    String? dateTime,
-    int? categoryId,
-    String? note,
-    String? createdAt,
-    String? updatedAt,
-  }) {
-    return TransactionModel(
-      id: id ?? this.id,
-      amount: amount ?? this.amount,
-      type: type ?? this.type,
-      dateTime: dateTime ?? this.dateTime,
-      categoryId: categoryId ?? this.categoryId,
-      note: note ?? this.note,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'TransactionModel{id: $id, amount: $amount, type: $type, dateTime: $dateTime, categoryId: $categoryId, note: $note, createdAt: $createdAt, updatedAt: $updatedAt}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TransactionModel &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          amount == other.amount &&
-          type == other.type &&
-          dateTime == other.dateTime &&
-          categoryId == other.categoryId &&
-          note == other.note &&
-          createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      amount.hashCode ^
-      type.hashCode ^
-      dateTime.hashCode ^
-      categoryId.hashCode ^
-      note.hashCode ^
-      createdAt.hashCode ^
-      updatedAt.hashCode;
 }

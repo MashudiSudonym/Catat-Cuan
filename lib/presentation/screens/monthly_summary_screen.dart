@@ -29,9 +29,9 @@ class _MonthlySummaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final summaryAsync = ref.watch(monthlySummaryNotifierProvider);
-    final notifier = ref.read(monthlySummaryNotifierProvider.notifier);
-    final currentTabIndex = ref.watch(navigationNotifierProvider).selectedIndex;
+    final summaryAsync = ref.watch(monthlySummaryProvider);
+    final notifier = ref.read(monthlySummaryProvider.notifier);
+    final currentTabIndex = ref.watch(navigationProvider).selectedIndex;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Detect tab change to summary screen (index 1)
@@ -44,7 +44,7 @@ class _MonthlySummaryScreenState
     _previousTabIndex = currentTabIndex;
 
     // Setup error listener for AsyncValue
-    ref.listen(monthlySummaryNotifierProvider, (previous, next) {
+    ref.listen(monthlySummaryProvider, (previous, next) {
       if (next.hasError && previous?.hasError != next.hasError) {
         _showErrorSnackBar(next.error.toString());
         notifier.clearError();

@@ -18,7 +18,7 @@ class TransactionListNotifier extends _$TransactionListNotifier {
     final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
 
     // Watch filter provider to auto-reload when filter changes
-    final filterState = ref.watch(transactionFilterNotifierProvider);
+    final filterState = ref.watch(transactionFilterProvider);
 
     if (filterState.hasActiveFilter) {
       // Load dengan filter
@@ -36,7 +36,7 @@ class TransactionListNotifier extends _$TransactionListNotifier {
 
   /// Set filter dan reload data
   void setFilters(TransactionFilterState filters) {
-    final filterNotifier = ref.read(transactionFilterNotifierProvider.notifier);
+    final filterNotifier = ref.read(transactionFilterProvider.notifier);
     filterNotifier.setFilters(
       startDate: filters.startDate,
       endDate: filters.endDate,
@@ -49,13 +49,13 @@ class TransactionListNotifier extends _$TransactionListNotifier {
 
   /// Clear semua filter
   void clearFilters() {
-    ref.read(transactionFilterNotifierProvider.notifier).clearFilters();
+    ref.read(transactionFilterProvider.notifier).clearFilters();
     // Auto-reload happens via watch in build()
     ref.invalidateSelf();
   }
 
   /// Get current filter state (for backward compatibility)
-  TransactionFilterState get filterState => ref.read(transactionFilterNotifierProvider);
+  TransactionFilterState get filterState => ref.read(transactionFilterProvider);
 
   /// Load transactions (alias for backward compatibility during UI migration)
   /// @deprecated Use refresh() instead

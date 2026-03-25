@@ -45,7 +45,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
       // Load category by ID from route
       _initializeForCreate();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await ref.read(categoryFormNotifierProvider.notifier).loadById(widget.categoryId!);
+        await ref.read(categoryFormProvider.notifier).loadById(widget.categoryId!);
       });
     } else {
       _initializeForCreate();
@@ -58,7 +58,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
     _selectedIcon = category.icon;
 
     // Load form state for editing
-    ref.read(categoryFormNotifierProvider.notifier).loadForEdit(category);
+    ref.read(categoryFormProvider.notifier).loadForEdit(category);
   }
 
   void _initializeForCreate() {
@@ -69,7 +69,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
     _selectedIcon = CategoryConstants.getDefaultIcon(type.value);
 
     // Initialize form state
-    ref.read(categoryFormNotifierProvider.notifier).initializeWithType(type);
+    ref.read(categoryFormProvider.notifier).initializeWithType(type);
   }
 
   @override
@@ -80,7 +80,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(categoryFormNotifierProvider);
+    final state = ref.watch(categoryFormProvider);
     final isEditMode = widget.categoryToEdit != null;
 
     return Scaffold(
@@ -115,7 +115,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
                   ),
                   onChanged: (value) {
                     ref
-                        .read(categoryFormNotifierProvider.notifier)
+                        .read(categoryFormProvider.notifier)
                         .setName(value);
                   },
                   textInputAction: TextInputAction.next,
@@ -209,7 +209,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
           selected: {state.type},
           onSelectionChanged: (Set<CategoryType> newSelection) {
             ref
-                .read(categoryFormNotifierProvider.notifier)
+                .read(categoryFormProvider.notifier)
                 .setType(newSelection.first);
           },
         ),
@@ -323,7 +323,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
 
     if (color != null) {
       setState(() => _selectedColor = color);
-      ref.read(categoryFormNotifierProvider.notifier).setColor(color);
+      ref.read(categoryFormProvider.notifier).setColor(color);
     }
   }
 
@@ -336,7 +336,7 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
 
     if (icon != null) {
       setState(() => _selectedIcon = icon);
-      ref.read(categoryFormNotifierProvider.notifier).setIcon(icon);
+      ref.read(categoryFormProvider.notifier).setIcon(icon);
     }
   }
 
@@ -346,10 +346,10 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
     }
 
     // Update color and icon in form state
-    ref.read(categoryFormNotifierProvider.notifier).setColor(_selectedColor);
-    ref.read(categoryFormNotifierProvider.notifier).setIcon(_selectedIcon);
+    ref.read(categoryFormProvider.notifier).setColor(_selectedColor);
+    ref.read(categoryFormProvider.notifier).setIcon(_selectedIcon);
 
-    final success = await ref.read(categoryFormNotifierProvider.notifier).submit();
+    final success = await ref.read(categoryFormProvider.notifier).submit();
 
     if (success && mounted) {
       Navigator.of(context).pop(true);

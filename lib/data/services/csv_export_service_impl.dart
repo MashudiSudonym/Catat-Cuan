@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:catat_cuan/domain/core/result.dart';
@@ -53,6 +52,7 @@ class CsvExportServiceImpl implements ExportService {
       AppLogger.d('CSV file generated in temp: ${file.path}');
 
       // Share the file
+      // ignore: deprecated_member_use
       await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'Export Transaksi - Catat Cuan',
@@ -125,7 +125,14 @@ class CsvExportServiceImpl implements ExportService {
     }
 
     // Generate CSV string
-    final csvString = const ListToCsvConverter().convert(rows);
+    final csvString = rows.map((row) => row.map((cell) {
+      // Escape cells containing commas or quotes
+      final cellStr = cell?.toString() ?? '';
+      if (cellStr.contains(',') || cellStr.contains('"') || cellStr.contains('\n')) {
+        return '"${cellStr.replaceAll('"', '""')}"';
+      }
+      return cellStr;
+    }).join(',')).join('\n');
     AppLogger.d('CSV string generated (${csvString.length} characters)');
 
     // Write to file

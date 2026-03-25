@@ -13,7 +13,7 @@ import 'package:catat_cuan/presentation/providers/onboarding/onboarding_provider
 final routerProvider = Provider<GoRouter>((ref) {
   // Watch onboarding state to trigger router rebuild on state change
   // This enables reactive redirects based on onboarding completion
-  ref.watch(onboardingNotifierProvider);
+  ref.watch(onboardingProvider);
 
   // Create and return GoRouter with current ref
   return createGoRouter(ref);

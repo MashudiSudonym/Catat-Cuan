@@ -281,7 +281,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
 
       if (mounted) {
         // Refresh category list so it appears in filters
-        ref.read(categoryListNotifierProvider.notifier).loadCategories();
+        ref.read(categoryListProvider.notifier).loadCategories();
 
         widget.onCategoryAdded?.call(newCategory);
         Navigator.of(context).pop(newCategory);

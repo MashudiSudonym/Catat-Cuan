@@ -94,9 +94,9 @@ class IncomeVsExpenseTrendWidget extends ConsumerWidget {
                           ),
                         );
                       },
-                      tooltipBgColor: textColor.withValues(alpha: 0.9),
-                      tooltipPadding: AppSpacing.all(AppSpacing.sm),
-                      tooltipRoundedRadius: AppRadius.md,
+                      // tooltipBgColor: Deprecated in fl_chart v1.2.0
+                      // tooltipPadding: Deprecated in fl_chart v1.2.0
+                      // tooltipRoundedRadius: Deprecated in fl_chart v1.2.0
                     ),
                   ),
                   titlesData: FlTitlesData(

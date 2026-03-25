@@ -1,21 +1,30 @@
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'monthly_summary_model.freezed.dart';
 
 /// Model untuk mapping ringkasan bulanan dari database query
-class MonthlySummaryModel {
-  final String yearMonth;
-  final double totalIncome;
-  final double totalExpense;
-  final double balance;
-  final int transactionCount;
+@freezed
+abstract class MonthlySummaryModel with _$MonthlySummaryModel {
+  const MonthlySummaryModel._();
 
-  const MonthlySummaryModel({
-    required this.yearMonth,
-    required this.totalIncome,
-    required this.totalExpense,
-    required this.balance,
-    required this.transactionCount,
-  });
+  const factory MonthlySummaryModel({
+    /// Year month in format "2024-03"
+    required String yearMonth,
+
+    /// Total income for the month
+    required double totalIncome,
+
+    /// Total expense for the month
+    required double totalExpense,
+
+    /// Balance (income - expense)
+    required double balance,
+
+    /// Number of transactions
+    required int transactionCount,
+  }) = _MonthlySummaryModel;
 
   /// Convert dari Map (database row) ke MonthlySummaryModel
   factory MonthlySummaryModel.fromMap(Map<String, dynamic> map) {
@@ -39,49 +48,32 @@ class MonthlySummaryModel {
       createdAt: DateTime.now(),
     );
   }
-
-  @override
-  String toString() {
-    return 'MonthlySummaryModel{yearMonth: $yearMonth, totalIncome: $totalIncome, totalExpense: $totalExpense, balance: $balance, transactionCount: $transactionCount}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MonthlySummaryModel &&
-          runtimeType == other.runtimeType &&
-          yearMonth == other.yearMonth &&
-          totalIncome == other.totalIncome &&
-          totalExpense == other.totalExpense &&
-          balance == other.balance &&
-          transactionCount == other.transactionCount;
-
-  @override
-  int get hashCode =>
-      yearMonth.hashCode ^
-      totalIncome.hashCode ^
-      totalExpense.hashCode ^
-      balance.hashCode ^
-      transactionCount.hashCode;
 }
 
 /// Model untuk mapping breakdown kategori dari database query
-class CategoryBreakdownModel {
-  final int categoryId;
-  final String categoryName;
-  final String? categoryIcon;
-  final String categoryColor;
-  final double totalAmount;
-  final int transactionCount;
+@freezed
+abstract class CategoryBreakdownModel with _$CategoryBreakdownModel {
+  const CategoryBreakdownModel._();
 
-  const CategoryBreakdownModel({
-    required this.categoryId,
-    required this.categoryName,
-    required this.categoryIcon,
-    required this.categoryColor,
-    required this.totalAmount,
-    required this.transactionCount,
-  });
+  const factory CategoryBreakdownModel({
+    /// Category ID
+    required int categoryId,
+
+    /// Category name
+    required String categoryName,
+
+    /// Category icon (optional)
+    String? categoryIcon,
+
+    /// Category color (hex code)
+    required String categoryColor,
+
+    /// Total amount for this category
+    required double totalAmount,
+
+    /// Number of transactions in this category
+    required int transactionCount,
+  }) = _CategoryBreakdownModel;
 
   /// Convert dari Map (database row) ke CategoryBreakdownModel
   factory CategoryBreakdownModel.fromMap(Map<String, dynamic> map) {
@@ -112,30 +104,4 @@ class CategoryBreakdownModel {
       transactionCount: transactionCount,
     );
   }
-
-  @override
-  String toString() {
-    return 'CategoryBreakdownModel{categoryId: $categoryId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, totalAmount: $totalAmount, transactionCount: $transactionCount}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryBreakdownModel &&
-          runtimeType == other.runtimeType &&
-          categoryId == other.categoryId &&
-          categoryName == other.categoryName &&
-          categoryIcon == other.categoryIcon &&
-          categoryColor == other.categoryColor &&
-          totalAmount == other.totalAmount &&
-          transactionCount == other.transactionCount;
-
-  @override
-  int get hashCode =>
-      categoryId.hashCode ^
-      categoryName.hashCode ^
-      categoryIcon.hashCode ^
-      categoryColor.hashCode ^
-      totalAmount.hashCode ^
-      transactionCount.hashCode;
 }

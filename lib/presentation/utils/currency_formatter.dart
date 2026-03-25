@@ -156,7 +156,7 @@ extension CurrencyFormatterExtensionWithRef on double {
   /// Format double to currency string based on current currency setting
   /// Example: 1000000 -> "Rp 1.000.000" (IDR) or "US$ 1,000,000" (USD)
   String toCurrency({required WidgetRef ref, bool withPrefix = true}) {
-    final currencyOption = ref.read(currencyNotifierProvider).currencyOption;
+    final currencyOption = ref.read(currencyProvider).currencyOption;
     final parts = toStringAsFixed(0).split('.');
     final integerPart = _formatWithSeparator(int.parse(parts[0]), currencyOption.thousandSeparator);
     return withPrefix ? '${currencyOption.symbol}$integerPart' : integerPart;
@@ -198,7 +198,7 @@ extension CurrencyFormatterExtensionIntWithRef on int {
   /// Format int to currency string based on current currency setting
   /// Example: 1000000 -> "Rp 1.000.000" (IDR) or "US$ 1,000,000" (USD)
   String toCurrency({required WidgetRef ref, bool withPrefix = true}) {
-    final currencyOption = ref.read(currencyNotifierProvider).currencyOption;
+    final currencyOption = ref.read(currencyProvider).currencyOption;
     final integerPart = _formatWithSeparator(this, currencyOption.thousandSeparator);
     return withPrefix ? '${currencyOption.symbol}$integerPart' : integerPart;
   }

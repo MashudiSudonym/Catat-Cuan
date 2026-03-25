@@ -1,61 +1,51 @@
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'transaction_form_state.freezed.dart';
 
 /// State untuk transaction form
 /// Following SRP: Only manages form data and validation state
-class TransactionFormState {
-  final double? nominal;
-  final TransactionType? type;
-  final DateTime? date;
-  final DateTime? time;
-  final int? categoryId;
-  final String? note;
-  final Map<String, String> validationErrors;
-  final bool isSubmitting;
-  final String? submitError;
-  final bool isEditMode;
-  final TransactionEntity? editingTransaction;
+@freezed
+abstract class TransactionFormState with _$TransactionFormState {
+  const TransactionFormState._();
 
-  const TransactionFormState({
-    this.nominal,
-    this.type,
-    this.date,
-    this.time,
-    this.categoryId,
-    this.note,
-    this.validationErrors = const {},
-    this.isSubmitting = false,
-    this.submitError,
-    this.isEditMode = false,
-    this.editingTransaction,
-  });
-
-  TransactionFormState copyWith({
+  const factory TransactionFormState({
+    /// Nominal transaksi
     double? nominal,
+
+    /// Tipe transaksi
     TransactionType? type,
+
+    /// Tanggal transaksi
     DateTime? date,
+
+    /// Waktu transaksi
     DateTime? time,
+
+    /// ID kategori
     int? categoryId,
+
+    /// Catatan tambahan
     String? note,
-    Map<String, String>? validationErrors,
-    bool? isSubmitting,
+
+    /// Validation errors map
+    @Default({}) Map<String, String> validationErrors,
+
+    /// Sedang mengirim data
+    @Default(false) bool isSubmitting,
+
+    /// Error message dari submit
     String? submitError,
-    bool? isEditMode,
+
+    /// Mode edit
+    @Default(false) bool isEditMode,
+
+    /// Transaksi yang sedang diedit
     TransactionEntity? editingTransaction,
-  }) {
-    return TransactionFormState(
-      nominal: nominal ?? this.nominal,
-      type: type ?? this.type,
-      date: date ?? this.date,
-      time: time ?? this.time,
-      categoryId: categoryId ?? this.categoryId,
-      note: note ?? this.note,
-      validationErrors: validationErrors ?? this.validationErrors,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      submitError: submitError ?? this.submitError,
-      isEditMode: isEditMode ?? this.isEditMode,
-      editingTransaction: editingTransaction ?? this.editingTransaction,
-    );
-  }
+  }) = _TransactionFormState;
+
+  /// Empty form state
+  static const empty = TransactionFormState();
 
   /// Check apakah form valid
   bool get isValid {
@@ -68,18 +58,4 @@ class TransactionFormState {
         categoryId! > 0 &&
         validationErrors.isEmpty;
   }
-
-  /// Empty form state
-  const TransactionFormState.empty()
-      : nominal = null,
-        type = null,
-        date = null,
-        time = null,
-        categoryId = null,
-        note = null,
-        validationErrors = const {},
-        isSubmitting = false,
-        submitError = null,
-        isEditMode = false,
-        editingTransaction = null;
 }

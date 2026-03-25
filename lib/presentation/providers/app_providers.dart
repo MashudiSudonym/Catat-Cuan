@@ -78,9 +78,7 @@ export 'package:catat_cuan/presentation/providers/summary/monthly_summary_provid
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
-
-/// Simple cache provider to track initialization state
-final cacheProvider = StateProvider<Map<String, bool>>((ref) => {});
+import 'package:catat_cuan/presentation/providers/cache_provider.dart';
 
 /// Provider untuk inisialisasi data awal (seed categories)
 /// Menggunakan FutureProvider dengan cache untuk mencegah re-execution saat app resume
@@ -90,10 +88,9 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
 
   // Use a cache key to track if we've already initialized
   const cacheKey = 'app_initialized';
-  final cache = ref.read(cacheProvider);
 
   // If already initialized, skip
-  if (cache[cacheKey] == true) {
+  if (ref.read(cacheProvider.notifier).isSet(cacheKey)) {
     return;
   }
 
@@ -106,5 +103,5 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
   }
 
   // Mark as initialized
-  ref.read(cacheProvider.notifier).state = {...cache, cacheKey: true};
+  ref.read(cacheProvider.notifier).set(cacheKey);
 });

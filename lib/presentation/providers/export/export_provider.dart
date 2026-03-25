@@ -36,15 +36,13 @@ class ExportState {
 
 /// Provider untuk export service
 @riverpod
-CsvExportServiceImpl exportService(ExportServiceRef ref) {
+CsvExportServiceImpl exportService(Ref ref) {
   return CsvExportServiceImpl();
 }
 
 /// Provider untuk ExportTransactionsUseCase
 @riverpod
-ExportTransactionsUseCase exportTransactionsUseCase(
-  ExportTransactionsUseCaseRef ref,
-) {
+ExportTransactionsUseCase exportTransactionsUseCase(Ref ref) {
   final transactionRepository = ref.watch(transactionRepositoryProvider);
   final exportService = ref.watch(exportServiceProvider);
   return ExportTransactionsUseCase(transactionRepository, exportService);

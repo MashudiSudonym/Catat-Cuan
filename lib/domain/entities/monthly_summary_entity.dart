@@ -1,65 +1,31 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'monthly_summary_entity.freezed.dart';
+
 /// Entity untuk ringkasan bulanan transaksi
-class MonthlySummaryEntity {
-  final String yearMonth; // Format: "2024-03"
-  final double totalIncome;
-  final double totalExpense;
-  final double balance;
-  final int transactionCount;
-  final DateTime createdAt;
+@freezed
+abstract class MonthlySummaryEntity with _$MonthlySummaryEntity {
+  const MonthlySummaryEntity._();
 
-  const MonthlySummaryEntity({
-    required this.yearMonth,
-    required this.totalIncome,
-    required this.totalExpense,
-    required this.balance,
-    required this.transactionCount,
-    required this.createdAt,
-  });
+  const factory MonthlySummaryEntity({
+    /// Year month in format "2024-03"
+    required String yearMonth,
 
-  /// CopyWith method untuk immutable updates
-  MonthlySummaryEntity copyWith({
-    String? yearMonth,
-    double? totalIncome,
-    double? totalExpense,
-    double? balance,
-    int? transactionCount,
-    DateTime? createdAt,
-  }) {
-    return MonthlySummaryEntity(
-      yearMonth: yearMonth ?? this.yearMonth,
-      totalIncome: totalIncome ?? this.totalIncome,
-      totalExpense: totalExpense ?? this.totalExpense,
-      balance: balance ?? this.balance,
-      transactionCount: transactionCount ?? this.transactionCount,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
+    /// Total income for the month
+    required double totalIncome,
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MonthlySummaryEntity &&
-          runtimeType == other.runtimeType &&
-          yearMonth == other.yearMonth &&
-          totalIncome == other.totalIncome &&
-          totalExpense == other.totalExpense &&
-          balance == other.balance &&
-          transactionCount == other.transactionCount &&
-          createdAt == other.createdAt;
+    /// Total expense for the month
+    required double totalExpense,
 
-  @override
-  int get hashCode =>
-      yearMonth.hashCode ^
-      totalIncome.hashCode ^
-      totalExpense.hashCode ^
-      balance.hashCode ^
-      transactionCount.hashCode ^
-      createdAt.hashCode;
+    /// Balance (income - expense)
+    required double balance,
 
-  @override
-  String toString() {
-    return 'MonthlySummaryEntity{yearMonth: $yearMonth, totalIncome: $totalIncome, totalExpense: $totalExpense, balance: $balance, transactionCount: $transactionCount, createdAt: $createdAt}';
-  }
+    /// Number of transactions
+    required int transactionCount,
+
+    /// When the summary was created
+    required DateTime createdAt,
+  }) = _MonthlySummaryEntity;
 
   /// Hitung persentase pengeluaran terhadap pemasukan
   double get expensePercentage {
@@ -81,73 +47,32 @@ class MonthlySummaryEntity {
 }
 
 /// Entity untuk breakdown kategori transaksi
-class CategoryBreakdownEntity {
-  final int categoryId;
-  final String categoryName;
-  final String categoryIcon;
-  final String categoryColor;
-  final double totalAmount;
-  final double percentage; // Persentase dari total expense/income
-  final int transactionCount;
+@freezed
+abstract class CategoryBreakdownEntity with _$CategoryBreakdownEntity {
+  const CategoryBreakdownEntity._();
 
-  const CategoryBreakdownEntity({
-    required this.categoryId,
-    required this.categoryName,
-    required this.categoryIcon,
-    required this.categoryColor,
-    required this.totalAmount,
-    required this.percentage,
-    required this.transactionCount,
-  });
+  const factory CategoryBreakdownEntity({
+    /// Category ID
+    required int categoryId,
 
-  /// CopyWith method untuk immutable updates
-  CategoryBreakdownEntity copyWith({
-    int? categoryId,
-    String? categoryName,
-    String? categoryIcon,
-    String? categoryColor,
-    double? totalAmount,
-    double? percentage,
-    int? transactionCount,
-  }) {
-    return CategoryBreakdownEntity(
-      categoryId: categoryId ?? this.categoryId,
-      categoryName: categoryName ?? this.categoryName,
-      categoryIcon: categoryIcon ?? this.categoryIcon,
-      categoryColor: categoryColor ?? this.categoryColor,
-      totalAmount: totalAmount ?? this.totalAmount,
-      percentage: percentage ?? this.percentage,
-      transactionCount: transactionCount ?? this.transactionCount,
-    );
-  }
+    /// Category name
+    required String categoryName,
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryBreakdownEntity &&
-          runtimeType == other.runtimeType &&
-          categoryId == other.categoryId &&
-          categoryName == other.categoryName &&
-          categoryIcon == other.categoryIcon &&
-          categoryColor == other.categoryColor &&
-          totalAmount == other.totalAmount &&
-          percentage == other.percentage &&
-          transactionCount == other.transactionCount;
+    /// Category icon
+    required String categoryIcon,
 
-  @override
-  int get hashCode =>
-      categoryId.hashCode ^
-      categoryName.hashCode ^
-      categoryIcon.hashCode ^
-      categoryColor.hashCode ^
-      totalAmount.hashCode ^
-      percentage.hashCode ^
-      transactionCount.hashCode;
+    /// Category color (hex code)
+    required String categoryColor,
 
-  @override
-  String toString() {
-    return 'CategoryBreakdownEntity{categoryId: $categoryId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, totalAmount: $totalAmount, percentage: $percentage, transactionCount: $transactionCount}';
-  }
+    /// Total amount for this category
+    required double totalAmount,
+
+    /// Percentage of total expense/income
+    required double percentage,
+
+    /// Number of transactions in this category
+    required int transactionCount,
+  }) = _CategoryBreakdownEntity;
 
   /// Cek apakah kategori ini berlebihan (> 40% dari total)
   bool get isExcessive => percentage > 40;
@@ -163,61 +88,26 @@ class CategoryBreakdownEntity {
 }
 
 /// Entity untuk rekomendasi keuangan
-class RecommendationEntity {
-  final RecommendationType type;
-  final String title;
-  final String message;
-  final double? value; // Nilai terkait (misalnya persentase)
-  final RecommendationPriority priority;
+@freezed
+abstract class RecommendationEntity with _$RecommendationEntity {
+  const RecommendationEntity._();
 
-  const RecommendationEntity({
-    required this.type,
-    required this.title,
-    required this.message,
-    this.value,
-    required this.priority,
-  });
+  const factory RecommendationEntity({
+    /// Type of recommendation
+    required RecommendationType type,
 
-  /// CopyWith method untuk immutable updates
-  RecommendationEntity copyWith({
-    RecommendationType? type,
-    String? title,
-    String? message,
+    /// Recommendation title
+    required String title,
+
+    /// Detailed recommendation message
+    required String message,
+
+    /// Related value (e.g., percentage)
     double? value,
-    RecommendationPriority? priority,
-  }) {
-    return RecommendationEntity(
-      type: type ?? this.type,
-      title: title ?? this.title,
-      message: message ?? this.message,
-      value: value ?? this.value,
-      priority: priority ?? this.priority,
-    );
-  }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RecommendationEntity &&
-          runtimeType == other.runtimeType &&
-          type == other.type &&
-          title == other.title &&
-          message == other.message &&
-          value == other.value &&
-          priority == other.priority;
-
-  @override
-  int get hashCode =>
-      type.hashCode ^
-      title.hashCode ^
-      message.hashCode ^
-      value.hashCode ^
-      priority.hashCode;
-
-  @override
-  String toString() {
-    return 'RecommendationEntity{type: $type, title: $title, message: $message, value: $value, priority: $priority}';
-  }
+    /// Priority level
+    required RecommendationPriority priority,
+  }) = _RecommendationEntity;
 }
 
 /// Enum untuk tipe rekomendasi

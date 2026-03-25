@@ -29,7 +29,7 @@ GoRouter createGoRouter(Ref ref) {
     initialLocation: AppRoutes.transactions,
     redirect: (context, state) {
       // Watch onboarding state for reactive redirects
-      final onboardingState = ref.read(onboardingNotifierProvider);
+      final onboardingState = ref.read(onboardingProvider);
 
       // Check if user has seen onboarding
       if (onboardingState.hasValue || onboardingState.isLoading) {

@@ -204,11 +204,11 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
       }
 
       // Invalidate transaction list providers to trigger refresh
-      ref.invalidate(transactionListNotifierProvider);
-      ref.invalidate(transactionListPaginatedNotifierProvider);
+      ref.invalidate(transactionListProvider);
+      ref.invalidate(transactionListPaginatedProvider);
 
       // Invalidate monthly summary to trigger refresh
-      ref.invalidate(monthlySummaryNotifierProvider);
+      ref.invalidate(monthlySummaryProvider);
 
       // Reset form setelah sukses (AC-LOG-004.1)
       state = _getInitialState();

@@ -113,7 +113,8 @@ class ThemeNotifier extends _$ThemeNotifier {
 }
 
 /// Provider for theme mode
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  final themeState = ref.watch(themeNotifierProvider);
+@riverpod
+ThemeMode themeMode(Ref ref) {
+  final themeState = ref.watch(themeProvider);
   return themeState.themeMode;
-});
+}

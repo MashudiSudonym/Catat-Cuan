@@ -1,43 +1,20 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'category_entity.dart';
+
+part 'category_with_count_entity.freezed.dart';
 
 /// Entity yang menggabungkan CategoryEntity dengan jumlah transaksi
 /// Digunakan untuk tampilan daftar kategori dengan informasi jumlah penggunaan
-class CategoryWithCountEntity {
-  /// Entity kategori
-  final CategoryEntity category;
+@freezed
+abstract class CategoryWithCountEntity with _$CategoryWithCountEntity {
+  const CategoryWithCountEntity._();
 
-  /// Jumlah transaksi yang menggunakan kategori ini
-  final int transactionCount;
+  const factory CategoryWithCountEntity({
+    /// Entity kategori
+    required CategoryEntity category,
 
-  const CategoryWithCountEntity({
-    required this.category,
-    required this.transactionCount,
-  });
-
-  /// CopyWith method untuk immutable updates
-  CategoryWithCountEntity copyWith({
-    CategoryEntity? category,
-    int? transactionCount,
-  }) {
-    return CategoryWithCountEntity(
-      category: category ?? this.category,
-      transactionCount: transactionCount ?? this.transactionCount,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryWithCountEntity &&
-          runtimeType == other.runtimeType &&
-          category == other.category &&
-          transactionCount == other.transactionCount;
-
-  @override
-  int get hashCode => category.hashCode ^ transactionCount.hashCode;
-
-  @override
-  String toString() {
-    return 'CategoryWithCountEntity{category: $category, transactionCount: $transactionCount}';
-  }
+    /// Jumlah transaksi yang menggunakan kategori ini
+    required int transactionCount,
+  }) = _CategoryWithCountEntity;
 }

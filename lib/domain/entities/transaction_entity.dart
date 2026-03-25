@@ -1,77 +1,37 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'transaction_entity.freezed.dart';
+
 /// Entity untuk merepresentasikan transaksi (pemasukan/pengeluaran)
-class TransactionEntity {
-  final int? id;
-  final double amount;
-  final TransactionType type;
-  final DateTime dateTime;
-  final int categoryId;
-  final String? note;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+@freezed
+abstract class TransactionEntity with _$TransactionEntity {
+  const TransactionEntity._();
 
-  const TransactionEntity({
-    this.id,
-    required this.amount,
-    required this.type,
-    required this.dateTime,
-    required this.categoryId,
-    this.note,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  /// CopyWith method untuk immutable updates
-  TransactionEntity copyWith({
+  const factory TransactionEntity({
+    /// Primary key dari database (nullable untuk transaksi baru)
     int? id,
-    double? amount,
-    TransactionType? type,
-    DateTime? dateTime,
-    int? categoryId,
+
+    /// Nominal transaksi
+    required double amount,
+
+    /// Tipe transaksi (income/expense)
+    required TransactionType type,
+
+    /// Waktu transaksi terjadi
+    required DateTime dateTime,
+
+    /// Foreign key ke kategori
+    required int categoryId,
+
+    /// Catatan tambahan (opsional)
     String? note,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return TransactionEntity(
-      id: id ?? this.id,
-      amount: amount ?? this.amount,
-      type: type ?? this.type,
-      dateTime: dateTime ?? this.dateTime,
-      categoryId: categoryId ?? this.categoryId,
-      note: note ?? this.note,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TransactionEntity &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          amount == other.amount &&
-          type == other.type &&
-          dateTime == other.dateTime &&
-          categoryId == other.categoryId &&
-          note == other.note &&
-          createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
+    /// Waktu pembuatan record
+    required DateTime createdAt,
 
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      amount.hashCode ^
-      type.hashCode ^
-      dateTime.hashCode ^
-      categoryId.hashCode ^
-      note.hashCode ^
-      createdAt.hashCode ^
-      updatedAt.hashCode;
-
-  @override
-  String toString() {
-    return 'TransactionEntity{id: $id, amount: $amount, type: $type, dateTime: $dateTime, categoryId: $categoryId, note: $note, createdAt: $createdAt, updatedAt: $updatedAt}';
-  }
+    /// Waktu terakhir update
+    required DateTime updatedAt,
+  }) = _TransactionEntity;
 }
 
 /// Enum untuk tipe transaksi
