@@ -390,13 +390,12 @@ flutter build windows        # Windows build
 
 ## Related Documentation
 
-- `memory/project_progress_review.md` - Detailed progress review against PRD
+- `docs/v1/project/project_progress_review.md` - Detailed progress review against PRD
 - `CLAUDE.md` - Comprehensive development guidelines
-- `PLANS/PRD.md` - Product Requirements Document
-- `PLANS/SPEC-LOG-*.md` - Feature specifications
-- `PLANS/PLAN-LOG-*.md` - Implementation plans
-- `PLANS/ROADMAP-PRIORITAS-SELANJUTNYA.md` - v2 development roadmap
-- `lib/presentation/DESIGN_SYSTEM_GUIDE.md` - Design system documentation
+- `docs/v1/product/00-PRD.md` - Product Requirements Document
+- `docs/v1/product/*.md` - Feature specifications
+- `docs/v1/implementation/*.md` - Implementation plans
+- `docs/v1/design/DESIGN_SYSTEM_GUIDE.md` - Design system documentation
 
 ---
 
@@ -425,5 +424,3 @@ flutter build windows        # Windows build
 | Glassmorphism design system | ✅ Complete |
 
 **Ready for production deployment.**
-
-For v2 development plans, see `PLANS/ROADMAP-PRIORITAS-SELANJUTNYA.md`.
