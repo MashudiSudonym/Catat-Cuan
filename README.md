@@ -1,6 +1,6 @@
 <div align="center">
 
-  ![Catat Cuan Logo](assets/images/app_icon.png)
+  ![Catat Cuan Logo](assets/icons/app_icon.png)
 
   # Catat Cuan 📱💰
 
