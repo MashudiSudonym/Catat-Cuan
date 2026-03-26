@@ -407,8 +407,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
               if (success && mounted) {
                 // Clear receipt scan session after successful transaction save
-                final scanController = ref.read(receiptScanningControllerProvider);
-                scanController.reset();
+                ref.read(receiptScanProvider.notifier).reset();
 
                 // Show success snackbar (AC-LOG-004.2)
                 ScaffoldMessenger.of(context).showSnackBar(

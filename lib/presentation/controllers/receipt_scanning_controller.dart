@@ -77,11 +77,3 @@ class ReceiptScanningController {
     );
   }
 }
-
-/// Provider for ReceiptScanningController
-///
-/// This allows the controller to be used in UI components via Riverpod
-final receiptScanningControllerProvider =
-    Provider<ReceiptScanningController>((ref) {
-  return ReceiptScanningController(ref as WidgetRef);
-});

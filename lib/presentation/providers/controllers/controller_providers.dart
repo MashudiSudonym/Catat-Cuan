@@ -10,7 +10,7 @@ import 'package:catat_cuan/presentation/controllers/category_management_controll
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 export 'package:catat_cuan/presentation/controllers/receipt_scanning_controller.dart'
-    show ReceiptScanningController, receiptScanningControllerProvider;
+    show ReceiptScanningController;
 
 // ============================================================================
 // Transaction Delete Controller Provider
