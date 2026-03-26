@@ -5,29 +5,36 @@
 /// transactions don't need to depend on read operations.
 library;
 
+import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 
 /// Repository interface for write-only transaction operations
 abstract class TransactionWriteRepository {
-  /// Adds a new transaction
+  /// Menambahkan transaksi baru
   ///
-  /// Returns the transaction with its generated ID
-  /// Throws an exception if the operation fails
-  Future<TransactionEntity> addTransaction(TransactionEntity transaction);
+  /// Mengembalikan Result dengan TransactionEntity yang sudah disertai ID jika sukses
+  Future<Result<TransactionEntity>> addTransaction(TransactionEntity transaction);
 
-  /// Updates an existing transaction
+  /// Mengupdate transaksi yang sudah ada
   ///
-  /// Returns the updated transaction
-  /// Throws an exception if the transaction is not found or update fails
-  Future<TransactionEntity> updateTransaction(TransactionEntity transaction);
+  /// Mengembalikan Result dengan error jika tidak ditemukan
+  Future<Result<TransactionEntity>> updateTransaction(TransactionEntity transaction);
 
-  /// Deletes a transaction by ID
+  /// Menghapus transaksi berdasarkan ID
   ///
-  /// Returns true if deleted, false if not found
-  Future<bool> deleteTransaction(int id);
+  /// Mengembalikan Result dengan error jika tidak ditemukan
+  Future<Result<void>> deleteTransaction(int id);
 
-  /// Deletes all transactions
+  /// Menghapus SEMUA transaksi
   ///
-  /// Use with caution - this is a destructive operation
-  Future<void> deleteAllTransactions();
+  /// Mengembalikan Result dengan error jika gagal
+  Future<Result<void>> deleteAllTransactions();
+
+  /// Menghapus beberapa transaksi sekaligus (batch delete)
+  ///
+  /// Parameters:
+  /// - [ids]: Daftar ID transaksi yang akan dihapus
+  ///
+  /// Mengembalikan Result dengan error jika gagal
+  Future<Result<void>> deleteMultipleTransactions(List<int> ids);
 }

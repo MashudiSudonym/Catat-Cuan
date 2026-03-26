@@ -1,49 +1,89 @@
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:catat_cuan/domain/repositories/category/category_repositories.dart';
 
-/// Repository interface untuk operasi kategori
+/// Legacy monolithic CategoryRepository interface
+///
+/// This interface combines all category operations in one place.
+/// It violates the Interface Segregation Principle (ISP) because clients
+/// are forced to depend on methods they don't use.
+///
+/// MIGRATION GUIDE:
+/// Instead of using this monolithic interface, depend on the specific
+/// segregated interfaces you actually need:
+///
+/// - For reading categories: `CategoryReadRepository`
+/// - For writing categories: `CategoryWriteRepository`
+/// - For reordering/activation: `CategoryManagementRepository`
+/// - For seeding: `CategorySeedingRepository`
+///
+/// Example migration:
+/// ```dart
+/// // OLD - depends on everything
+/// class MyService {
+///   final CategoryRepository _repo;
+/// }
+///
+/// // NEW - depends only on what's needed
+/// class MyService {
+///   final CategoryReadRepository _readRepo;
+///   final CategoryWriteRepository _writeRepo;
+/// }
+/// ```
+@Deprecated('Use segregated interfaces from category/category_repositories.dart instead')
 abstract class CategoryRepository {
-  /// Mengambil semua kategori aktif
+  /// @deprecated Use CategoryReadRepository.getCategories() instead
+  @deprecated
   Future<List<CategoryEntity>> getCategories();
 
-  /// Mengambil kategori berdasarkan tipe (income/expense)
-  /// Hanya mengembalikan kategori yang isActive = true
+  /// @deprecated Use CategoryReadRepository.getCategoriesByType() instead
+  @deprecated
   Future<List<CategoryEntity>> getCategoriesByType(CategoryType type);
 
-  /// Mengambil kategori berdasarkan ID
+  /// @deprecated Use CategoryReadRepository.getCategoryById() instead
+  @deprecated
   Future<CategoryEntity?> getCategoryById(int id);
 
-  /// Menambahkan kategori baru
+  /// @deprecated Use CategoryWriteRepository.addCategory() instead
+  @deprecated
   Future<CategoryEntity> addCategory(CategoryEntity category);
 
-  /// Mengupdate kategori yang sudah ada
+  /// @deprecated Use CategoryWriteRepository.updateCategory() instead
+  @deprecated
   Future<CategoryEntity> updateCategory(CategoryEntity category);
 
-  /// Menghapus kategori (soft delete dengan set isActive = false)
+  /// @deprecated Use CategoryWriteRepository.deleteCategory() instead
+  @deprecated
   Future<bool> deleteCategory(int id);
 
-  /// Mengecek apakah perlu seed default categories
+  /// @deprecated Use CategorySeedingRepository.needsSeed() instead
+  @deprecated
   Future<bool> needsSeed();
 
-  /// Seed default categories ke database
+  /// @deprecated Use CategorySeedingRepository.seedDefaultCategories() instead
+  @deprecated
   Future<void> seedDefaultCategories();
 
-  /// Mengambil kategori dengan jumlah transaksi (untuk tampilan list)
-  /// Returns categories with transaction count using LEFT JOIN
+  /// @deprecated Use CategoryReadRepository.getCategoriesWithCount() instead
+  @deprecated
   Future<List<CategoryEntity>> getCategoriesWithCount(CategoryType type);
 
-  /// Mengambil kategori yang tidak aktif (untuk tab "Tidak Aktif")
+  /// @deprecated Use CategoryManagementRepository.getInactiveCategories() instead
+  @deprecated
   Future<List<CategoryEntity>> getInactiveCategories();
 
-  /// Mengaktifkan kembali kategori yang sudah dinonaktifkan
+  /// @deprecated Use CategoryManagementRepository.reactivateCategory() instead
+  @deprecated
   Future<bool> reactivateCategory(int id);
 
-  /// Mengubah urutan kategori (batch update sort_order)
+  /// @deprecated Use CategoryManagementRepository.reorderCategories() instead
+  @deprecated
   Future<void> reorderCategories(List<int> categoryIds);
 
-  /// Mengecek apakah nama kategori sudah ada (untuk validasi)
-  /// excludeId digunakan saat update (exclude current category from check)
+  /// @deprecated Use CategoryReadRepository.getCategoryByName() instead
+  @deprecated
   Future<CategoryEntity?> getCategoryByName(String name, CategoryType type, {int? excludeId});
 
-  /// Mengambil jumlah transaksi untuk sebuah kategori
+  /// @deprecated Use CategoryReadRepository.getTransactionCount() instead
+  @deprecated
   Future<int> getTransactionCount(int categoryId);
 }

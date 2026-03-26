@@ -11,13 +11,29 @@ import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// Implementasi TransactionRepository dengan SQLite
+///
+/// This class implements the legacy monolithic TransactionRepository interface.
+///
+/// MIGRATION PATH:
+/// This implementation returns LegacyResult for backward compatibility.
+/// For new code using segregated interfaces (TransactionReadRepository, etc.),
+/// use the adapter classes in the transaction/ subdirectory that wrap this
+/// implementation and convert LegacyResult to domain Result.
+///
+/// Eventually, this class will be replaced with specialized implementations:
+/// - BasicTransactionRepositoryImpl (CRUD operations)
+/// - TransactionQueryRepositoryImpl (filtering and pagination)
+/// - TransactionAnalyticsRepositoryImpl (summaries and breakdowns)
+/// - TransactionSearchRepositoryImpl (search functionality)
+/// - TransactionExportRepositoryImpl (export data preparation)
+@Deprecated('Use segregated repository implementations from transaction/ subdirectory')
 class TransactionRepositoryImpl implements TransactionRepository {
   final DatabaseHelper _dbHelper;
 
   TransactionRepositoryImpl(this._dbHelper);
 
   @override
-  Future<Result<TransactionEntity>> addTransaction(
+  Future<LegacyResult<TransactionEntity>> addTransaction(
       TransactionEntity transaction) async {
     AppLogger.d('Adding transaction: ${transaction.type} - ${transaction.amount}');
 
@@ -43,20 +59,20 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (inserted.isEmpty) {
         AppLogger.w('Transaction inserted but not found in database');
-        return Result.failure('Gagal menyimpan transaksi');
+        return LegacyResult.failure('Gagal menyimpan transaksi');
       }
 
       final insertedModel = TransactionModel.fromMap(inserted.first);
       AppLogger.i('Transaction added successfully: ID $id');
-      return Result.success(insertedModel.toEntity());
+      return LegacyResult.success(insertedModel.toEntity());
     } catch (e, stackTrace) {
       AppLogger.e('Failed to add transaction', e, stackTrace);
-      return Result.failure('Gagal menyimpan transaksi');
+      return LegacyResult.failure('Gagal menyimpan transaksi');
     }
   }
 
   @override
-  Future<Result<List<TransactionEntity>>> getTransactions() async {
+  Future<LegacyResult<List<TransactionEntity>>> getTransactions() async {
     AppLogger.d('Fetching all transactions');
 
     try {
@@ -73,15 +89,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Retrieved ${transactions.length} transactions');
-      return Result.success(transactions);
+      return LegacyResult.success(transactions);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transactions', e, stackTrace);
-      return Result.failure('Gagal mengambil transaksi');
+      return LegacyResult.failure('Gagal mengambil transaksi');
     }
   }
 
   @override
-  Future<Result<TransactionEntity>> getTransactionById(int id) async {
+  Future<LegacyResult<TransactionEntity>> getTransactionById(int id) async {
     AppLogger.d('Fetching transaction by ID: $id');
 
     try {
@@ -95,26 +111,26 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (maps.isEmpty) {
         AppLogger.w('Transaction not found: ID $id');
-        return Result.failure('Transaksi dengan ID $id tidak ditemukan');
+        return LegacyResult.failure('Transaksi dengan ID $id tidak ditemukan');
       }
 
       final transaction = TransactionModel.fromMap(maps.first).toEntity();
-      return Result.success(transaction);
+      return LegacyResult.success(transaction);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transaction by ID: $id', e, stackTrace);
-      return Result.failure('Gagal mengambil transaksi');
+      return LegacyResult.failure('Gagal mengambil transaksi');
     }
   }
 
   @override
-  Future<Result<TransactionEntity>> updateTransaction(
+  Future<LegacyResult<TransactionEntity>> updateTransaction(
       TransactionEntity transaction) async {
     AppLogger.d('Updating transaction: ID ${transaction.id}');
 
     try {
       if (transaction.id == null) {
         AppLogger.w('Update attempted without transaction ID');
-        return Result.failure('ID transaksi wajib diisi untuk update');
+        return LegacyResult.failure('ID transaksi wajib diisi untuk update');
       }
 
       final db = await _dbHelper.database;
@@ -132,7 +148,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (rowsAffected == 0) {
         AppLogger.w('Transaction not found for update: ID ${transaction.id}');
-        return Result.failure(
+        return LegacyResult.failure(
             'Transaksi dengan ID ${transaction.id} tidak ditemukan');
       }
 
@@ -145,20 +161,20 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (updated.isEmpty) {
         AppLogger.w('Updated transaction not found: ID ${transaction.id}');
-        return Result.failure('Gagal mengambil transaksi yang diupdate');
+        return LegacyResult.failure('Gagal mengambil transaksi yang diupdate');
       }
 
       final updatedModel = TransactionModel.fromMap(updated.first);
       AppLogger.i('Transaction updated successfully: ID ${transaction.id}');
-      return Result.success(updatedModel.toEntity());
+      return LegacyResult.success(updatedModel.toEntity());
     } catch (e, stackTrace) {
       AppLogger.e('Failed to update transaction', e, stackTrace);
-      return Result.failure('Gagal mengubah transaksi');
+      return LegacyResult.failure('Gagal mengubah transaksi');
     }
   }
 
   @override
-  Future<Result<void>> deleteTransaction(int id) async {
+  Future<LegacyResult<void>> deleteTransaction(int id) async {
     AppLogger.d('Deleting transaction: ID $id');
 
     try {
@@ -172,40 +188,40 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (rowsAffected == 0) {
         AppLogger.w('Transaction not found for deletion: ID $id');
-        return Result.failure('Transaksi dengan ID $id tidak ditemukan');
+        return LegacyResult.failure('Transaksi dengan ID $id tidak ditemukan');
       }
 
       AppLogger.i('Transaction deleted successfully: ID $id');
-      return Result.success(null);
+      return LegacyResult.success(null);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete transaction: $id', e, stackTrace);
-      return Result.failure('Gagal menghapus transaksi');
+      return LegacyResult.failure('Gagal menghapus transaksi');
     }
   }
 
   @override
-  Future<Result<void>> deleteAllTransactions() async {
+  Future<LegacyResult<void>> deleteAllTransactions() async {
     AppLogger.d('Deleting all transactions');
 
     try {
       final db = await _dbHelper.database;
       await db.delete(DatabaseHelper.tableTransactions);
       AppLogger.i('All transactions deleted successfully');
-      return Result.success(null);
+      return LegacyResult.success(null);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete all transactions', e, stackTrace);
-      return Result.failure('Gagal menghapus semua transaksi');
+      return LegacyResult.failure('Gagal menghapus semua transaksi');
     }
   }
 
   @override
-  Future<Result<void>> deleteMultipleTransactions(List<int> ids) async {
+  Future<LegacyResult<void>> deleteMultipleTransactions(List<int> ids) async {
     AppLogger.d('Deleting ${ids.length} transactions: ${ids.take(10).join(', ')}${ids.length > 10 ? '...' : ''}');
 
     try {
       if (ids.isEmpty) {
         AppLogger.w('Cannot delete empty list of transactions');
-        return Result.failure('Daftar transaksi tidak boleh kosong');
+        return LegacyResult.failure('Daftar transaksi tidak boleh kosong');
       }
 
       final db = await _dbHelper.database;
@@ -226,19 +242,19 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (deletedCount == 0) {
         AppLogger.w('No transactions found for deletion');
-        return Result.failure('Tidak ada transaksi yang ditemukan');
+        return LegacyResult.failure('Tidak ada transaksi yang ditemukan');
       }
 
       AppLogger.i('Successfully deleted $deletedCount of $batchSize transactions');
-      return Result.success(null);
+      return LegacyResult.success(null);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete multiple transactions', e, stackTrace);
-      return Result.failure('Gagal menghapus transaksi');
+      return LegacyResult.failure('Gagal menghapus transaksi');
     }
   }
 
   @override
-  Future<Result<List<TransactionEntity>>> getTransactionsByFilter({
+  Future<LegacyResult<List<TransactionEntity>>> getTransactionsByFilter({
     DateTime? startDate,
     DateTime? endDate,
     int? categoryId,
@@ -293,15 +309,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Retrieved ${transactions.length} filtered transactions');
-      return Result.success(transactions);
+      return LegacyResult.success(transactions);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get filtered transactions', e, stackTrace);
-      return Result.failure('Gagal mengambil transaksi');
+      return LegacyResult.failure('Gagal mengambil transaksi');
     }
   }
 
   @override
-  Future<Result<MonthlySummaryEntity>> getMonthlySummary(
+  Future<LegacyResult<MonthlySummaryEntity>> getMonthlySummary(
       String yearMonth) async {
     AppLogger.d('Fetching monthly summary: $yearMonth');
 
@@ -323,7 +339,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       if (maps.isEmpty) {
         // Return empty summary jika tidak ada transaksi
         AppLogger.i('No transactions found for $yearMonth, returning empty summary');
-        return Result.success(MonthlySummaryEntity(
+        return LegacyResult.success(MonthlySummaryEntity(
           yearMonth: yearMonth,
           totalIncome: 0,
           totalExpense: 0,
@@ -335,15 +351,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       final model = MonthlySummaryModel.fromMap(maps.first);
       AppLogger.i('Monthly summary retrieved for $yearMonth');
-      return Result.success(model.toEntity());
+      return LegacyResult.success(model.toEntity());
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get monthly summary', e, stackTrace);
-      return Result.failure('Gagal mengambil ringkasan bulanan');
+      return LegacyResult.failure('Gagal mengambil ringkasan bulanan');
     }
   }
 
   @override
-  Future<Result<MonthlySummaryEntity>> getAllTimeSummary() async {
+  Future<LegacyResult<MonthlySummaryEntity>> getAllTimeSummary() async {
     AppLogger.d('Fetching all-time summary');
 
     try {
@@ -363,7 +379,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       if (maps.isEmpty) {
         // Return empty summary jika tidak ada transaksi
         AppLogger.i('No transactions found, returning empty all-time summary');
-        return Result.success(MonthlySummaryEntity(
+        return LegacyResult.success(MonthlySummaryEntity(
           yearMonth: 'all',
           totalIncome: 0,
           totalExpense: 0,
@@ -375,15 +391,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       final model = MonthlySummaryModel.fromMap(maps.first);
       AppLogger.i('All-time summary retrieved');
-      return Result.success(model.toEntity());
+      return LegacyResult.success(model.toEntity());
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get all-time summary', e, stackTrace);
-      return Result.failure('Gagal mengambil ringkasan semua data');
+      return LegacyResult.failure('Gagal mengambil ringkasan semua data');
     }
   }
 
   @override
-  Future<Result<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
+  Future<LegacyResult<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
     String yearMonth,
     TransactionType type,
   ) async {
@@ -411,7 +427,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (maps.isEmpty) {
         AppLogger.i('No category breakdown found for $yearMonth');
-        return Result.success([]);
+        return LegacyResult.success([]);
       }
 
       // Hitung total amount untuk persentase
@@ -425,15 +441,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Retrieved category breakdown: ${breakdown.length} categories');
-      return Result.success(breakdown);
+      return LegacyResult.success(breakdown);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get category breakdown', e, stackTrace);
-      return Result.failure('Gagal mengambil breakdown kategori');
+      return LegacyResult.failure('Gagal mengambil breakdown kategori');
     }
   }
 
   @override
-  Future<Result<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
+  Future<LegacyResult<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
     TransactionType type,
   ) async {
     AppLogger.d('Fetching all-time category breakdown: type=${type.value}');
@@ -459,7 +475,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (maps.isEmpty) {
         AppLogger.i('No all-time category breakdown found');
-        return Result.success([]);
+        return LegacyResult.success([]);
       }
 
       // Hitung total amount untuk persentase
@@ -473,15 +489,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Retrieved all-time category breakdown: ${breakdown.length} categories');
-      return Result.success(breakdown);
+      return LegacyResult.success(breakdown);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get all-time category breakdown', e, stackTrace);
-      return Result.failure('Gagal mengambil breakdown kategori semua data');
+      return LegacyResult.failure('Gagal mengambil breakdown kategori semua data');
     }
   }
 
   @override
-  Future<Result<List<MonthlySummaryEntity>>> getMultiMonthSummary(
+  Future<LegacyResult<List<MonthlySummaryEntity>>> getMultiMonthSummary(
     String startYearMonth,
     String endYearMonth,
   ) async {
@@ -506,7 +522,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (maps.isEmpty) {
         AppLogger.i('No multi-month summary found');
-        return Result.success([]);
+        return LegacyResult.success([]);
       }
 
       final summaries = maps
@@ -514,15 +530,15 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Retrieved multi-month summary: ${summaries.length} months');
-      return Result.success(summaries);
+      return LegacyResult.success(summaries);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get multi-month summary', e, stackTrace);
-      return Result.failure('Gagal mengambil ringkasan multi-bulan');
+      return LegacyResult.failure('Gagal mengambil ringkasan multi-bulan');
     }
   }
 
   @override
-  Future<Result<List<TransactionEntity>>> searchTransactions(
+  Future<LegacyResult<List<TransactionEntity>>> searchTransactions(
     String query, {
     TransactionType? type,
     int? limit,
@@ -567,17 +583,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .toList();
 
       AppLogger.i('Search completed: ${transactions.length} results found');
-      return Result.success(transactions);
+      return LegacyResult.success(transactions);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to search transactions', e, stackTrace);
-      return Result.failure('Gagal mencari transaksi');
+      return LegacyResult.failure('Gagal mencari transaksi');
     }
   }
 
   /// Get transactions with category names for export
   /// Returns list of maps containing transaction data plus category name
   @override
-  Future<Result<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
+  Future<LegacyResult<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
     DateTime? startDate,
     DateTime? endDate,
     int? categoryId,
@@ -636,10 +652,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
       );
 
       AppLogger.i('Retrieved ${maps.length} transactions with category names');
-      return Result.success(maps);
+      return LegacyResult.success(maps);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transactions with category names', e, stackTrace);
-      return Result.failure('Gagal mengambil transaksi');
+      return LegacyResult.failure('Gagal mengambil transaksi');
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:catat_cuan/presentation/managers/transaction_grouper.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_card.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
@@ -12,7 +13,6 @@ import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 /// Screen untuk menampilkan list transaksi
 /// Menggunakan TransactionCard widget dan filter chips
@@ -583,42 +583,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
-  /// Group transactions by date
+  /// Group transactions by date using TransactionGrouper
   List<Map<String, dynamic>> _groupTransactionsByDate(
       List<TransactionEntity> transactions) {
-    final Map<String, Map<String, dynamic>> grouped = {};
-
-    for (var transaction in transactions) {
-      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.dateTime);
-
-      if (!grouped.containsKey(dateKey)) {
-        grouped[dateKey] = {
-          'date': DateTime(
-            transaction.dateTime.year,
-            transaction.dateTime.month,
-            transaction.dateTime.day,
-          ),
-          'transactions': <TransactionEntity>[],
-          'total': 0.0,
-        };
-      }
-
-      grouped[dateKey]!['transactions'].add(transaction);
-
-      // Calculate total (income - expense)
-      final amount = transaction.type == TransactionType.income
-          ? transaction.amount
-          : -transaction.amount;
-      grouped[dateKey]!['total'] =
-          (grouped[dateKey]!['total'] as double) + amount;
-    }
-
-    // Convert to list and sort by date descending
-    final sortedList = grouped.values.toList()
-      ..sort((a, b) => (b['date'] as DateTime)
-          .compareTo(a['date'] as DateTime));
-
-    return sortedList;
+    return TransactionGrouper.groupByDate(transactions);
   }
 
   CategoryEntity _createDefaultCategory() {

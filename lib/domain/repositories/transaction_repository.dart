@@ -1,130 +1,139 @@
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
-import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/paginated_result_entity.dart';
 import 'package:catat_cuan/domain/entities/pagination_params_entity.dart';
+import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 
-/// Result type untuk return value yang bisa sukses atau gagal
+/// Legacy Result type untuk return value yang bisa sukses atau gagal
 ///
-/// TODO: Migrate to use domain/core/result.dart after updating all implementations
-class Result<T> {
+/// @deprecated Use domain/core/result.dart instead with proper Failure types
+@Deprecated('Use Result from domain/core/result.dart instead')
+class LegacyResult<T> {
   final T? data;
   final String? error;
 
-  const Result._({this.data, this.error});
+  const LegacyResult._({this.data, this.error});
 
-  factory Result.success(T data) => Result._(data: data);
-  factory Result.failure(String error) => Result._(error: error);
+  factory LegacyResult.success(T data) => LegacyResult._(data: data);
+  factory LegacyResult.failure(String error) => LegacyResult._(error: error);
 
   bool get isSuccess => data != null;
   bool get isFailure => error != null;
 }
 
-/// Repository interface untuk operasi transaksi
+/// Legacy monolithic TransactionRepository interface
 ///
-/// This is the main transaction repository interface that combines
-/// read, write, and summary operations.
+/// This interface combines all transaction operations in one place.
+/// It violates the Interface Segregation Principle (ISP) because clients
+/// are forced to depend on methods they don't use.
 ///
-/// For finer-grained interfaces following the Interface Segregation Principle (ISP),
-/// see the segregated interfaces in the transaction/ subdirectory:
-/// - [TransactionReadRepository]: For querying transactions
-/// - [TransactionWriteRepository]: For creating/updating/deleting transactions
-/// - [TransactionSummaryRepository]: For aggregated summaries and breakdowns
+/// MIGRATION GUIDE:
+/// Instead of using this monolithic interface, depend on the specific
+/// segregated interfaces you actually need:
+///
+/// - For reading transactions: `TransactionReadRepository`
+/// - For writing transactions: `TransactionWriteRepository`
+/// - For filtering/pagination: `TransactionQueryRepository`
+/// - For search: `TransactionSearchRepository`
+/// - For analytics: `TransactionAnalyticsRepository`
+/// - For export: `TransactionExportRepository`
+///
+/// Example migration:
+/// ```dart
+/// // OLD - depends on everything
+/// class MyService {
+///   final TransactionRepository _repo;
+/// }
+///
+/// // NEW - depends only on what's needed
+/// class MyService {
+///   final TransactionReadRepository _readRepo;
+///   final TransactionWriteRepository _writeRepo;
+/// }
+/// ```
+@Deprecated('Use segregated interfaces from transaction/transaction_repositories.dart instead')
 abstract class TransactionRepository {
   /// Menambahkan transaksi baru
-  /// Mengembalikan Result dengan TransactionEntity yang sudah disertai ID jika sukses
-  Future<Result<TransactionEntity>> addTransaction(TransactionEntity transaction);
+  /// Mengembalikan LegacyResult dengan TransactionEntity yang sudah disertai ID jika sukses
+  @Deprecated('Use TransactionWriteRepository.addTransaction instead')
+  Future<LegacyResult<TransactionEntity>> addTransaction(TransactionEntity transaction);
 
   /// Mengambil semua transaksi
   /// Mengembalikan list kosong jika tidak ada data
-  Future<Result<List<TransactionEntity>>> getTransactions();
+  @Deprecated('Use TransactionReadRepository.getTransactions instead')
+  Future<LegacyResult<List<TransactionEntity>>> getTransactions();
 
   /// Mengambil transaksi berdasarkan ID
-  /// Mengembalikan Result dengan error jika tidak ditemukan
-  Future<Result<TransactionEntity>> getTransactionById(int id);
+  /// Mengembalikan LegacyResult dengan error jika tidak ditemukan
+  @Deprecated('Use TransactionReadRepository.getTransactionById instead')
+  Future<LegacyResult<TransactionEntity>> getTransactionById(int id);
 
   /// Mengupdate transaksi yang sudah ada
-  /// Mengembalikan Result dengan error jika tidak ditemukan
-  Future<Result<TransactionEntity>> updateTransaction(TransactionEntity transaction);
+  /// Mengembalikan LegacyResult dengan error jika tidak ditemukan
+  @Deprecated('Use TransactionWriteRepository.updateTransaction instead')
+  Future<LegacyResult<TransactionEntity>> updateTransaction(TransactionEntity transaction);
 
   /// Menghapus transaksi berdasarkan ID
-  /// Mengembalikan Result dengan error jika tidak ditemukan
-  Future<Result<void>> deleteTransaction(int id);
+  /// Mengembalikan LegacyResult dengan error jika tidak ditemukan
+  @Deprecated('Use TransactionWriteRepository.deleteTransaction instead')
+  Future<LegacyResult<void>> deleteTransaction(int id);
 
   /// Menghapus SEMUA transaksi
-  /// Mengembalikan Result dengan error jika gagal
-  Future<Result<void>> deleteAllTransactions();
+  /// Mengembalikan LegacyResult dengan error jika gagal
+  @Deprecated('Use TransactionWriteRepository.deleteAllTransactions instead')
+  Future<LegacyResult<void>> deleteAllTransactions();
 
   /// Menghapus beberapa transaksi sekaligus (batch delete)
-  /// - [ids]: Daftar ID transaksi yang akan dihapus
-  /// Mengembalikan Result dengan error jika gagal
-  Future<Result<void>> deleteMultipleTransactions(List<int> ids);
+  @Deprecated('Use TransactionWriteRepository.deleteMultipleTransactions instead')
+  Future<LegacyResult<void>> deleteMultipleTransactions(List<int> ids);
 
   /// Mengambil transaksi dengan filter
-  /// - [startDate]: Filter tanggal awal (inclusive), null = tidak ada filter
-  /// - [endDate]: Filter tanggal akhir (inclusive), null = tidak ada filter
-  /// - [categoryId]: Filter berdasarkan kategori, null = semua kategori
-  /// - [type]: Filter tipe transaksi, null = semua tipe
-  /// Default sorting by date descending (terbaru di atas)
-  Future<Result<List<TransactionEntity>>> getTransactionsByFilter({
+  @Deprecated('Use TransactionQueryRepository.getTransactionsByFilter instead')
+  Future<LegacyResult<List<TransactionEntity>>> getTransactionsByFilter({
     DateTime? startDate,
     DateTime? endDate,
     int? categoryId,
     TransactionType? type,
   });
 
-  /// Mengambil ringkasan bulanan transaksi
-  /// - [yearMonth]: Format "YYYY-MM" (contoh: "2024-03")
-  /// Mengembalikan Result dengan MonthlySummaryEntity jika sukses
-  Future<Result<MonthlySummaryEntity>> getMonthlySummary(String yearMonth);
-
-  /// Mengambil ringkasan seluruh transaksi (all-time)
-  /// Mengembalikan Result dengan MonthlySummaryEntity jika sukses
-  Future<Result<MonthlySummaryEntity>> getAllTimeSummary();
-
-  /// Mengambil breakdown kategori untuk bulan tertentu
-  /// - [yearMonth]: Format "YYYY-MM" (contoh: "2024-03")
-  /// - [type]: Filter tipe transaksi (income/expense)
-  /// Mengembalikan list CategoryBreakdownEntity yang sudah di-sort by total amount DESC
-  Future<Result<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
-    String yearMonth,
-    TransactionType type,
-  );
-
-  /// Mengambil breakdown kategori untuk seluruh transaksi (all-time)
-  /// - [type]: Filter tipe transaksi (income/expense)
-  /// Mengembalikan list CategoryBreakdownEntity yang sudah di-sort by total amount DESC
-  Future<Result<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
-    TransactionType type,
-  );
-
-  /// Mengambil ringkasan transaksi untuk beberapa bulan (trend analysis)
-  /// - [startYearMonth]: Format "YYYY-MM" (contoh: "2024-03") - awal periode (inclusive)
-  /// - [endYearMonth]: Format "YYYY-MM" (contoh: "2024-08") - akhir periode (inclusive)
-  /// Mengembalikan list MonthlySummaryEntity yang diurut by year_month ASC
-  Future<Result<List<MonthlySummaryEntity>>> getMultiMonthSummary(
-    String startYearMonth,
-    String endYearMonth,
-  );
-
   /// Mencari transaksi berdasarkan query text
-  /// Pencarian dilakukan pada note dan nama kategori
-  /// - [query]: Kata kunci pencarian
-  /// - [type]: Filter tipe transaksi (opsional)
-  /// - [limit]: Batas jumlah hasil (opsional, default 50)
-  /// Mengembalikan list transaksi yang cocok, diurut by date DESC
-  Future<Result<List<TransactionEntity>>> searchTransactions(
+  @Deprecated('Use TransactionSearchRepository.searchTransactions instead')
+  Future<LegacyResult<List<TransactionEntity>>> searchTransactions(
     String query, {
     TransactionType? type,
     int? limit,
   });
 
+  /// Mengambil ringkasan bulanan transaksi
+  @Deprecated('Use TransactionAnalyticsRepository.getMonthlySummary instead')
+  Future<LegacyResult<MonthlySummaryEntity>> getMonthlySummary(String yearMonth);
+
+  /// Mengambil ringkasan seluruh transaksi (all-time)
+  @Deprecated('Use TransactionAnalyticsRepository.getAllTimeSummary instead')
+  Future<LegacyResult<MonthlySummaryEntity>> getAllTimeSummary();
+
+  /// Mengambil breakdown kategori untuk bulan tertentu
+  @Deprecated('Use TransactionAnalyticsRepository.getCategoryBreakdown instead')
+  Future<LegacyResult<List<CategoryBreakdownEntity>>> getCategoryBreakdown(
+    String yearMonth,
+    TransactionType type,
+  );
+
+  /// Mengambil breakdown kategori untuk seluruh transaksi (all-time)
+  @Deprecated('Use TransactionAnalyticsRepository.getAllCategoryBreakdown instead')
+  Future<LegacyResult<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
+    TransactionType type,
+  );
+
+  /// Mengambil ringkasan transaksi untuk beberapa bulan (trend analysis)
+  @Deprecated('Use TransactionAnalyticsRepository.getMultiMonthSummary instead')
+  Future<LegacyResult<List<MonthlySummaryEntity>>> getMultiMonthSummary(
+    String startYearMonth,
+    String endYearMonth,
+  );
+
   /// Mengambil transaksi dengan nama kategori untuk export
-  /// Returns list of maps containing transaction data plus category name
-  /// - [startDate]: Filter tanggal awal (opsional)
-  /// - [endDate]: Filter tanggal akhir (opsional)
-  /// - [categoryId]: Filter kategori (opsional)
-  /// - [type]: Filter tipe transaksi (opsional)
-  Future<Result<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
+  @Deprecated('Use TransactionExportRepository.getTransactionsWithCategoryNames instead')
+  Future<LegacyResult<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
     DateTime? startDate,
     DateTime? endDate,
     int? categoryId,
@@ -132,12 +141,11 @@ abstract class TransactionRepository {
   });
 
   /// Mengambil transaksi dengan pagination
-  /// - [pagination]: Parameter pagination (page, limit)
-  /// - [startDate]: Filter tanggal awal (opsional)
-  /// - [endDate]: Filter tanggal akhir (opsional)
-  /// - [categoryId]: Filter kategori (opsional)
-  /// - [type]: Filter tipe transaksi (opsional)
-  /// Mengembalikan PaginatedResult dengan data transaksi dan metadata pagination
+  ///
+  /// Note: This returns PaginatedResultEntity directly for backward compatibility.
+  /// Use TransactionQueryRepository.getTransactionsPaginated for the new API
+  /// that returns `Result<PaginatedResultEntity>`.
+  @Deprecated('Use TransactionQueryRepository.getTransactionsPaginated instead')
   Future<PaginatedResultEntity<TransactionEntity>> getTransactionsPaginated(
     PaginationParamsEntity pagination, {
     DateTime? startDate,
@@ -146,5 +154,3 @@ abstract class TransactionRepository {
     TransactionType? type,
   });
 }
-
-
