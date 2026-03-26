@@ -1,6 +1,6 @@
 import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:catat_cuan/domain/parsers/receipt_amount_parser.dart';
-import 'package:catat_cuan/domain/parsers/receipt_date_parser.dart';
+import 'package:catat_cuan/domain/parsers/receipt_date_time_composer.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
 
 /// Use case untuk melakukan scan struk dan ekstrak nominal & tanggal
@@ -26,7 +26,7 @@ class ScanReceiptUseCase {
     final amountParseResult = ReceiptAmountParser.parseAmount(rawText);
 
     // 3. Parse tanggal dan waktu dari teks
-    final dateTimeParseResult = ReceiptDateParser.parseDateTime(rawText);
+    final dateTimeParseResult = ReceiptDateTimeComposer.parseDateTime(rawText);
 
     // 4. Hitung confidence score (rata-rata dari amount dan datetime)
     final avgConfidence = (amountParseResult.confidence + dateTimeParseResult.confidence) / 2;

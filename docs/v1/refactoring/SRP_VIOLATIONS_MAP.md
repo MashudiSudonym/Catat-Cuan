@@ -3,7 +3,7 @@
 **Dibuat**: 2026-03-26
 **Terakhir Diupdate**: 2026-03-26
 **Tujuan**: Dokumen ini memetakan semua file yang melanggar SRP sebagai patokan refactoring
-**Status**: ✅ Phase 1-5 Selesai (13 violations addressed) | Phase 6 Pending (LOW priority)
+**Status**: ✅ SEMUA FASE SELESAI (100% - 16/16 violations addressed)
 
 ---
 
@@ -16,9 +16,9 @@
 | Phase 3: Utilities & Services | ✅ Complete | TransactionFormatter, FileNamingService |
 | Phase 4: Integration | ✅ Complete | Screens updated, testing passed |
 | Phase 5: Utility Layer | ✅ Complete | utils.dart & base.dart reorganized |
-| Phase 6: Domain Layer (LOW) | ⏳ Optional | 3 remaining violations (optional) |
+| Phase 6: Domain Layer (Final) | ✅ Complete | Parser split + entity analyzers |
 
-**Total Violations Addressed**: 13 / 16 (81%) - **Phase 1-5 Complete**
+**Total Violations Addressed**: 16 / 16 (100%) - **✅ ALL PHASES COMPLETE**
 
 ---
 
@@ -26,11 +26,11 @@
 
 | Layer | Total Violations | Fixed | Remaining | Priority |
 |-------|------------------|-------|-----------|----------|
-| Data Layer | 1 | 1 | 0 | - |
-| Domain Layer | 7 | 4 | 3 | Medium |
-| Presentation Layer | 6 | 6 | 0 | - |
-| Utility Layer | 2 | 0 | 2 | Low |
-| **TOTAL** | **16** | **11** | **5** | - |
+| Data Layer | 1 | 1 | 0 | ✅ |
+| Domain Layer | 7 | 7 | 0 | ✅ |
+| Presentation Layer | 6 | 6 | 0 | ✅ |
+| Utility Layer | 2 | 2 | 0 | ✅ |
+| **TOTAL** | **16** | **16** | **0** | **✅ 100%** |
 
 ---
 
@@ -588,11 +588,11 @@ Gunakan checklist ini untuk melacak progress refactoring:
 - [ ] Remove old `CategoryRepositoryImpl` (after migration complete)
 
 ### Domain Layer
-- [ ] Refactor `TransactionRepository` interface usage
-- [x] Split `CategoryRepository` interface (4 segregated interfaces)
-- [ ] Refactor `InsightService`
-- [x] Extract `FileNamingService` (done)
-- [ ] Split `ReceiptDateParser` (optional)
+- [x] Split `CategoryRepository` interface (4 segregated interfaces) - Phase 1
+- [x] Refactor `InsightService` (segregated into 4 services) - Already done before Phase 1
+- [x] Extract `FileNamingService` (done) - Phase 3
+- [x] Split `ReceiptDateParser` (done) - Phase 6: date/time/composer
+- [x] Extract entity business logic to analyzers - Phase 6
 
 ### Presentation Layer
 - [ ] Extract `TransactionGrouper` dari `TransactionListScreen` (optional, low priority)

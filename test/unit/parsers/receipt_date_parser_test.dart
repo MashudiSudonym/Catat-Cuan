@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:catat_cuan/domain/parsers/receipt_date_parser.dart';
+import 'package:catat_cuan/domain/parsers/receipt_time_parser.dart';
+import 'package:catat_cuan/domain/parsers/receipt_date_time_composer.dart';
 
 void main() {
   group('ReceiptDateParser - Time Extraction', () {
@@ -11,7 +12,7 @@ Tanggal: 18/03/2026
 Jam: 14:30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -26,7 +27,7 @@ TOKO MAJU JAYA
 Waktu: 14.30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -39,7 +40,7 @@ TOKO MAJU JAYA
 Pukul 09:45
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(9));
         expect(result.minute, equals(45));
@@ -52,7 +53,7 @@ TOKO MAJU JAYA
 JK 14.30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -67,7 +68,7 @@ TOKO MAJU JAYA
 Jam: 14.30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -79,7 +80,7 @@ TOKO MAJU JAYA
 Jam: 14.30.45
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -94,7 +95,7 @@ TOKO MAJU JAYA
 Jam: 14:30:45
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -109,7 +110,7 @@ TOKO MAJU JAYA
 Time: 02:30 PM
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -121,7 +122,7 @@ TOKO MAJU JAYA
 Time: 09:45 AM
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(9));
         expect(result.minute, equals(45));
@@ -133,7 +134,7 @@ TOKO MAJU JAYA
 Time: 12:00 PM
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(12));
         expect(result.minute, equals(0));
@@ -145,7 +146,7 @@ TOKO MAJU JAYA
 Time: 12:00 AM
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(0));
         expect(result.minute, equals(0));
@@ -160,7 +161,7 @@ Tanggal: 18/03/2026
 Total: Rp 75.000
 14:30
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
@@ -173,7 +174,7 @@ Total: Rp 75.000
 TOKO MAJU JAYA
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, isNull);
         expect(result.minute, isNull);
@@ -188,7 +189,7 @@ TOKO MAJU JAYA
 Jam: 24:00
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, isNull);
         expect(result.confidence, equals(0));
@@ -200,7 +201,7 @@ TOKO MAJU JAYA
 Jam: 14:60
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         expect(result.hour, isNull);
         expect(result.confidence, equals(0));
@@ -212,7 +213,7 @@ TOKO MAJU JAYA
 Jam: 14:30:60
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseTime(text);
+        final result = ReceiptTimeParser.parseTime(text);
 
         // Note: Current implementation falls back to HH:mm when seconds are invalid
         // This is acceptable for receipt parsing as invalid seconds are rare
@@ -229,7 +230,7 @@ Tanggal: 18/03/2026
 Jam: 14:30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime, isNotNull);
         expect(result.dateTime!.year, equals(2026));
@@ -246,7 +247,7 @@ TOKO MAJU JAYA
 Tanggal: 18/03/2026
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime, isNotNull);
         expect(result.dateTime!.year, equals(2026));
@@ -263,7 +264,7 @@ Total: Rp 75.000
 TOKO MAJU JAYA
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime, isNull);
       });
@@ -275,7 +276,7 @@ Tanggal: 18/03/2026
 Jam: 14:30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         // Confidence should be (0.9 * 0.7) + (0.8 * 0.3) = 0.63 + 0.24 = 0.87
         expect(result.confidence, closeTo(0.87, 0.01));
@@ -290,7 +291,7 @@ Tanggal: 18 Maret 2026
 Waktu: 14:30
 Total: Rp 150.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime, isNotNull);
         expect(result.dateTime!.year, equals(2026));
@@ -307,7 +308,7 @@ Tgl: 18 Mar 2026
 Jam: 09.45
 Total: Rp 150.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime, isNotNull);
         expect(result.dateTime!.month, equals(3));
@@ -325,7 +326,7 @@ Tanggal: 18/03/2026
 Jam: 00:00
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime!.hour, equals(0));
         expect(result.dateTime!.minute, equals(0));
@@ -338,7 +339,7 @@ Tanggal: 18/03/2026
 Jam: 23:59
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime!.hour, equals(23));
         expect(result.dateTime!.minute, equals(59));
@@ -351,7 +352,7 @@ Tanggal: 18/03/2026
 Jam: 9:30
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime!.hour, equals(9));
         expect(result.dateTime!.minute, equals(30));
@@ -364,7 +365,7 @@ Tanggal: 18/03/2026
 Jam: 14:5
 Total: Rp 75.000
 ''';
-        final result = ReceiptDateParser.parseDateTime(text);
+        final result = ReceiptDateTimeComposer.parseDateTime(text);
 
         expect(result.dateTime!.hour, equals(14));
         expect(result.dateTime!.minute, equals(5));

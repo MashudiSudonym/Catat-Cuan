@@ -1,8 +1,13 @@
+import 'package:catat_cuan/domain/services/analyzers/category_analyzer.dart';
+import 'package:catat_cuan/domain/services/analyzers/financial_health_analyzer.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'monthly_summary_entity.freezed.dart';
 
 /// Entity untuk ringkasan bulanan transaksi
+///
+/// Derived properties menggunakan [FinancialHealthAnalyzer] untuk analisis.
+/// Ini memisahkan logic bisnis dari entity sambil mempertahankan API yang nyaman.
 @freezed
 abstract class MonthlySummaryEntity with _$MonthlySummaryEntity {
   const MonthlySummaryEntity._();
@@ -28,25 +33,41 @@ abstract class MonthlySummaryEntity with _$MonthlySummaryEntity {
   }) = _MonthlySummaryEntity;
 
   /// Hitung persentase pengeluaran terhadap pemasukan
-  double get expensePercentage {
-    if (totalIncome == 0) return 0;
-    return (totalExpense / totalIncome * 100);
-  }
+  ///
+  /// Delegates to [FinancialHealthAnalyzer.calculateExpensePercentage].
+  double get expensePercentage => FinancialHealthAnalyzer.calculateExpensePercentage(
+        totalExpense: totalExpense,
+        totalIncome: totalIncome,
+      );
 
   /// Hitung persentase saldo terhadap pemasukan
-  double get balancePercentage {
-    if (totalIncome == 0) return 0;
-    return (balance / totalIncome * 100);
-  }
+  ///
+  /// Delegates to [FinancialHealthAnalyzer.calculateBalancePercentage].
+  double get balancePercentage => FinancialHealthAnalyzer.calculateBalancePercentage(
+        balance: balance,
+        totalIncome: totalIncome,
+      );
 
   /// Cek apakah bulan ini sehat (saldo > 20% dari pemasukan)
-  bool get isHealthy => balance > 0 && balancePercentage >= 20;
+  ///
+  /// Delegates to [FinancialHealthAnalyzer.isHealthyFinancial].
+  bool get isHealthy => FinancialHealthAnalyzer.isHealthyFinancial(
+        balance: balance,
+        totalIncome: totalIncome,
+      );
 
   /// Cek apakah ada imbalance (pengeluaran > pemasukan)
-  bool get isImbalance => balance < 0;
+  ///
+  /// Delegates to [FinancialHealthAnalyzer.hasImbalance].
+  bool get isImbalance => FinancialHealthAnalyzer.hasImbalance(
+        balance: balance,
+      );
 }
 
 /// Entity untuk breakdown kategori transaksi
+///
+/// Derived properties menggunakan [CategoryAnalyzer] untuk analisis.
+/// Ini memisahkan logic bisnis dari entity sambil mempertahankan API yang nyaman.
 @freezed
 abstract class CategoryBreakdownEntity with _$CategoryBreakdownEntity {
   const CategoryBreakdownEntity._();
@@ -75,16 +96,24 @@ abstract class CategoryBreakdownEntity with _$CategoryBreakdownEntity {
   }) = _CategoryBreakdownEntity;
 
   /// Cek apakah kategori ini berlebihan (> 40% dari total)
-  bool get isExcessive => percentage > 40;
+  ///
+  /// Delegates to [CategoryAnalyzer.isExcessiveCategory].
+  bool get isExcessive => CategoryAnalyzer.isExcessiveCategory(
+        percentage: percentage,
+      );
 
   /// Format persentase untuk display
-  String get percentageDisplay => '${percentage.toStringAsFixed(1)}%';
+  ///
+  /// Delegates to [CategoryAnalyzer.formatPercentage].
+  String get percentageDisplay => CategoryAnalyzer.formatPercentage(percentage);
 
   /// Rata-rata pengeluaran per transaksi untuk kategori ini
-  double get averagePerTransaction {
-    if (transactionCount == 0) return 0;
-    return totalAmount / transactionCount;
-  }
+  ///
+  /// Delegates to [CategoryAnalyzer.calculateAveragePerTransaction].
+  double get averagePerTransaction => CategoryAnalyzer.calculateAveragePerTransaction(
+        totalAmount: totalAmount,
+        transactionCount: transactionCount,
+      );
 }
 
 /// Entity untuk rekomendasi keuangan
