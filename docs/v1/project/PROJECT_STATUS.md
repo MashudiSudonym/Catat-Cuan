@@ -57,26 +57,62 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 **Status**: ✅ SEMUA FASE SELESAI (100% - 16/16 violations)
 
-#### Fase yang Selesai ✅
+#### Ringkasan Fase Refactoring
 
-| Fase | Deskripsi | Status |
-|------|-----------|--------|
-| **Fase 1** | Data Layer - Repository Segregation | ✅ Complete - 4 category repository implementations |
-| **Fase 2** | Presentation Controllers | ✅ Complete - 3 focused controllers |
-| **Fase 3** | Utilities & Services | ✅ Complete - TransactionFormatter, FileNamingService |
-| **Fase 4** | Integration | ✅ Complete - Screens updated, testing passed (97 tests) |
-| **Fase 5** | Utility Layer | ✅ Complete - utils.dart & base.dart reorganized |
-| **Fase 6** | Domain Layer - Final | ✅ Complete - Parser split + entity analyzers |
+| Fase | Deskripsi | File Baru |
+|------|-----------|-----------|
+| **Fase 1** | Data Layer - Repository Segregation | 4 category repositories + adapter |
+| **Fase 2** | Presentation Controllers | 3 controllers (delete, scan, category) |
+| **Fase 3** | Utilities & Services | TransactionFormatter, FileNamingService |
+| **Fase 4** | Integration | Controller providers, screen updates |
+| **Fase 5** | Utility Layer | 10 domain/purpose barrel files |
+| **Fase 6** | Domain Layer - Final | Parser split + entity analyzers |
 
-#### SRP Compliance Achievement
-- **16/16 violations addressed** (100%)
-- **7 new files created** (Phase 6):
-  - 3 parser classes (date, time, composer)
-  - 2 analyzer services (financial health, category)
-- **All 97 tests passing**
-- **Clean analyzer** (0 new errors)
+#### Hasil Akhir
+- **16/16 violations addressed** (100% SRP compliance)
+- **22 files created** (repositories, controllers, services, analyzers, barrels)
+- **97/97 tests passing** ✅
+- **0 analyzer errors** ✅
 
-**Detail**: Lihat [SRP_REFACTORING_PROGRESS.md](./refactoring/SRP_REFACTORING_PROGRESS.md)
+#### File Baru yang Dibuat
+
+**Data Layer**:
+- `category_read_repository_impl.dart` - Read operations
+- `category_write_repository_impl.dart` - Write operations
+- `category_management_repository_impl.dart` - Management operations
+- `category_seeding_repository_impl.dart` - Seeding operations
+- `category_repository_adapter.dart` - Adapter pattern
+
+**Presentation Controllers**:
+- `transaction_delete_controller.dart` - Deletion logic
+- `receipt_scanning_controller.dart` - OCR coordination
+- `category_management_controller.dart` - Category management
+
+**Domain Services**:
+- `file_naming_service.dart` - File naming for exports
+- `financial_health_analyzer.dart` - Financial health analysis
+- `category_analyzer.dart` - Category breakdown analysis
+- `insight/` - 4 segregated insight services
+
+**Domain Parsers**:
+- `receipt_date_parser.dart` - Date parsing only
+- `receipt_time_parser.dart` - Time parsing only
+- `receipt_date_time_composer.dart` - DateTime composer
+
+**Utility Layers**:
+- `utils/` barrel files (responsive, formatting, theme, mixins)
+- `widgets/base/` barrel files (layout, states, effects)
+
+---
+
+## Catatan Penting
+
+### Prinsip SOLIT yang Diterapkan
+- **Single Responsibility**: Setiap class memiliki satu tanggung jawab
+- **Open/Closed**: Open for extension, closed for modification
+- **Liskov Substitution**: Subtype dapat diganti dengan base type
+- **Interface Segregation**: Interface kecil dan fokus
+- **Dependency Inversion**: Bergantung pada abstraksi, bukan konkretnya
 
 ---
 
@@ -205,11 +241,7 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
 - [DESIGN_SYSTEM_GUIDE.md](../design/DESIGN_SYSTEM_GUIDE.md) - Panduan sistem desain lengkap
 
 ### Dokumen Proyek
-- [project_resume.md](./project_resume.md) - Resume proyek lengkap
-
-### Dokumen Refactoring
-- [SRP_REFACTORING_PROGRESS.md](./refactoring/SRP_REFACTORING_PROGRESS.md) - Progress refactoring SRP
-- [SRP_VIOLATIONS_MAP.md](./refactoring/SRP_VIOLATIONS_MAP.md) - Peta pelanggaran SRP
+- [PROJECT_STATUS.md](./PROJECT_STATUS.md) - Status proyek terkini (termasuk ringkasan refactoring SRP)
 
 ### Panduan Pengembangan
 - [SOLID.md](../../../guides/SOLID.md) - Panduan prinsip SOLID
