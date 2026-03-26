@@ -31,10 +31,11 @@ class TransactionAnalyticsRepositoryImpl
   Future<Result<MonthlySummaryEntity>> getMonthlySummary(
     String yearMonth,
   ) async {
-    AppLogger.d('Fetching monthly summary: $yearMonth');
+    AppLogger.d('TransactionAnalytics: Fetching monthly summary for $yearMonth');
 
     try {
       final db = await _dbHelper.database;
+      AppLogger.d('TransactionAnalytics: Database acquired, executing query...');
 
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT
@@ -48,8 +49,10 @@ class TransactionAnalyticsRepositoryImpl
         WHERE strftime('%Y-%m', date_time) = ?
       ''', [yearMonth]);
 
+      AppLogger.d('TransactionAnalytics: Query returned ${maps.length} rows');
+
       if (maps.isEmpty) {
-        AppLogger.i('No transactions found for $yearMonth, returning empty summary');
+        AppLogger.i('TransactionAnalytics: No transactions found for $yearMonth, returning empty summary');
         return Result.success(
           MonthlySummaryEntity(
             yearMonth: yearMonth,
@@ -63,10 +66,10 @@ class TransactionAnalyticsRepositoryImpl
       }
 
       final model = MonthlySummaryModel.fromMap(maps.first);
-      AppLogger.i('Monthly summary retrieved for $yearMonth');
+      AppLogger.i('TransactionAnalytics: Monthly summary retrieved successfully for $yearMonth');
       return Result.success(model.toEntity());
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to get monthly summary', e, stackTrace);
+      AppLogger.e('TransactionAnalytics: Failed to get monthly summary', e, stackTrace);
       return Result.failure(
         DatabaseFailure('Gagal mengambil ringkasan bulanan: $e'),
       );
@@ -75,10 +78,11 @@ class TransactionAnalyticsRepositoryImpl
 
   @override
   Future<Result<MonthlySummaryEntity>> getAllTimeSummary() async {
-    AppLogger.d('Fetching all-time summary');
+    AppLogger.d('TransactionAnalytics: Fetching all-time summary');
 
     try {
       final db = await _dbHelper.database;
+      AppLogger.d('TransactionAnalytics: Database acquired for all-time summary, executing query...');
 
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT
@@ -91,8 +95,10 @@ class TransactionAnalyticsRepositoryImpl
         FROM ${DatabaseHelper.tableTransactions}
       ''');
 
+      AppLogger.d('TransactionAnalytics: All-time query returned ${maps.length} rows');
+
       if (maps.isEmpty) {
-        AppLogger.i('No transactions found, returning empty all-time summary');
+        AppLogger.i('TransactionAnalytics: No transactions found, returning empty all-time summary');
         return Result.success(
           MonthlySummaryEntity(
             yearMonth: 'all',
@@ -106,10 +112,10 @@ class TransactionAnalyticsRepositoryImpl
       }
 
       final model = MonthlySummaryModel.fromMap(maps.first);
-      AppLogger.i('All-time summary retrieved');
+      AppLogger.i('TransactionAnalytics: All-time summary retrieved successfully');
       return Result.success(model.toEntity());
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to get all-time summary', e, stackTrace);
+      AppLogger.e('TransactionAnalytics: Failed to get all-time summary', e, stackTrace);
       return Result.failure(
         DatabaseFailure('Gagal mengambil ringkasan semua data: $e'),
       );
@@ -121,10 +127,11 @@ class TransactionAnalyticsRepositoryImpl
     String yearMonth,
     TransactionType type,
   ) async {
-    AppLogger.d('Fetching category breakdown: $yearMonth, type=${type.value}');
+    AppLogger.d('TransactionAnalytics: Fetching category breakdown for $yearMonth, type=${type.value}');
 
     try {
       final db = await _dbHelper.database;
+      AppLogger.d('TransactionAnalytics: Database acquired, executing breakdown query...');
 
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT
@@ -143,8 +150,10 @@ class TransactionAnalyticsRepositoryImpl
         ORDER BY total_amount DESC
       ''', [yearMonth, type.value]);
 
+      AppLogger.d('TransactionAnalytics: Breakdown query returned ${maps.length} categories');
+
       if (maps.isEmpty) {
-        AppLogger.i('No category breakdown found for $yearMonth');
+        AppLogger.i('TransactionAnalytics: No category breakdown found for $yearMonth');
         return Result.success([]);
       }
 
@@ -157,10 +166,10 @@ class TransactionAnalyticsRepositoryImpl
           .map((map) => CategoryBreakdownModel.fromMap(map).toEntity(totalAmount))
           .toList();
 
-      AppLogger.i('Retrieved category breakdown: ${breakdown.length} categories');
+      AppLogger.i('TransactionAnalytics: Retrieved category breakdown: ${breakdown.length} categories');
       return Result.success(breakdown);
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to get category breakdown', e, stackTrace);
+      AppLogger.e('TransactionAnalytics: Failed to get category breakdown', e, stackTrace);
       return Result.failure(
         DatabaseFailure('Gagal mengambil breakdown kategori: $e'),
       );
@@ -171,10 +180,11 @@ class TransactionAnalyticsRepositoryImpl
   Future<Result<List<CategoryBreakdownEntity>>> getAllCategoryBreakdown(
     TransactionType type,
   ) async {
-    AppLogger.d('Fetching all-time category breakdown: type=${type.value}');
+    AppLogger.d('TransactionAnalytics: Fetching all-time category breakdown for type=${type.value}');
 
     try {
       final db = await _dbHelper.database;
+      AppLogger.d('TransactionAnalytics: Database acquired, executing all-time breakdown query...');
 
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT
@@ -192,8 +202,10 @@ class TransactionAnalyticsRepositoryImpl
         ORDER BY total_amount DESC
       ''', [type.value]);
 
+      AppLogger.d('TransactionAnalytics: All-time breakdown query returned ${maps.length} categories');
+
       if (maps.isEmpty) {
-        AppLogger.i('No all-time category breakdown found');
+        AppLogger.i('TransactionAnalytics: No all-time category breakdown found');
         return Result.success([]);
       }
 
@@ -207,11 +219,11 @@ class TransactionAnalyticsRepositoryImpl
           .toList();
 
       AppLogger.i(
-        'Retrieved all-time category breakdown: ${breakdown.length} categories',
+        'TransactionAnalytics: Retrieved all-time category breakdown: ${breakdown.length} categories',
       );
       return Result.success(breakdown);
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to get all-time category breakdown', e, stackTrace);
+      AppLogger.e('TransactionAnalytics: Failed to get all-time category breakdown', e, stackTrace);
       return Result.failure(
         DatabaseFailure('Gagal mengambil breakdown kategori semua data: $e'),
       );

@@ -2,6 +2,7 @@ import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/recommendation_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 // Import directly from provider files to avoid circular dependency
@@ -89,6 +90,8 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
 
   /// Load ringkasan bulanan
   Future<MonthlySummaryData> _loadSummary(String yearMonth) async {
+    AppLogger.d('Loading summary for: $yearMonth');
+
     final getMonthlySummaryUseCase = ref.read(getMonthlySummaryUseCaseProvider);
     final getCategoryBreakdownUseCase = ref.read(getCategoryBreakdownUseCaseProvider);
     final getMultiMonthSummaryUseCase = ref.read(getMultiMonthSummaryUseCaseProvider);
@@ -107,65 +110,83 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
         referenceYearMonth: yearMonth,
         monthCount: 6,
       );
-      trendData = trendResult.isSuccess ? (trendResult.data ?? []) : [];
+      if (trendResult.isFailure) {
+        final message = trendResult.failure?.message ?? 'Gagal mengambil data trend';
+        AppLogger.e('Failed to load trend data: $message');
+        // Don't throw - just show empty trend data
+        trendData = <MonthlySummaryEntity>[];
+      } else {
+        trendData = trendResult.data ?? [];
+      }
     }
 
-    // Load summary dan breakdown secara parallel
+    // Load summary dan breakdown dengan proper error handling
     MonthlySummaryEntity summary;
     List<CategoryBreakdownEntity> expenseBreakdown;
     List<CategoryBreakdownEntity> incomeBreakdown;
     DateTime? firstTransactionDate;
 
     if (isAllData) {
-      // Get all-time summary and breakdown
-      final results = await Future.wait<dynamic>([
-        getMonthlySummaryUseCase.executeAll(),
-        getCategoryBreakdownUseCase.executeAll(TransactionType.expense),
-        getCategoryBreakdownUseCase.executeAll(TransactionType.income),
-      ]);
+      // Get all-time summary and breakdown sequentially with error checking
+      AppLogger.d('Loading all-time summary and breakdowns');
 
-      summary = results[0] as MonthlySummaryEntity;
-      expenseBreakdown = results[1] as List<CategoryBreakdownEntity>;
-      incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
-
-      // Get first transaction date for month picker
-      final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
-      final transactionsResult = await getTransactionsUseCase.execute();
-      if (transactionsResult.isSuccess && transactionsResult.data != null) {
-        final transactions = transactionsResult.data!;
-        if (transactions.isNotEmpty) {
-          firstTransactionDate = transactions
-              .map((t) => t.dateTime)
-              .reduce((a, b) => a.isBefore(b) ? a : b);
-        }
+      final summaryResult = await getMonthlySummaryUseCase.executeAll();
+      if (summaryResult.isFailure) {
+        throw Exception(summaryResult.failure?.message ?? 'Gagal mengambil ringkasan semua data');
       }
+      summary = summaryResult.data!;
+
+      final expenseResult = await getCategoryBreakdownUseCase.executeAll(TransactionType.expense);
+      if (expenseResult.isFailure) {
+        throw Exception(expenseResult.failure?.message ?? 'Gagal mengambil breakdown pengeluaran');
+      }
+      expenseBreakdown = expenseResult.data ?? [];
+
+      final incomeResult = await getCategoryBreakdownUseCase.executeAll(TransactionType.income);
+      if (incomeResult.isFailure) {
+        throw Exception(incomeResult.failure?.message ?? 'Gagal mengambil breakdown pemasukan');
+      }
+      incomeBreakdown = incomeResult.data ?? [];
     } else {
-      // Load specific month data
-      final results = await Future.wait<dynamic>([
-        getMonthlySummaryUseCase.execute(yearMonth),
-        getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.expense),
-        getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.income),
-      ]);
+      // Load specific month data sequentially with error checking
+      AppLogger.d('Loading monthly summary and breakdowns for: $yearMonth');
 
-      summary = results[0] as MonthlySummaryEntity;
-      expenseBreakdown = results[1] as List<CategoryBreakdownEntity>;
-      incomeBreakdown = results[2] as List<CategoryBreakdownEntity>;
+      final summaryResult = await getMonthlySummaryUseCase.execute(yearMonth);
+      if (summaryResult.isFailure) {
+        throw Exception(summaryResult.failure?.message ?? 'Gagal mengambil ringkasan bulanan');
+      }
+      summary = summaryResult.data!;
 
-      // Get first transaction date for month picker
-      final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
-      final transactionsResult = await getTransactionsUseCase.execute();
-      if (transactionsResult.isSuccess && transactionsResult.data != null) {
-        final transactions = transactionsResult.data!;
-        if (transactions.isNotEmpty) {
-          firstTransactionDate = transactions
-              .map((t) => t.dateTime)
-              .reduce((a, b) => a.isBefore(b) ? a : b);
-        }
+      final expenseResult = await getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.expense);
+      if (expenseResult.isFailure) {
+        throw Exception(expenseResult.failure?.message ?? 'Gagal mengambil breakdown pengeluaran');
+      }
+      expenseBreakdown = expenseResult.data ?? [];
+
+      final incomeResult = await getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.income);
+      if (incomeResult.isFailure) {
+        throw Exception(incomeResult.failure?.message ?? 'Gagal mengambil breakdown pemasukan');
+      }
+      incomeBreakdown = incomeResult.data ?? [];
+    }
+
+    // Get first transaction date for month picker
+    final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
+    final transactionsResult = await getTransactionsUseCase.execute();
+    if (transactionsResult.isSuccess && transactionsResult.data != null) {
+      final transactions = transactionsResult.data!;
+      if (transactions.isNotEmpty) {
+        firstTransactionDate = transactions
+            .map((t) => t.dateTime)
+            .reduce((a, b) => a.isBefore(b) ? a : b);
+        AppLogger.d('First transaction date: $firstTransactionDate');
       }
     }
 
     // Generate recommendations
     final recommendations = insightService.generateInsights(summary, expenseBreakdown);
+
+    AppLogger.d('Summary loaded successfully for: $yearMonth');
 
     return MonthlySummaryData(
       selectedYearMonth: yearMonth,

@@ -313,6 +313,25 @@ mixin ScreenStateMixin<T extends StatefulWidget> on State<T> {
     AppLogger.i(message);
     showSuccessSnackBar(message, duration: duration);
   }
+
+  /// Handle AsyncValue error with logging and user-friendly message
+  ///
+  /// This method converts AsyncValue errors to user-friendly messages,
+  /// logs the technical error, and displays a snackbar.
+  ///
+  /// Example:
+  /// ```dart
+  /// ref.listen(provider, (previous, next) {
+  ///   if (next.hasError) {
+  ///     handleAsyncValueError(next.error, next.stackTrace);
+  ///   }
+  /// });
+  /// ```
+  void handleAsyncValueError(dynamic error, [StackTrace? stackTrace]) {
+    final userMessage = ErrorMessageMapper.getUserMessage(error);
+    AppLogger.e(userMessage, error, stackTrace);
+    showErrorSnackBar(userMessage);
+  }
 }
 
 /// GoRouter navigation extension on BuildContext
@@ -446,5 +465,24 @@ mixin ConsumerScreenStateMixin<T extends ConsumerStatefulWidget>
   }) {
     AppLogger.i(message);
     showSuccessSnackBar(message, duration: duration);
+  }
+
+  /// Handle AsyncValue error with logging and user-friendly message
+  ///
+  /// This method converts AsyncValue errors to user-friendly messages,
+  /// logs the technical error, and displays a snackbar.
+  ///
+  /// Example:
+  /// ```dart
+  /// ref.listen(provider, (previous, next) {
+  ///   if (next.hasError) {
+  ///     handleAsyncValueError(next.error, next.stackTrace);
+  ///   }
+  /// });
+  /// ```
+  void handleAsyncValueError(dynamic error, [StackTrace? stackTrace]) {
+    final userMessage = ErrorMessageMapper.getUserMessage(error);
+    AppLogger.e(userMessage, error, stackTrace);
+    showErrorSnackBar(userMessage);
   }
 }

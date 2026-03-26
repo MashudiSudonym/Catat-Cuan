@@ -1,20 +1,20 @@
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/presentation/states/transaction_form_state.dart';
-import 'package:catat_cuan/presentation/states/validators/transaction_form_validator.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
-import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
-
-import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
+import 'package:catat_cuan/presentation/controllers/transaction_form_submission_controller.dart';
 import 'package:catat_cuan/presentation/providers/transaction/transaction_list_provider.dart';
 import 'package:catat_cuan/presentation/providers/transaction/transaction_list_paginated_provider.dart';
 import 'package:catat_cuan/presentation/providers/summary/monthly_summary_provider.dart';
+import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
+import 'package:catat_cuan/presentation/states/transaction_form_state.dart';
+import 'package:catat_cuan/presentation/states/validators/transaction_form_validator.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'transaction_form_provider.g.dart';
 
-/// Provider untuk transaction form
-/// Following SRP: Only manages form state and submission
-/// Following DIP: Depends on UseCase abstractions and Validator abstraction
+/// Provider untuk transaction form state management
+///
+/// Following SRP: Only manages form state and delegates submission to controller
+/// Following DIP: Depends on UseCase abstractions and Controller abstraction
 /// Uses @riverpod annotation for modern Riverpod patterns without constructor side effects
 @riverpod
 class TransactionFormNotifier extends _$TransactionFormNotifier {
@@ -32,6 +32,17 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
       type: TransactionType.expense, // Default: Pengeluaran (AC-LOG-001.2)
       date: DateTime(now.year, now.month, now.day),
       time: now,
+    );
+  }
+
+  /// Get submission controller with strategies injected
+  TransactionFormSubmissionController _getSubmissionController() {
+    final addUseCase = ref.read(addTransactionUseCaseProvider);
+    final updateUseCase = ref.read(updateTransactionUseCaseProvider);
+
+    return TransactionFormSubmissionController(
+      addStrategy: AddTransactionStrategy(addUseCase),
+      updateStrategy: UpdateTransactionStrategy(updateUseCase),
     );
   }
 
@@ -145,90 +156,35 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
     ref.invalidateSelf();
   }
 
-  /// Submit form
+  /// Submit form using submission controller
   Future<bool> submit() async {
-    AppLogger.d('Submitting transaction form: ${state.isEditMode ? "edit" : "add"} mode');
-
-    // Validasi form (AC-LOG-002.3)
-    if (!state.isValid) {
-      AppLogger.w('Form validation failed');
-      state = state.copyWith(
-        submitError: 'Mohon lengkapi semua field yang wajib diisi',
-      );
-      return false;
-    }
-
     state = state.copyWith(
       isSubmitting: true,
       submitError: null,
     );
 
-    final addTransactionUseCase = ref.read(addTransactionUseCaseProvider);
-    final updateTransactionUseCase = ref.read(updateTransactionUseCaseProvider);
+    final controller = _getSubmissionController();
+    final success = await controller.submit(
+      state,
+      (error) {
+        state = state.copyWith(
+          submitError: error,
+          isSubmitting: false,
+        );
+      },
+    );
 
-    try {
-      // Combine date dan time
-      final dateTime = DateTime(
-        state.date!.year,
-        state.date!.month,
-        state.date!.day,
-        state.time!.hour,
-        state.time!.minute,
-      );
-
-      // Buat entity transaksi
-      final transaction = TransactionEntity(
-        id: state.editingTransaction?.id,
-        amount: state.nominal!,
-        type: state.type!,
-        dateTime: dateTime,
-        categoryId: state.categoryId!,
-        note: state.note,
-        createdAt: state.editingTransaction?.createdAt ?? DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      AppLogger.i('Executing transaction use case: '
-          '${state.type!.value} - ${state.nominal}');
-
-      // Execute use case
-      if (state.isEditMode) {
-        final result = await updateTransactionUseCase(transaction);
-        if (result.isFailure) {
-          throw Exception(result.failure?.message ?? 'Gagal mengupdate transaksi');
-        }
-        AppLogger.i('Transaction updated successfully');
-      } else {
-        final result = await addTransactionUseCase(transaction);
-        if (result.isFailure) {
-          throw Exception(result.failure?.message ?? 'Gagal menambah transaksi');
-        }
-        AppLogger.i('Transaction added successfully');
-      }
-
-      // Invalidate transaction list providers to trigger refresh
+    if (success) {
+      // Invalidate dependent providers to trigger refresh
       ref.invalidate(transactionListProvider);
       ref.invalidate(transactionListPaginatedProvider);
-
-      // Invalidate monthly summary to trigger refresh
       ref.invalidate(monthlySummaryProvider);
 
       // Reset form setelah sukses (AC-LOG-004.1)
       state = _getInitialState();
-      return true;
-    } catch (e, stackTrace) {
-      final userMessage = ErrorMessageMapper.getUserMessage(e);
-      AppLogger.e('Transaction form submit failed', e, stackTrace);
-      state = state.copyWith(
-        submitError: userMessage,
-        isSubmitting: false,
-      );
-      return false;
-    } finally {
-      if (state.submitError == null) {
-        state = state.copyWith(isSubmitting: false);
-      }
     }
+
+    return success;
   }
 
   /// Clear error

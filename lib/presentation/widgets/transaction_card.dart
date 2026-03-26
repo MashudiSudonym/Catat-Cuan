@@ -6,9 +6,15 @@ import 'package:catat_cuan/presentation/utils/formatters/transaction_formatter.d
 import 'package:intl/intl.dart';
 import '../utils/utils.dart';
 import 'base/base.dart';
+import 'transaction/transaction_amount_display.dart';
+import 'transaction/transaction_date_display.dart';
+import 'transaction/transaction_actions.dart';
+import 'transaction/transaction_selection_checkbox.dart';
 
 /// Card item untuk menampilkan transaksi dalam list
-/// Menggunakan design dari transaction_history.html reference
+///
+/// Following SRP: Only composes other widgets to display transaction
+/// Delegates formatting, actions, and selection to focused widgets
 class TransactionCard extends ConsumerWidget {
   final TransactionEntity transaction;
   final CategoryEntity category;
@@ -37,12 +43,11 @@ class TransactionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isIncome = transaction.type == TransactionType.income;
-    final amountColor = isIncome ? AppColors.income : AppColors.expense;
     final categoryColor = _getCategoryColor();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
-    final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
+    final secondaryColor = isDark
+        ? AppColors.textOnDark.withValues(alpha: 0.7)
+        : AppColors.textSecondary;
 
     return Stack(
       children: [
@@ -58,7 +63,10 @@ class TransactionCard extends ConsumerWidget {
                 children: [
                   // Checkbox in selection mode
                   if (isSelectionMode) ...[
-                    _buildCheckbox(context),
+                    TransactionSelectionCheckbox(
+                      isSelected: isSelected,
+                      onTap: onSelectionToggle,
+                    ),
                     const AppSpacingWidget.horizontalMD(),
                   ],
 
@@ -83,11 +91,8 @@ class TransactionCard extends ConsumerWidget {
                         ),
                         const AppSpacingWidget.verticalXS(),
                         // Date & Time
-                        Text(
-                          _formatDateTime(),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: secondaryColor,
-                          ),
+                        TransactionDateDisplay(
+                          transaction: transaction,
                         ),
                         // Note (if any)
                         if (transaction.note != null &&
@@ -96,7 +101,7 @@ class TransactionCard extends ConsumerWidget {
                           Text(
                             transaction.note!,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: tertiaryColor,
+                              color: AppColors.textTertiary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -107,22 +112,15 @@ class TransactionCard extends ConsumerWidget {
                   ),
 
                   // Amount
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _formatAmount(ref),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: amountColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                  TransactionAmountDisplay(transaction: transaction),
 
                   // Action Menu (only show when not in selection mode)
                   if (!isSelectionMode && (onEdit != null || onDelete != null))
-                    _buildActionMenu(context, secondaryColor),
+                    TransactionActions(
+                      onEdit: onEdit,
+                      onDelete: onDelete,
+                      iconColor: secondaryColor,
+                    ),
                 ],
               ),
             ),
@@ -149,131 +147,6 @@ class TransactionCard extends ConsumerWidget {
 
   Color _getCategoryColor() {
     return TransactionFormatter.getCategoryColor(category);
-  }
-
-  String _formatAmount(WidgetRef ref) {
-    final prefix = transaction.type == TransactionType.income ? '+' : '-';
-    return '$prefix ${transaction.amount.toCurrency(ref: ref, withPrefix: false)}';
-  }
-
-  String _formatDateTime() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final transactionDate = DateTime(
-      transaction.dateTime.year,
-      transaction.dateTime.month,
-      transaction.dateTime.day,
-    );
-
-    String datePrefix;
-    if (transactionDate == today) {
-      datePrefix = 'Hari ini';
-    } else {
-      final yesterday = today.subtract(const Duration(days: 1));
-      if (transactionDate == yesterday) {
-        datePrefix = 'Kemarin';
-      } else {
-        // Use formatter for consistent date formatting
-        final days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        final dayName = days[transaction.dateTime.weekday - 1];
-        datePrefix = '$dayName, ${transaction.dateTime.day} ${_getMonthName(transaction.dateTime.month)} ${transaction.dateTime.year}';
-      }
-    }
-
-    final time = '${transaction.dateTime.hour.toString().padLeft(2, '0')}:${transaction.dateTime.minute.toString().padLeft(2, '0')}';
-    return '$datePrefix, $time';
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
-    return months[month - 1];
-  }
-
-  Widget _buildActionMenu(BuildContext context, Color secondaryColor) {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        switch (value) {
-          case 'edit':
-            onEdit?.call();
-            break;
-          case 'delete':
-            onDelete?.call();
-            break;
-        }
-      },
-      icon: Icon(
-        Icons.more_vert,
-        color: secondaryColor,
-      ),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'edit',
-          child: Row(
-            children: [
-              const Icon(Icons.edit_outlined, size: 20),
-              const AppSpacingWidget.horizontalMD(),
-              Text(
-                'Edit',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: Row(
-            children: [
-              Icon(Icons.delete_outline, size: 20, color: AppColors.expense),
-              const AppSpacingWidget.horizontalMD(),
-              Text(
-                'Hapus',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.expense,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCheckbox(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: onSelectionToggle,
-      child: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected
-              ? AppColors.primary
-              : (isDark
-                  ? AppColors.getGlassSurface(isDark: true, alpha: 0.3)
-                  : AppColors.getGlassSurface(isDark: false, alpha: 0.5)),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : (isDark
-                    ? AppColors.textOnDark.withValues(alpha: 0.3)
-                    : AppColors.textSecondary.withValues(alpha: 0.3)),
-            width: 2,
-          ),
-        ),
-        child: isSelected
-            ? Icon(
-                Icons.check,
-                size: 16,
-                color: Colors.white,
-              )
-            : null,
-      ),
-    );
   }
 }
 
@@ -319,27 +192,19 @@ class TransactionDateHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final headerDate = DateTime(date.year, date.month, date.day);
+    final secondaryColor = isDark
+        ? AppColors.textOnDark.withValues(alpha: 0.7)
+        : AppColors.textSecondary;
 
-    String title;
-    if (customTitle != null) {
-      title = customTitle!;
-    } else if (headerDate == today) {
-      title = 'Hari ini';
-    } else {
-      final yesterday = today.subtract(const Duration(days: 1));
-      if (headerDate == yesterday) {
-        title = 'Kemarin';
-      } else {
-        title = DateFormat('dd MMMM yyyy', 'id_ID').format(date);
-      }
-    }
+    final title = _getTitle();
 
     return Padding(
-      padding: AppSpacing.only(left: AppSpacing.lg, top: AppSpacing.lg, right: AppSpacing.lg, bottom: AppSpacing.sm),
+      padding: AppSpacing.only(
+        left: AppSpacing.lg,
+        top: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.sm,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -360,6 +225,29 @@ class TransactionDateHeader extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _getTitle() {
+    if (customTitle != null) {
+      return customTitle!;
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final headerDate = DateTime(date.year, date.month, date.day);
+
+    if (headerDate == today) {
+      return 'Hari ini';
+    }
+
+    final yesterday = today.subtract(const Duration(days: 1));
+    if (headerDate == yesterday) {
+      return 'Kemarin';
+    }
+
+    // Use DateFormat for other dates
+    final formatter = DateFormat('dd MMMM yyyy', 'id_ID');
+    return formatter.format(date);
   }
 }
 
@@ -497,7 +385,9 @@ class CompactTransactionCard extends ConsumerWidget {
     final isIncome = transaction.type == TransactionType.income;
     final amountColor = isIncome ? AppColors.income : AppColors.expense;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tertiaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.5) : AppColors.textTertiary;
+    final tertiaryColor = isDark
+        ? AppColors.textOnDark.withValues(alpha: 0.5)
+        : AppColors.textTertiary;
 
     return InkWell(
       onTap: isSelectionMode ? onSelectionToggle : onTap,
@@ -508,7 +398,11 @@ class CompactTransactionCard extends ConsumerWidget {
           children: [
             // Checkbox in selection mode
             if (isSelectionMode) ...[
-              _buildCompactCheckbox(context),
+              TransactionSelectionCheckbox(
+                isSelected: isSelected,
+                onTap: onSelectionToggle,
+                isCompact: true,
+              ),
               const AppSpacingWidget.horizontalMD(),
             ],
             Text(
@@ -544,41 +438,6 @@ class CompactTransactionCard extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCompactCheckbox(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: onSelectionToggle,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected
-              ? AppColors.primary
-              : (isDark
-                  ? AppColors.getGlassSurface(isDark: true, alpha: 0.3)
-                  : AppColors.getGlassSurface(isDark: false, alpha: 0.5)),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : (isDark
-                    ? AppColors.textOnDark.withValues(alpha: 0.3)
-                    : AppColors.textSecondary.withValues(alpha: 0.3)),
-            width: 1.5,
-          ),
-        ),
-        child: isSelected
-            ? Icon(
-                Icons.check,
-                size: 14,
-                color: Colors.white,
-              )
-            : null,
       ),
     );
   }

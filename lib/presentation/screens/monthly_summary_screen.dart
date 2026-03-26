@@ -11,6 +11,8 @@ import 'package:catat_cuan/presentation/widgets/period_selector.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:go_router/go_router.dart';
 
 /// Screen untuk menampilkan ringkasan bulanan transaksi
@@ -46,7 +48,11 @@ class _MonthlySummaryScreenState
     // Setup error listener for AsyncValue
     ref.listen(monthlySummaryProvider, (previous, next) {
       if (next.hasError && previous?.hasError != next.hasError) {
-        _showErrorSnackBar(next.error.toString());
+        // Map technical error to user-friendly message
+        final userMessage = ErrorMessageMapper.getUserMessage(next.error);
+        // Log the technical error for debugging
+        AppLogger.e('Monthly summary error: ${next.error}', next.error, next.stackTrace);
+        _showErrorSnackBar(userMessage);
         notifier.clearError();
       }
     });

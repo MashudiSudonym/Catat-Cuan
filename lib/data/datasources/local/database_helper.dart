@@ -52,6 +52,18 @@ class DatabaseHelper {
     _database = null;
   }
 
+  /// Check if database is initialized and open
+  ///
+  /// Returns true if database is ready for queries, false otherwise
+  Future<bool> get isInitialized async {
+    try {
+      final db = await database;
+      return db.isOpen;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Clears all data from all tables
   ///
   /// WARNING: This is a destructive operation intended only for

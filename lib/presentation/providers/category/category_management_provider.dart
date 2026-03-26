@@ -15,7 +15,44 @@ enum CategoryManagementTab {
   inactive,
 }
 
+/// Helper class for category filtering logic
+///
+/// Following SRP: Only handles category filtering operations
+class CategoryFilterHelper {
+  /// Filter kategori berdasarkan search query
+  static List<CategoryWithCountEntity> filterBySearch(
+    List<CategoryWithCountEntity> categories,
+    String query,
+  ) {
+    if (query.isEmpty) {
+      return categories;
+    }
+
+    final lowerQuery = query.toLowerCase();
+    return categories
+        .where((cat) => cat.category.name.toLowerCase().contains(lowerQuery))
+        .toList();
+  }
+
+  /// Get kategori berdasarkan tab
+  static List<CategoryWithCountEntity> getCategoriesForTab(
+    CategoryManagementState state,
+    CategoryManagementTab tab,
+  ) {
+    switch (tab) {
+      case CategoryManagementTab.income:
+        return state.incomeCategories;
+      case CategoryManagementTab.expense:
+        return state.expenseCategories;
+      case CategoryManagementTab.inactive:
+        return state.inactiveCategories;
+    }
+  }
+}
+
 /// State untuk category management
+///
+/// Following SRP: Only manages data fields, no filtering logic
 class CategoryManagementState {
   final List<CategoryWithCountEntity> incomeCategories;
   final List<CategoryWithCountEntity> expenseCategories;
@@ -56,30 +93,10 @@ class CategoryManagementState {
   }
 
   /// Get kategori yang sedang ditampilkan berdasarkan tab dan search
+  /// Delegates filtering logic to CategoryFilterHelper
   List<CategoryWithCountEntity> get displayedCategories {
-    List<CategoryWithCountEntity> categories;
-
-    switch (selectedTab) {
-      case CategoryManagementTab.income:
-        categories = incomeCategories;
-        break;
-      case CategoryManagementTab.expense:
-        categories = expenseCategories;
-        break;
-      case CategoryManagementTab.inactive:
-        categories = inactiveCategories;
-        break;
-    }
-
-    // Filter berdasarkan search query
-    if (searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
-      categories = categories
-          .where((cat) => cat.category.name.toLowerCase().contains(query))
-          .toList();
-    }
-
-    return categories;
+    final categoriesForTab = CategoryFilterHelper.getCategoriesForTab(this, selectedTab);
+    return CategoryFilterHelper.filterBySearch(categoriesForTab, searchQuery);
   }
 
   /// Check apakah sedang searching
@@ -117,7 +134,7 @@ class CategoryManagementState {
 }
 
 /// Provider untuk category management
-/// Following SRP: Only manages category list state and operations
+/// Following SRP: Manages state and delegates operations to use cases
 /// Following DIP: Depends on UseCase abstractions
 /// Uses @riverpod annotation for modern Riverpod patterns without constructor side effects
 @riverpod

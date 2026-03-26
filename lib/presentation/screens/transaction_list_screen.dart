@@ -12,6 +12,8 @@ import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/t
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:go_router/go_router.dart';
 
 /// Screen untuk menampilkan list transaksi
@@ -364,10 +366,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ],
         ),
       ),
-      error: (error, stack) => _ErrorState(
-        error: error.toString(),
-        onRetry: () => ref.invalidate(transactionSearchProvider),
-      ),
+      error: (error, stack) {
+        // Log the error for debugging
+        AppLogger.e('Transaction search error: $error', error, stack);
+        return _ErrorState(
+          error: error.toString(),
+          onRetry: () => ref.invalidate(transactionSearchProvider),
+        );
+      },
       data: (transactions) {
         if (transactions.isEmpty) {
           return _buildNoSearchResults(context, ref);
@@ -627,8 +633,14 @@ class _ErrorState extends StatelessWidget {
     required this.onRetry,
   });
 
+  /// Get user-friendly error message
+  String get userMessage => ErrorMessageMapper.getUserMessage(error);
+
   @override
   Widget build(BuildContext context) {
+    // Log the technical error for debugging
+    AppLogger.e('Transaction list error: $error');
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryColor = isDark ? AppColors.textOnDark.withValues(alpha: 0.7) : AppColors.textSecondary;
     return Center(
@@ -657,7 +669,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const AppSpacingWidget.verticalSM(),
             Text(
-              error,
+              userMessage,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: secondaryColor,

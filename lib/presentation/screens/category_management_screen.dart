@@ -5,6 +5,8 @@ import 'package:catat_cuan/presentation/widgets/category_list_item.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
@@ -296,6 +298,12 @@ class _CategoryManagementScreenState
   }
 
   Widget _buildErrorState(String error) {
+    // Log the technical error for debugging
+    AppLogger.e('Category management error: $error');
+
+    // Map to user-friendly message
+    final userMessage = ErrorMessageMapper.getUserMessage(error);
+
     return Center(
       child: Padding(
         padding: AppSpacing.xxlAll,
@@ -322,7 +330,7 @@ class _CategoryManagementScreenState
             ),
             const AppSpacingWidget.verticalSM(),
             Text(
-              error,
+              userMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey,
                   ),
