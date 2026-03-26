@@ -26,7 +26,10 @@ class ValidationFailure extends Failure {
 
 /// Failure for database operation errors (e.g., SQLite errors, constraint violations)
 class DatabaseFailure extends Failure {
-  const DatabaseFailure(super.message);
+  /// Optional underlying exception for debugging
+  final Object? exception;
+
+  const DatabaseFailure(super.message, {this.exception});
 }
 
 /// Failure for network-related errors (e.g., no internet, timeout)

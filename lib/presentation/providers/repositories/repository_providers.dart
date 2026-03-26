@@ -1,9 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
-import 'package:catat_cuan/data/repositories/category_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/category/category_read_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/category/category_write_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/category/category_management_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/category/category_seeding_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/category/category_repository_adapter.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_repository_adapter.dart';
 import 'package:catat_cuan/data/repositories/transaction_repository_impl.dart';
 import 'package:catat_cuan/domain/repositories/category_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_management_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_seeding_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_repositories.dart';
 
@@ -78,8 +86,64 @@ final transactionExportRepositoryProvider = Provider<TransactionExportRepository
   return ref.read(_transactionRepositoryAdapterProvider);
 });
 
-/// Provider untuk CategoryRepository
+/// Provider untuk CategoryRepository (legacy monolithic interface)
+///
+/// @deprecated Use segregated repository providers below for new code
 /// Following DIP: Provides abstraction (CategoryRepository), not concrete implementation
+@Deprecated('Use segregated category repository providers instead')
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
-  return CategoryRepositoryImpl(ref.read(databaseHelperProvider));
+  // Use the adapter that combines segregated repositories
+  return ref.read(_categoryRepositoryAdapterProvider);
+});
+
+/// Provider untuk CategoryRepositoryAdapter
+///
+/// Internal provider that creates the adapter combining the segregated implementations.
+/// This is used by the legacy categoryRepositoryProvider for backward compatibility.
+final _categoryRepositoryAdapterProvider = Provider<CategoryRepositoryAdapter>((ref) {
+  return CategoryRepositoryAdapter(
+    ref.read(categoryReadRepositoryProvider),
+    ref.read(categoryWriteRepositoryProvider),
+    ref.read(categoryManagementRepositoryProvider),
+    ref.read(categorySeedingRepositoryProvider),
+  );
+});
+
+/// ============================================================================
+/// Segregated Category Repository Providers
+/// ============================================================================
+
+/// Provider untuk CategoryReadRepository (segregated interface)
+///
+/// Provides only read operations for categories
+/// Use this when you only need to query category data
+final categoryReadRepositoryProvider = Provider<CategoryReadRepository>((ref) {
+  return CategoryReadRepositoryImpl(ref.read(databaseHelperProvider));
+});
+
+/// Provider untuk CategoryWriteRepository (segregated interface)
+///
+/// Provides only write operations for categories
+/// Use this when you only need to create/update/delete categories
+final categoryWriteRepositoryProvider =
+    Provider<CategoryWriteRepository>((ref) {
+  return CategoryWriteRepositoryImpl(ref.read(databaseHelperProvider));
+});
+
+/// Provider untuk CategoryManagementRepository (segregated interface)
+///
+/// Provides management operations for categories (reactivate, reorder)
+/// Use this when you need to manage category status and ordering
+final categoryManagementRepositoryProvider =
+    Provider<CategoryManagementRepository>((ref) {
+  return CategoryManagementRepositoryImpl(ref.read(databaseHelperProvider));
+});
+
+/// Provider untuk CategorySeedingRepository (segregated interface)
+///
+/// Provides seeding operations for default categories
+/// Use this when you need to seed initial category data
+final categorySeedingRepositoryProvider =
+    Provider<CategorySeedingRepository>((ref) {
+  return CategorySeedingRepositoryImpl(ref.read(databaseHelperProvider));
 });

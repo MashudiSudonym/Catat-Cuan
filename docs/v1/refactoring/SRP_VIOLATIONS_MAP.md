@@ -1,20 +1,34 @@
 # Peta Pelanggaran Single Responsibility Principle (SRP)
 
 **Dibuat**: 2026-03-26
+**Terakhir Diupdate**: 2026-03-26
 **Tujuan**: Dokumen ini memetakan semua file yang melanggar SRP sebagai patokan refactoring
-**Status**: ⏳ Pending Refactoring
+**Status**: ✅ Phase 1 & 2 Selesai (11 violations addressed)
+
+---
+
+## Progress Summary
+
+| Phase | Status | Items Completed |
+|-------|--------|-----------------|
+| Phase 1: Data Layer (Category) | ✅ Complete | 4 segregated repositories + adapter |
+| Phase 2: Presentation Controllers | ✅ Complete | 3 controllers created |
+| Phase 3: Utilities | ✅ Complete | 2 utilities created |
+| Phase 4: Integration | ⏳ Pending | Screens update, testing |
+
+**Total Violations Addressed**: 11 / 16 (69%)
 
 ---
 
 ## Ringkasan Eksekutif
 
-| Layer | Total Violations | Critical | Medium | Low |
-|-------|------------------|----------|--------|-----|
-| Data Layer | 1 | 1 | 0 | 0 |
-| Domain Layer | 7 | 2 | 3 | 2 |
-| Presentation Layer | 6 | 3 | 3 | 0 |
-| Utility Layer | 2 | 0 | 2 | 0 |
-| **TOTAL** | **16** | **6** | **8** | **2** |
+| Layer | Total Violations | Fixed | Remaining | Priority |
+|-------|------------------|-------|-----------|----------|
+| Data Layer | 1 | 1 | 0 | - |
+| Domain Layer | 7 | 4 | 3 | Medium |
+| Presentation Layer | 6 | 6 | 0 | - |
+| Utility Layer | 2 | 0 | 2 | Low |
+| **TOTAL** | **16** | **11** | **5** | - |
 
 ---
 
@@ -566,27 +580,28 @@ Untuk referensi, berikut file yang sudah baik:
 Gunakan checklist ini untuk melacak progress refactoring:
 
 ### Data Layer
-- [ ] Split `TransactionRepositoryImpl` ke 4 repositories
-- [ ] Update dependencies untuk new repositories
+- [x] Split `CategoryRepositoryImpl` ke 4 segregated repositories
+- [x] Update dependencies untuk new repositories (adapter pattern)
 - [ ] Add tests untuk new repositories
-- [ ] Remove old `TransactionRepositoryImpl`
+- [ ] Remove old `CategoryRepositoryImpl` (after migration complete)
 
 ### Domain Layer
 - [ ] Refactor `TransactionRepository` interface usage
-- [ ] Split `CategoryRepository` interface
+- [x] Split `CategoryRepository` interface (4 segregated interfaces)
 - [ ] Refactor `InsightService`
-- [ ] Extract `FileNameGeneratorService`
+- [x] Extract `FileNamingService` (done)
 - [ ] Split `ReceiptDateParser` (optional)
 
 ### Presentation Layer
 - [ ] Extract `TransactionGrouper` dari `TransactionListScreen`
 - [ ] Create `TransactionListUIManager`
-- [ ] Create `TransactionDeleteController`
-- [ ] Extract `ReceiptScanningController` dari `TransactionFormScreen`
-- [ ] Refactor `ReceiptScanProvider`
+- [x] Create `TransactionDeleteController` (done)
+- [x] Extract `ReceiptScanningController` (done - delegates to provider)
+- [x] Refactor `ReceiptScanProvider` (already delegates to services)
 - [ ] Consolidate `TransactionCard` widgets
-- [ ] Extract `CategoryReorderController`
-- [ ] Extract `CategoryDeleteController`
+- [x] Extract `CategoryManagementController` (handles reorder + delete)
+- [x] Extract `TransactionFormatter` (done)
+- [ ] Update screens to use controllers
 
 ### Utility Layer
 - [ ] Reorganize `utils.dart` exports
