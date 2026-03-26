@@ -1,11 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/usecases/add_category_usecase.dart';
 import 'package:catat_cuan/domain/usecases/deactivate_category_usecase.dart';
-import 'package:catat_cuan/domain/usecases/get_categories.dart';
-import 'package:catat_cuan/domain/usecases/get_categories_with_count_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_categories_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_categories_by_type_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_category_by_id_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_categories_with_count_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_categories_by_type_with_count_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/get_inactive_categories_with_count_usecase.dart';
 import 'package:catat_cuan/domain/usecases/reactivate_category_usecase.dart';
 import 'package:catat_cuan/domain/usecases/reorder_categories_usecase.dart';
-import 'package:catat_cuan/domain/usecases/search_categories_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/search_categories_usecase.dart';
+import 'package:catat_cuan/domain/usecases/category/search_categories_by_type_usecase.dart';
 import 'package:catat_cuan/domain/usecases/update_category_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 

@@ -1,6 +1,6 @@
 import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/domain/usecases/get_transactions.dart';
+import 'package:catat_cuan/domain/usecases/transaction/transaction_filter_params.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
