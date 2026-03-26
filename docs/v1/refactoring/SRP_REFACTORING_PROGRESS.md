@@ -1,7 +1,7 @@
 # SRP Refactoring Progress Summary
 
 **Date**: 2026-03-26
-**Status**: ✅ Phase 1-4 Complete | Phase 5 Pending
+**Status**: ✅ Phase 1-5 Complete | Phase 6 Optional (LOW priority)
 **Based on**: `docs/v1/refactoring/SRP_VIOLATIONS_MAP.md`
 
 ---
@@ -67,6 +67,26 @@ Created 3 focused controllers:
 - ✅ Analyzer clean (0 new warnings)
 - ✅ Manual testing completed
 
+### Phase 5: Utility Layer ✅
+
+#### Utility Exports Reorganization
+
+**utils.dart** - Domain-specific barrel files:
+- ✅ `responsive/responsive_utils.dart` (spacing, radius, dimensions, responsive)
+- ✅ `formatting/formatting_utils.dart` (dates, currency, colors, categories)
+- ✅ `theme/theme_utils.dart` (glassmorphism, app theming)
+- ✅ `mixins/mixin_utils.dart` (screen state management)
+
+**base.dart** - Purpose-specific barrel files:
+- ✅ `layout/layout_base.dart` (containers, FAB)
+- ✅ `states/state_base.dart` (loading, empty, error, initial)
+- ✅ `effects/effect_base.dart` (shimmer, animations)
+
+#### Benefits
+- More focused imports possible
+- Better code organization
+- Backward compatibility maintained (main barrel files still work)
+
 ---
 
 ## New Files Created
@@ -85,38 +105,53 @@ lib/
 │   └── category_management_controller.dart
 ├── presentation/providers/controllers/
 │   └── controller_providers.dart  # NEW: Controller providers
-├── presentation/utils/formatters/
-│   └── transaction_formatter.dart
+├── presentation/utils/
+│   ├── responsive/
+│   │   └── responsive_utils.dart  # NEW: Responsive barrel
+│   ├── formatting/
+│   │   └── formatting_utils.dart  # NEW: Formatting barrel
+│   ├── theme/
+│   │   └── theme_utils.dart  # NEW: Theme barrel
+│   ├── mixins/
+│   │   └── mixin_utils.dart  # NEW: Mixin barrel
+│   └── formatters/
+│       └── transaction_formatter.dart
+├── presentation/widgets/base/
+│   ├── layout/
+│   │   └── layout_base.dart  # NEW: Layout barrel
+│   ├── states/
+│   │   └── state_base.dart  # NEW: State barrel
+│   ├── effects/
+│   │   └── effect_base.dart  # NEW: Effect barrel
+│   └── base.dart  # Updated: Re-exports from barrels
 └── domain/services/
-    └── file_naming_service.dart
+    ├── file_naming_service.dart
+    └── insight/  # Already existed - Insight service segregation
+        ├── insight_configuration_service.dart
+        ├── insight_rule_engine.dart
+        ├── recommendation_formatter_service.dart
+        └── summary_insight_service.dart
 ```
 
 ---
 
-## Remaining Work (Phase 5)
+## Remaining Work (Phase 6 - Optional LOW Priority)
 
-### Domain Layer (3 violations)
+### Domain Layer (3 violations - Optional)
 
-1. **🟡 MEDIUM: `InsightService`** (2.3 in violations map)
-   - Needs: Extract rule engine, message service, formatter
+1. **🟢 LOW: `ReceiptDateParser`** (2.5 in violations map)
+   - Current: Handles both date and time parsing in one class
+   - Optional: Split into `ReceiptDateParser` and `ReceiptTimeParser`
+   - Note: Current implementation is acceptable and well-tested
 
-2. **🟢 LOW: `ReceiptDateParser`** (2.5 in violations map)
-   - Needs: Split date/time parsing (optional)
+2. **🟢 LOW: Entity Business Logic** (2.6 in violations map)
+   - Current: Entities contain derived properties (expensePercentage, isHealthy, etc.)
+   - Optional: Move to dedicated analyzer services
+   - Note: This is debated - entities with derived properties can be acceptable
 
-3. **🟢 LOW: Entity Business Logic** (2.6 in violations map)
-   - Needs: Move business logic from entities to services (debated if necessary)
+**Note**: `InsightService` (2.3) and `ExportTransactionsUseCase` (2.4) were already fixed ✅
 
-### Utility Layer (2 violations)
-
-1. **🟡 MEDIUM: `utils.dart`** (4.1 in violations map)
-   - Needs: Split exports by domain (responsive, formatting, theme, mixins)
-
-2. **🟡 MEDIUM: `base.dart`** (4.2 in violations map)
-   - Needs: Organize exports by purpose (layout, states, effects)
-
-**Note**: `ExportTransactionsUseCase` (2.4) was fixed in Phase 4 via `FileNamingService` extraction ✅
-
-**Total Remaining**: 4 violations (3 MEDIUM, 1 LOW priority)
+**Total Remaining**: 2 violations (all LOW priority, optional)
 
 ---
 
@@ -149,7 +184,8 @@ All changes maintain backward compatibility:
 | CategoryRepositoryImpl | 571 lines | 4 files, avg ~180 lines | 68% reduction per file |
 | Deletion logic in screens | ~100 lines | 1 controller (130 lines) | Reusable across screens |
 | Formatting duplication | ~200 lines | 1 formatter (230 lines) | Centralized, reusable |
-| **SRP Violations Addressed** | 0 / 16 | 11 / 16 (69%) | **Phase 1-4 complete** |
+| Utility exports | 2 monolithic files | 10 domain/purpose-specific barrel files | Better organization |
+| **SRP Violations Addressed** | 0 / 16 | 13 / 16 (81%) | **Phase 1-5 complete** |
 
 ---
 
@@ -163,5 +199,5 @@ All changes maintain backward compatibility:
 
 ---
 
-**Status**: Phase 1-4 Complete ✅ | Ready for Phase 5 (Domain & Utility layers)
-**Estimated Time for Phase 5**: 4-6 hours
+**Status**: Phase 1-5 Complete ✅ | Phase 6 Optional (LOW priority - 2 violations remaining)
+**Violations Addressed**: 13 / 16 (81%) | **Remaining**: 2 LOW priority (optional)

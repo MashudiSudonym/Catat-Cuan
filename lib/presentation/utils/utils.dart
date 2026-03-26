@@ -1,25 +1,20 @@
 /// Utility exports for easy importing
+///
+/// This file re-exports from domain-specific barrel files:
+/// - Responsive utilities (spacing, radius, dimensions, responsive)
+/// - Formatting utilities (dates, currency, colors, categories)
+/// - Theme utilities (glassmorphism, app theming)
+/// - Mixin utilities (screen state management)
+///
+/// For more focused imports, you can import from the specific barrel files:
+/// - `responsive/responsive_utils.dart`
+/// - `formatting/formatting_utils.dart`
+/// - `theme/theme_utils.dart`
+/// - `mixins/mixin_utils.dart`
 library;
 
-// Responsive utilities
-export 'responsive/app_spacing.dart';
-export 'responsive/app_radius.dart';
-export 'responsive/app_dimensions.dart';
-export 'responsive/responsive_builder.dart';
-
-// Formatters
-export 'formatters/app_date_formatter.dart';
-export 'currency_formatter.dart';
-export 'color_helper.dart';
-export 'category_constants.dart';
-
-// Mixins
-export 'mixins/screen_mixin.dart';
-
-// Glassmorphism
-export 'glassmorphism/app_glassmorphism.dart';
-export 'glassmorphism/notch_shape.dart';
-
-// Theme
-export 'app_theme.dart';
-export 'app_colors.dart';
+// Domain-specific barrel exports
+export 'responsive/responsive_utils.dart';
+export 'formatting/formatting_utils.dart';
+export 'theme/theme_utils.dart';
+export 'mixins/mixin_utils.dart';

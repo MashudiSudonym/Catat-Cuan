@@ -1,12 +1,17 @@
 /// Base widgets for consistent UI components
-/// This file exports all base widgets for easy importing
+///
+/// This file re-exports from purpose-specific barrel files:
+/// - Layout widgets (containers, FAB)
+/// - State widgets (loading, empty, error, initial)
+/// - Effect widgets (shimmer, animations)
+///
+/// For more focused imports, you can import from the specific barrel files:
+/// - `layout/layout_base.dart`
+/// - `states/state_base.dart`
+/// - `effects/effect_base.dart`
 library;
 
-export 'app_container.dart';
-export 'app_empty_state.dart';
-export 'app_error_state.dart';
-export 'app_glass_container.dart';
-export 'app_initial_state.dart';
-export 'app_loading_state.dart';
-export 'app_shimmer.dart';
-export 'seamless_fab.dart';
+// Purpose-specific barrel exports
+export 'layout/layout_base.dart';
+export 'states/state_base.dart';
+export 'effects/effect_base.dart';

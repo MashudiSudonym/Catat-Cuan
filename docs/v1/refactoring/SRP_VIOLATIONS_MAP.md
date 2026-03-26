@@ -3,7 +3,7 @@
 **Dibuat**: 2026-03-26
 **Terakhir Diupdate**: 2026-03-26
 **Tujuan**: Dokumen ini memetakan semua file yang melanggar SRP sebagai patokan refactoring
-**Status**: ✅ Phase 1-4 Selesai (11 violations addressed) | Phase 5 Pending
+**Status**: ✅ Phase 1-5 Selesai (13 violations addressed) | Phase 6 Pending (LOW priority)
 
 ---
 
@@ -13,11 +13,12 @@
 |-------|--------|-----------------|
 | Phase 1: Data Layer (Category) | ✅ Complete | 4 segregated repositories + adapter |
 | Phase 2: Presentation Controllers | ✅ Complete | 3 controllers created |
-| Phase 3: Utilities | ✅ Complete | 2 utilities created |
+| Phase 3: Utilities & Services | ✅ Complete | TransactionFormatter, FileNamingService |
 | Phase 4: Integration | ✅ Complete | Screens updated, testing passed |
-| Phase 5: Domain & Utility Layers | ⏳ Pending | 5 remaining violations |
+| Phase 5: Utility Layer | ✅ Complete | utils.dart & base.dart reorganized |
+| Phase 6: Domain Layer (LOW) | ⏳ Optional | 3 remaining violations (optional) |
 
-**Total Violations Addressed**: 11 / 16 (69%) - **Phase 1-4 Complete**
+**Total Violations Addressed**: 13 / 16 (81%) - **Phase 1-5 Complete**
 
 ---
 
@@ -605,8 +606,8 @@ Gunakan checklist ini untuk melacak progress refactoring:
 - [x] Update screens to use controllers (done - Phase 4)
 
 ### Utility Layer
-- [ ] Reorganize `utils.dart` exports
-- [ ] Reorganize `base.dart` exports
+- [x] Reorganize `utils.dart` exports by domain (responsive, formatting, theme, mixins)
+- [x] Reorganize `base.dart` exports by purpose (layout, states, effects)
 
 ---
 
