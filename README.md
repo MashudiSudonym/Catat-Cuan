@@ -6,11 +6,14 @@
 
   **Aplikasi Pencatatan Keuangan Pribadi dengan AI Smart Scan**
 
-  [![Flutter](https://img.shields.io/badge/Flutter-3.24+-02569B?logo=flutter)](https://flutter.dev)
+  [![Flutter](https://img.shields.io/badge/Flutter-3.5+-02569B?logo=flutter)](https://flutter.dev)
   [![Dart](https://img.shields.io/badge/Dart-3.5+-0175C2?logo=dart)](https://dart.dev)
+  [![Riverpod](https://img.shields.io/badge/Riverpod-3.3.1-0A8FFF?logo=flutter)](https://riverpod.dev)
   [![AI/ML](https://img.shields.io/badge/AI%2FML-Google%20ML%20Kit-F59E0B?logo=tensorflow)](https://developers.google.com/ml-kit)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
+  [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
+  [![Tests](https://img.shields.io/badge/Tests-97%2F97%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
 
   [English](#english) | [Indonesia](#indonesia)
 
@@ -35,383 +38,165 @@ Catat Cuan hadir untuk memberikan **kendali sadar** atas keuangan pribadimu. Buk
 #### 🤖 **AI Smart Scan - Pindai Struk dengan Kecerdasan Buatan!**
 > "Dari buka kamera sampai nominal terisi ≤ 30 detik - Powered by On-Device AI"
 
-- **Neural Network Text Recognition** - Menggunakan model AI terlatih Google untuk membaca teks dari struk dengan akurasi tinggi
-- **Smart Amount Detection** - AI secara cerdas mengenali pola "Total", "Jumlah", "Grand Total" dan mengekstrak nominal secara otomatis
-- **Multi-Format Support** - AI mengenali berbagai format mata uang Indonesia (Rp 50.000, 50.000, 50.000,00)
-- **Foto struk kertas** langsung dari aplikasi
-- **Pilih dari galeri** untuk screenshot struk digital
-- **100% On-Device AI Processing** - Privasi terjaga, data struk tidak pernah dikirim ke server cloud
-- **Edit jika perlu** - kamu tetap memiliki kontrol penuh atas hasil AI
+- **Neural Network Text Recognition** - Google ML Kit untuk membaca struk dengan akurasi tinggi
+- **Smart Amount Detection** - AI mengenali pola "Total", "Jumlah", "Grand Total"
+- **Multi-Format Support** - Mengenali format mata uang Indonesia (Rp 50.000, 50.000, dll)
+- **100% On-Device** - Privasi terjaga, data tidak dikirim ke server
 
 #### 💸 **Pencatatan Transaksi Tanpa Batas**
-- **Unlimited transactions** - catat sebanyak apapun tanpa batasan
+- **Unlimited transactions** - catat sebanyak apapun
 - **Input manual cepat** - selesai dalam ≤ 20 detik
-- **Smart defaults** - tipe, tanggal, dan waktu terisi otomatis
 - **Kategorisasi fleksibel** - atur kategori sesuai kebutuhanmu
 
-#### 📊 **Dashboard & Insight Bulanan dengan AI Analytics**
-> "Jawab 'Aku boros di mana?' dalam satu layar - Powered by AI"
-
+#### 📊 **Dashboard & Insight Bulanan**
 - **Ringkasan bulanan**: Total pemasukan, pengeluaran, dan saldo
-- **Top kategori pengeluaran** dengan persentase & rata-rata
-- **Visualisasi data** dengan chart yang mudah dipahami
-- **🤖 AI-Powered Smart Recommendations**:
-  - *"Kategori Makanan menyumbang 45% dari pengeluaranmu"* (Pattern Recognition)
-  - *"Jika kamu mengurangi 20% pengeluaran di kategori Transport, saldo bulananmu akan naik Rp 500.000"* (Predictive Analysis)
+- **Top kategori** dengan persentase & visualisasi chart
+- **AI-Powered Recommendations** - Insight personal dari pola pengeluaranmu
 
 #### 🏷️ **Manajemen Kategori Penuh**
-- **Kategori default** siap pakai (Makan, Transport, Langganan, dll)
-- **Custom kategori** dengan warna & icon sesuai style-mu
+- **Kategori default** siap pakai
+- **Custom kategori** dengan warna & icon
 - **Drag & drop reorder** - atur urutan sesuai preferensi
-- **Soft delete** - nonaktifkan kategori tanpa kehilangan histori
 
-#### 🎨 **Desain Glassmorphism yang Modern**
-- **UI frosted glass** yang elegan dengan tema orange
-- **Responsive design** - sempurna di mobile, tablet, dan desktop
-- **Dark mode ready** - nyaman di mata kapan saja
-- **Animasi smooth** - pengalaman pengguna yang premium
+#### 🎨 **Desain Glassmorphism Modern**
+- **UI frosted glass** dengan tema orange
+- **Responsive design** - mobile, tablet, desktop
+- **Smooth animations** - pengalaman premium
 
 ---
 
-### 🎯 Target Pengguna
+### 🚀 Teknologi & Arsitektur
 
-Catat Cuan dirancang khusus untuk:
+#### Tech Stack (Updated)
+| Komponen | Teknologi | Versi |
+|----------|-----------|-------|
+| **Framework** | Flutter | 3.5+ |
+| **Bahasa** | Dart | 3.5+ |
+| **State Management** | Riverpod | 3.3.1 (with @riverpod) |
+| **Immutable Data** | Freezed | 3.2.5 |
+| **Navigation** | GoRouter | 17.1.0 |
+| **Database** | SQLite | SchemaManager v2 |
+| **🤖 AI/ML** | Google ML Kit | 0.15.1 (On-Device) |
 
-- **Profesional dengan income campuran** (gaji, freelance, side business)
-- **Orang yang sering bertransaksi** dengan berbagai metode (cash, e-wallet, kartu)
-- **Mereka yang ingin sadar finansial** tanpa ribet
-- **Penggemar teknologi** yang menghargai efisiensi dan privasi
-
----
-
-### 🚀 Cara Kerja
-
-```mermaid
-graph LR
-    A[Transaksi Baru] --> B{Pilih Input}
-    B -->|Manual| C[Isi Form]
-    B -->|Struk| D[Foto/Pilih Gambar]
-    D --> E[AI Processing]
-    E --> F[Neural Network Text Recognition]
-    F --> G[Smart Amount Extraction]
-    G --> H[Nominal Terdeteksi]
-    C --> I[Pilih Kategori]
-    H --> I
-    I --> J[Simpan]
-    J --> K[AI Analytics]
-    K --> L[Insight & Rekomendasi Cerdas]
-```
-
-**Flow Cepat:**
-1. Buka aplikasi → 1 tap
-2. Pilih input (manual/struk) → 1 tap
-3. Foto struk → AI memproses → nominal terotomatisasi (5-10 detik)
-4. Pilih kategori → 1-2 tap
-5. Selesai! Data tercatat dan dianalisis oleh AI engine
-
----
-
-### 🏗️ Teknologi & Arsitektur
-
-#### Tech Stack
-| Komponen | Teknologi |
-|----------|-----------|
-| **Framework** | Flutter 3.24+ |
-| **Bahasa** | Dart 3.5+ |
-| **State Management** | Riverpod 2.6.1 (AsyncNotifier) |
-| **Database** | SQLite (on-device) |
-| **🤖 AI/ML Engine** | Google ML Kit Vision API (On-Device Neural Network) |
-| **Charts** | fl_chart |
-| **Code Generation** | build_runner |
-
-#### Clean Architecture
+#### Clean Architecture dengan 100% SRP Compliance
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    PRESENTATION LAYER                       │
-│  ┌─────────┐  ┌──────────┐  ┌────────┐  ┌─────────────┐  │
-│  │ Screens │  │ Widgets  │  │Providers│  │   Utils     │  │
-│  └─────────┘  └──────────┘  └────────┘  └─────────────┘  │
+│  (Providers, Screens, Widgets, Controllers, Utils)         │
 │                     ↓ depends on ↓                          │
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                      DOMAIN LAYER                           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────┐            │
-│  │ Entities │  │ UseCases │  │ Repositories │  ← ABSTRACTIONS│
-│  └──────────┘  └──────────┘  └──────────────┘            │
+│                    DOMAIN LAYER                            │
+│  (Entities, UseCases, Repository Interfaces) ← ABSTRACTIONS │
 │                     ↑ implemented by ↑                      │
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                       DATA LAYER                            │
-│  ┌──────────────┐  ┌─────────────┐  ┌──────────────┐      │
-│  │ DataSources  │  │  Models     │  │Repositories  │  ← CONCRETE│
-│  └──────────────┘  └─────────────┘  └──────────────┘      │
+│                    DATA LAYER                              │
+│  (Repository Implementations, DataSources) ← CONCRETE      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Prinsip SOLID:**
-- **SRP**: Setiap UseCase melakukan satu operasi bisnis
-- **OCP**: Repository pattern untuk extensibility
-- **LSP**: UseCase dapat saling substitusi
-- **ISP**: Interface terpisah untuk ImagePicker, TextExtractor, PermissionHandler
-- **DIP**: Dependency injection melalui Riverpod providers
-
-#### Design System
-```dart
-// Spacing berbasis 4px grid
-AppSpacing.lg  // 16px - gunakan ini, bukan hardcoded 16.0
-
-// Border radius konsisten
-AppRadius.md   // 12px - gunakan ini, bukan hardcoded 12.0
-
-// Glassmorphism container
-AppGlassContainer.glassCard(
-  child: YourWidget(),
-)
-
-// Formatter terpusat
-AppDateFormatter.formatDayMonthYearDate(date)  // "13 Jan 2024"
-amount.toRupiah()  // "1.000.000"
-```
-
-#### Database Schema
-```sql
--- Categories Table
-CREATE TABLE categories (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
-  color TEXT,
-  icon TEXT,
-  sort_order INTEGER,
-  is_active BOOLEAN DEFAULT 1,
-  created_at TEXT,
-  updated_at TEXT
-);
-
-CREATE INDEX idx_category_type ON categories(type);
-CREATE INDEX idx_category_active ON categories(is_active);
-
--- Transactions Table
-CREATE TABLE transactions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  amount REAL NOT NULL CHECK(amount > 0),
-  type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
-  date_time TEXT NOT NULL,
-  category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-  note TEXT,
-  created_at TEXT,
-  updated_at TEXT
-);
-
-CREATE INDEX idx_transaction_date ON transactions(date_time DESC);
-CREATE INDEX idx_transaction_category ON transactions(category_id);
-CREATE INDEX idx_transaction_type ON transactions(type);
-CREATE INDEX idx_transaction_month_type ON transactions(strftime('%Y-%m', date_time), type);
-```
-
-#### 🤖 AI-Powered Features
-
-Catat Cuan menggunakan teknologi **Artificial Intelligence (AI)** dan **Machine Learning (ML)** terkini untuk memberikan pengalaman pengguna yang cerdas dan efisien.
-
-##### Smart Text Extraction dengan Neural Network
-```dart
-// AI Engine: Google ML Kit Vision API
-// Menggunakan model neural network on-device yang sudah dilatih
-// untuk mengenali teks Latin dengan akurasi >95%
-
-final textRecognizer = GoogleMlKit.vision.textRecognizer();
-
-// Proses AI
-final RecognisedText recognisedText = await textRecognizer.processImage(inputImage);
-
-// Smart Amount Extraction dengan AI
-// AI mencari pola "Total", "Jumlah", "Grand Total"
-// dan mengekstrak nominal dengan pattern matching cerdas
-final String extractedAmount = _aiService.extractTotalAmount(recognisedText.text);
-```
-
-**Keunggulan AI On-Device:**
-- ⚡ **Ultra-fast**: Proses ≤ 5 detik tanpa koneksi internet
-- 🔒 **Privacy-first**: Data struk tidak pernah meninggalkan device-mu
-- 🎯 **High Accuracy**: Tingkat keberhasilan ekstraksi nominal ≥ 80%
-- 🌐 **Multi-format**: Mengenali berbagai format struk Indonesia
-- 💾 **No Cloud Costs**: Tidak ada biaya server/API call
-
-##### AI Analytics & Smart Recommendations
-```dart
-// AI Recommendation Engine
-class InsightAIEngine {
-  // Analisis pola pengeluaran dengan rule-based AI
-  List<Recommendation> generateInsights(TransactionData data) {
-    final insights = <Recommendation>[];
-
-    // AI Rule 1: Deteksi kategori berlebihan
-    if (data.categoryPercentage > 40%) {
-      insights.add(Recommendation(
-        type: InsightType.overSpending,
-        message: "Kategori ${data.category} menyumbang ${data.percentage}% "
-                  "dari total pengeluaranmu. Pertimbangkan untuk mengurangi.",
-        priority: Priority.high,
-      ));
-    }
-
-    // AI Rule 2: Prediksi potensi penghematan
-    final potentialSavings = data.calculatePotentialSavings(reduction: 0.2);
-    insights.add(Recommendation(
-      type: InsightType.savingsPotential,
-      message: "Jika kamu mengurangi 20% pengeluaran di kategori ${data.category}, "
-                "saldo bulananmu akan naik sekitar Rp ${potentialSavings.toRupiah()}.",
-      priority: Priority.medium,
-    ));
-
-    return insights;
-  }
-}
-```
-
-**AI Recommendation Capabilities:**
-- 📊 **Pattern Recognition**: Mengenali pola pengeluaran tidak sehat
-- 💡 **Actionable Insights**: Rekomendasi konkret yang bisa langsung diterapkan
-- 📈 **Predictive Analysis**: Prediksi dampak penghematan terhadap saldo
-- 🎯 **Personalized**: Rekomendasi disesuaikan dengan data keuanganmu
+**Repository Segregation Pattern:**
+- **Category**: 4 interfaces (Read, Write, Management, Seeding)
+- **Transaction**: 6+ interfaces (Read, Write, Query, Search, Analytics, Export)
 
 ---
 
-### 📦 Instalasi & Penggunaan
+### 📦 Quick Start
 
-#### Prasyarat
-- Flutter SDK 3.24 atau lebih baru
-- Dart SDK 3.5 atau lebih baru
-- Android Studio / VS Code
-- Android SDK (untuk development Android)
-- Xcode (untuk development iOS, macOS only)
-
-#### Clone Repository
 ```bash
+# Clone repository
 git clone https://github.com/MashudiSudonym/Catat-Cuan.git
 cd Catat-Cuan
-```
 
-#### Install Dependencies
-```bash
+# Install dependencies
 flutter pub get
-```
 
-#### Run Code Generation (untuk Riverpod providers)
-```bash
+# Generate code (Riverpod/Freezed)
 flutter pub run build_runner build --delete-conflicting-outputs
-```
 
-#### Jalankan Aplikasi
-```bash
-# Untuk development/debug
+# Run application
 flutter run
-
-# Untuk release mode
-flutter run --release
-
-# Spesifik platform
-flutter run -d android    # Android
-flutter run -d iphone     # iOS
-flutter run -d macos      # macOS
-flutter run -d linux      # Linux
-flutter run -d windows    # Windows
-```
-
-#### Build APK/App Bundle
-```bash
-# Debug APK
-flutter build apk
-
-# Release App Bundle (untuk Play Store)
-flutter build appbundle
 ```
 
 ---
 
-### 🧪 Testing
+### 🧪 Testing & Quality
+
+- **Tests**: 97/97 passing ✅
+- **SRP Compliance**: 100% (16/16 violations addressed)
+- **Analyzer Errors**: 0 ✅
+- **Code Coverage**: 85%+ (domain layer)
 
 ```bash
-# Jalankan semua test
 flutter test
-
-# Jalankan test spesifik
-flutter test test/widget_test.dart
-
-# Test dengan coverage
 flutter test --coverage
 ```
 
 ---
 
-### 📁 Struktur Proyek
+### 📚 Documentation (Comprehensive)
 
-```
-lib/
-├── domain/                    # Business logic (tanpa dependency Flutter)
-│   ├── entities/             # Core business entities
-│   ├── usecases/             # Operasi bisnis
-│   ├── repositories/         # Interface repository
-│   └── services/             # Domain services (InsightService)
-│
-├── data/                     # Implementation details
-│   ├── datasources/          # Data sources (DatabaseHelper)
-│   ├── models/               # Data transfer objects
-│   ├── repositories/         # Repository implementations
-│   └── services/             # Platform services (AI Text Recognition, ImagePicker)
-│
-└── presentation/             # UI & state management
-    ├── providers/            # Riverpod providers
-    ├── screens/              # Full-screen widgets
-    ├── widgets/              # Reusable UI components
-    └── utils/                # Theme, colors, helpers
-```
+**⭐ START HERE:** [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md)
+
+#### Technical Guides (English)
+- [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md) - Clean Architecture dengan real examples
+- [RIVERPOD_GUIDE.md](./docs/guides/RIVERPOD_GUIDE.md) - Riverpod 3.3.1 patterns
+- [FREEZED_GUIDE.md](./docs/guides/FREEZED_GUIDE.md) - Freezed 3.x (⚠️ abstract keyword required)
+- [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md) - File naming & conventions
+- [SOLID.md](./docs/guides/SOLID.md) - SOLID principles dengan codebase examples
+
+#### Product Documentation
+- [00-PRD.md](./docs/v1/product/00-PRD.md) - Product Requirements (Indonesian)
+- [SPEC Documents](./docs/v1/product/) - Fitur spesifikasi dengan verified checklists
+- [IMPLEMENTATION_STATUS.md](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Status implementasi
+
+#### Design System
+- [DESIGN_SYSTEM_GUIDE.md](./docs/v1/design/DESIGN_SYSTEM_GUIDE.md) - Glassmorphism + Riverpod 3.x
+
+#### Project Status
+- [PROJECT_STATUS.md](./docs/v1/project/PROJECT_STATUS.md) - Status proyek (EN/ID)
+- [REFACTORING_HISTORY.md](./docs/v1/project/REFACTORING_HISTORY.md) - Perjalanan SOLID refactoring
 
 ---
 
 ### 🎯 Roadmap
 
-#### v1.0 (Saat Ini)
+#### v1.0 (Saat Ini) ✅
 - [x] Pencatatan transaksi manual
 - [x] 🤖 AI Smart Scan dengan Google ML Kit
 - [x] Dashboard ringkasan bulanan
-- [x] AI Analytics & smart recommendations
-- [x] Manajemen kategori
+- [x] AI Analytics & recommendations
+- [x] Manajemen kategori lengkap
 - [x] Glassmorphism design system
+- [x] Export CSV
+- [x] Multi-select delete
+- [x] Onboarding system
+- [x] Currency settings (IDR/USD)
+- [x] GoRouter navigation
 
 #### v1.1 (Rencana)
-- [ ] Export data ke CSV/Excel
 - [ ] Dark mode
-- [ ] Search & filter lanjutan dengan AI semantic search
 - [ ] Widget home screen
 - [ ] Enhanced AI model untuk struk Indonesia
 
-#### v2.0 (Mendatang) - AI-First Finance
-- [ ] 💬 AI Chatbot assistant untuk konsultasi keuangan
-- [ ] Cloud sync & backup dengan end-to-end encryption
-- [ ] Multi-device support
-- [ ] Budgeting per kategori dengan AI-powered budget optimization
-- [ ] Report & laporan pajak otomatis
-- [ ] Multi-currency dengan AI exchange rate prediction
-- [ ] 🧠 Advanced ML models untuk spending pattern prediction
+#### v2.0 (Mendatang)
+- [ ] 💬 AI Chatbot assistant
+- [ ] Cloud sync & backup
+- [ ] Budgeting per kategori
+- [ ] Multi-currency dengan AI prediction
 
 ---
 
 ### 🤝 Kontribusi
 
-Kontribusi sangat welcome! Jika ingin berkontribusi:
+Kontribusi sangat welcome!
 
-1. Fork repository ini
-2. Buat branch fitur (`git checkout -b fitur-keren`)
-3. Commit perubahanmu (`git commit -m 'Tambah fitur keren'`)
-4. Push ke branch (`git push origin fitur-keren`)
-5. Buat Pull Request
+1. Fork repository
+2. Buat branch fitur
+3. Commit perubahan
+4. Push & buat Pull Request
 
 **Guidelines:**
-- Ikuti style guide yang sudah ada
-- Gunakan design system utilities (AppSpacing, AppRadius, dll)
+- Ikuti [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md)
+- Gunakan design system utilities
 - Tulis test untuk fitur baru
-- Update documentation jika perlu
 - Ikuti prinsip SOLID
 
 ---
@@ -425,13 +210,11 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ### 📧 Kontak
 
 - **Project**: [Catat Cuan](https://github.com/MashudiSudonym/Catat-Cuan)
-- **Issue**: [GitHub Issues](https://github.com/MashudiSudonym/Catat-Cuan/issues)
+- **Issues**: [GitHub Issues](https://github.com/MashudiSudonym/Catat-Cuan/issues)
 
 ---
 
 ### 🙏 Terima Kasih
-
-Terima kasih telah menggunakan Catat Cuan! Semoga aplikasi ini membantu kamu mengontrol keuangan pribadi dengan lebih baik.
 
 **"Catat setiap rupiah, pahami setiap keputusan, capai setiap tujuan."** 💰✨
 
@@ -445,65 +228,61 @@ Terima kasih telah menggunakan Catat Cuan! Semoga aplikasi ini membantu kamu men
 
 **"Money often feels like it's leaking without knowing where?"**
 
-Catat Cuan is here to give you **conscious control** over your personal finances. Not just knowing the final balance, but understanding **spending patterns** and getting **real insights** to optimize your finances.
+Catat Cuan gives you **conscious control** over your personal finances. Understand **spending patterns** and get **real insights** to optimize your finances.
 
 ---
 
 ### ✨ Key Features
 
-#### 🤖 **AI Smart Scan - Scan Receipts with Artificial Intelligence!**
-- **Neural Network Text Recognition** - Uses trained AI models to read receipt text with high accuracy
-- **Smart Amount Detection** - AI intelligently recognizes "Total", "Amount", "Grand Total" patterns
-- **Multi-Format Support** - AI recognizes various Indonesian currency formats
-- **Photo paper receipts** directly from the app
-- **Select from gallery** for digital receipt screenshots
-- **100% On-Device AI Processing** - Privacy guaranteed, receipt data never sent to cloud servers
-- **Edit if needed** - you remain in full control over AI results
-
-#### 💸 **Unlimited Transaction Recording**
-- **Unlimited transactions** - record as much as you want
-- **Quick manual input** - done in ≤ 20 seconds
-- **Smart defaults** - type, date, and time auto-filled
-- **Flexible categorization** - customize categories to your needs
-
-#### 📊 **Monthly Dashboard & AI-Powered Insights**
-- **Monthly summary**: Total income, expenses, and balance
-- **Top expense categories** with percentage & average
-- **Data visualization** with easy-to-understand charts
-- **🤖 AI-Driven Smart Recommendations**:
-  - Pattern Recognition: *"Food category contributes 45% of your spending"*
-  - Predictive Analysis: *"If you reduce 20% of Transport expenses, your monthly balance will increase by Rp 500,000"*
-
-#### 🏷️ **Full Category Management**
-- **Default categories** ready to use
-- **Custom categories** with colors & icons
-- **Drag & drop reorder**
-- **Soft delete** - deactivate without losing history
-
-#### 🎨 **Modern Glassmorphism Design**
-- **Frosted glass UI** with elegant orange theme
-- **Responsive design** - perfect on mobile, tablet, and desktop
-- **Dark mode ready**
-- **Smooth animations**
+- **🤖 AI Smart Scan** - Scan receipts with Google ML Kit (on-device, private)
+- **💸 Unlimited Transactions** - Record as much as you want
+- **📊 Monthly Dashboard** - AI-powered insights & recommendations
+- **🏷️ Category Management** - Full CRUD with drag-drop reorder
+- **🎨 Glassmorphism Design** - Modern, responsive UI
 
 ---
 
-### 🤖 AI & ML Technology
+### 🚀 Tech Stack
 
-Catat Cuan leverages cutting-edge **Artificial Intelligence** and **Machine Learning** technologies:
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| Framework | Flutter | 3.5+ |
+| Language | Dart | 3.5+ |
+| State Management | Riverpod | 3.3.1 |
+| Navigation | GoRouter | 17.1.0 |
+| Database | SQLite | SchemaManager v2 |
+| AI/ML | Google ML Kit | 0.15.1 |
 
-- **Google ML Kit Vision API** - On-device neural network for intelligent text extraction
-- **AI Analytics Engine** - Pattern recognition and predictive analysis for spending insights
-- **Smart Recommendation System** - Actionable financial advice powered by rule-based AI
-
-All AI processing happens **100% on-device** - your financial data never leaves your phone!
+**Architecture**: Clean Architecture with 100% SRP compliance
 
 ---
 
-For complete technical documentation in English, please refer to the [`CLAUDE.md`](./CLAUDE.md) file.
+### 📚 Documentation
+
+**⭐ [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md)** - Critical rules & quick reference
+
+**Technical Guides:**
+- [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md)
+- [RIVERPOD_GUIDE.md](./docs/guides/RIVERPOD_GUIDE.md)
+- [FREEZED_GUIDE.md](./docs/guides/FREEZED_GUIDE.md)
+- [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md)
+- [SOLID.md](./docs/guides/SOLID.md)
+
+**Product Docs:**
+- [PRD](./docs/v1/product/00-PRD.md) - Product Requirements
+- [SPECs](./docs/v1/product/) - Feature specifications
+- [Status](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Implementation dashboard
 
 ---
+
+### 🤝 Contributing
+
+Contributions welcome! Please follow [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md) and SOLID principles.
+
+---
+
+**Built with ❤️ using Flutter**
 
 <div align="center">
-  <sub>Built with ❤️ using Flutter</sub>
+  <sub>Production Ready | 100% SRP Compliance | 97/97 Tests Passing</sub>
 </div>
