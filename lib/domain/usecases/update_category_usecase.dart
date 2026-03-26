@@ -1,61 +1,82 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
-import 'add_category_usecase.dart' show CategoryValidationException;
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 
 /// Use case untuk mengupdate kategori yang sudah ada
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles updating categories
+/// - Dependency Inversion: Depends on CategoryReadRepository and CategoryWriteRepository abstractions
+///
 /// Catatan: Tipe kategori TIDAK BOLEH diubah setelah dibuat
-class UpdateCategoryUseCase {
-  final CategoryRepository _repository;
+class UpdateCategoryUseCase extends UseCase<CategoryEntity, CategoryEntity> {
+  final CategoryWriteRepository _writeRepository;
+  final CategoryReadRepository _readRepository;
 
-  UpdateCategoryUseCase(this._repository);
+  UpdateCategoryUseCase(this._writeRepository, this._readRepository);
 
-  /// Mengupdate kategori dengan validasi
-  /// Hanya field name, color, dan icon yang boleh diubah
-  /// Throws [CategoryValidationException] jika validasi gagal
-  /// Throws [Exception] jika ID tidak ada
-  Future<CategoryEntity> execute(CategoryEntity category) async {
+  @override
+  Future<Result<CategoryEntity>> call(CategoryEntity category) async {
     // Validasi ID harus ada
     if (category.id == null) {
-      throw Exception('ID kategori wajib diisi untuk update');
+      return Result.failure(
+        const ValidationFailure('ID kategori wajib diisi untuk update'),
+      );
     }
 
     // Ambil kategori yang sudah ada untuk validasi
-    final existing = await _repository.getCategoryById(category.id!);
-    if (existing == null) {
-      throw Exception('Kategori tidak ditemukan');
+    final existingResult = await _readRepository.getCategoryById(category.id!);
+
+    if (existingResult.isFailure || existingResult.data == null) {
+      return Result.failure(
+        const NotFoundFailure('Kategori tidak ditemukan'),
+      );
     }
+
+    final existing = existingResult.data!;
 
     // Validasi: tipe tidak boleh diubah
     if (existing.type != category.type) {
-      throw CategoryValidationException(
-        'Tipe kategori tidak dapat diubah',
+      return Result.failure(
+        const ValidationFailure('Tipe kategori tidak dapat diubah'),
       );
     }
 
     // Validasi nama tidak boleh kosong
     if (category.name.trim().isEmpty) {
-      throw CategoryValidationException('Nama kategori tidak boleh kosong');
+      return Result.failure(
+        const ValidationFailure('Nama kategori tidak boleh kosong'),
+      );
     }
 
     // Validasi panjang nama
     if (category.name.trim().length < 2) {
-      throw CategoryValidationException('Nama kategori minimal 2 karakter');
+      return Result.failure(
+        const ValidationFailure('Nama kategori minimal 2 karakter'),
+      );
     }
 
     if (category.name.trim().length > 50) {
-      throw CategoryValidationException('Nama kategori maksimal 50 karakter');
+      return Result.failure(
+        const ValidationFailure('Nama kategori maksimal 50 karakter'),
+      );
     }
 
     // Validasi nama unik (kecuali untuk kategori itu sendiri)
-    final duplicate = await _repository.getCategoryByName(
+    final duplicateResult = await _readRepository.getCategoryByName(
       category.name.trim(),
       category.type,
       excludeId: category.id,
     );
 
-    if (duplicate != null) {
-      throw CategoryValidationException(
-        'Kategori "${category.name}" untuk ${category.type.displayName} sudah ada',
+    if (duplicateResult.isSuccess && duplicateResult.data != null) {
+      return Result.failure(
+        ValidationFailure(
+          'Kategori "${category.name}" untuk ${category.type.displayName} sudah ada',
+        ),
       );
     }
 
@@ -72,6 +93,13 @@ class UpdateCategoryUseCase {
       updatedAt: DateTime.now(),
     );
 
-    return await _repository.updateCategory(updatedCategory);
+    try {
+      final result = await _writeRepository.updateCategory(updatedCategory);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengupdate kategori: $e'),
+      );
+    }
   }
 }

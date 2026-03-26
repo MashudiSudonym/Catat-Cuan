@@ -25,14 +25,14 @@ import 'package:catat_cuan/domain/core/result.dart';
 ///   GetTransactionUseCase(this._repository);
 ///
 ///   @override
-///   Result<TransactionEntity> call(int params) {
-///     return _repository.getTransactionById(params);
+///   Future<Result<TransactionEntity>> call(int params) async {
+///     return await _repository.getTransactionById(params);
 ///   }
 /// }
 /// ```
 abstract class UseCase<T, Params> {
   /// Executes the use case with the given parameters
-  Result<T> call(Params params);
+  Future<Result<T>> call(Params params);
 }
 
 /// For use cases without parameters

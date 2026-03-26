@@ -80,7 +80,7 @@ export 'package:catat_cuan/presentation/providers/summary/monthly_summary_provid
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
+import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/presentation/providers/cache_provider.dart';
 
 /// Provider untuk inisialisasi data awal (seed categories)
@@ -98,11 +98,13 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
   }
 
   // Perform initialization
-  final getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
+  final categorySeedingRepository = ref.read(categorySeedingRepositoryProvider);
 
   // Cek apakah perlu seed default categories
-  if (await getCategoriesUseCase.needsSeed()) {
-    await getCategoriesUseCase.seedDefaultCategories();
+  final needsSeedResult = await categorySeedingRepository.needsSeed();
+
+  if (needsSeedResult.isSuccess && (needsSeedResult.data ?? false)) {
+    await categorySeedingRepository.seedDefaultCategories();
   }
 
   // Mark as initialized

@@ -276,8 +276,17 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
         updatedAt: DateTime.now(),
       );
 
-      final newCategory =
-          await ref.read(addCategoryUseCaseProvider).execute(category);
+      final result = await ref.read(addCategoryUseCaseProvider)(category);
+
+      if (result.isFailure || result.data == null) {
+        setState(() {
+          _errorMessage = result.failure?.message ?? 'Gagal menambah kategori';
+          _isSubmitting = false;
+        });
+        return;
+      }
+
+      final newCategory = result.data!;
 
       if (mounted) {
         // Refresh category list so it appears in filters

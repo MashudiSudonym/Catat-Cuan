@@ -4,64 +4,72 @@
 /// by only handling multi-month summary retrieval operations for trend analysis.
 library;
 
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/transaction/transaction_analytics_repository.dart';
+
+/// Parameter untuk mengambil ringkasan multi-bulan
+class MultiMonthSummaryParams {
+  final String startYearMonth;
+  final String endYearMonth;
+
+  const MultiMonthSummaryParams({
+    required this.startYearMonth,
+    required this.endYearMonth,
+  });
+}
 
 /// Use case for retrieving multi-month transaction summary
 ///
-/// This use case aggregates transaction data across multiple months,
-/// providing trend data for income vs expense visualization.
-class GetMultiMonthSummaryUseCase {
-  final TransactionRepository _repository;
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles multi-month summary retrieval
+/// - Dependency Inversion: Depends on TransactionAnalyticsRepository abstraction
+class GetMultiMonthSummaryUseCase
+    extends UseCase<List<MonthlySummaryEntity>, MultiMonthSummaryParams> {
+  final TransactionAnalyticsRepository _repository;
 
   GetMultiMonthSummaryUseCase(this._repository);
 
-  /// Retrieves monthly summaries for a range of months
-  ///
-  /// Parameters:
-  /// - [startYearMonth]: Format "YYYY-MM" (e.g., "2024-03") - start of range (inclusive)
-  /// - [endYearMonth]: Format "YYYY-MM" (e.g., "2024-08") - end of range (inclusive)
-  ///
-  /// Returns list of [MonthlySummaryEntity] ordered by year_month ascending
-  /// Throws [Exception] if retrieval fails
-  Future<List<MonthlySummaryEntity>> execute({
-    required String startYearMonth,
-    required String endYearMonth,
-  }) async {
-    final result = await _repository.getMultiMonthSummary(
-      startYearMonth,
-      endYearMonth,
-    );
+  @override
+  Future<Result<List<MonthlySummaryEntity>>> call(
+    MultiMonthSummaryParams params,
+  ) async {
+    try {
+      final result = await _repository.getMultiMonthSummary(
+        params.startYearMonth,
+        params.endYearMonth,
+      );
 
-    if (result.isFailure) {
-      throw Exception(result.error ?? 'Gagal mengambil data multi-bulan');
+      if (result.isSuccess && result.data != null) {
+        return result;
+      }
+
+      return Result.success([]);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil data multi-bulan: $e'),
+      );
     }
-
-    return result.data ?? [];
   }
 
-  /// Retrieves summaries for the last 6 months from a reference date
-  ///
-  /// Parameters:
-  /// - [referenceYearMonth]: Format "YYYY-MM" (e.g., "2024-03") - reference month
-  /// - [monthCount]: Number of months to retrieve (default: 6)
-  ///
-  /// Returns list of [MonthlySummaryEntity] ordered by year_month ascending
-  Future<List<MonthlySummaryEntity>> executeLastNMonths({
-    required String referenceYearMonth,
+  /// Convenience method for getting last N months
+  Future<Result<List<MonthlySummaryEntity>>> executeLastNMonths({
+    String? referenceYearMonth,
     int monthCount = 6,
   }) async {
-    final parts = referenceYearMonth.split('-');
-    final year = int.parse(parts[0]);
-    final month = int.parse(parts[1]);
+    final now = referenceYearMonth != null
+        ? DateTime(int.parse(referenceYearMonth.substring(0, 4)), int.parse(referenceYearMonth.substring(5, 7)))
+        : DateTime.now();
+    final endYearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
 
-    // Calculate start date (N months before reference)
-    final startDate = DateTime(year, month - (monthCount - 1));
+    final startDate = DateTime(now.year, now.month - monthCount + 1);
     final startYearMonth = '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}';
 
-    return execute(
+    return call(MultiMonthSummaryParams(
       startYearMonth: startYearMonth,
-      endYearMonth: referenceYearMonth,
-    );
+      endYearMonth: endYearMonth,
+    ));
   }
 }

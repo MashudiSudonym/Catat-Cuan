@@ -1,7 +1,9 @@
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/category_usecase_providers.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 part 'category_list_provider.g.dart';
 
@@ -18,15 +20,29 @@ class CategoryListNotifier extends _$CategoryListNotifier {
   Future<List<CategoryEntity>> build() async {
     // No constructor side effects - data loading in build() method
     final getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
-    return await getCategoriesUseCase.execute();
+    final result = await getCategoriesUseCase(const NoParams());
+
+    if (result.isFailure) {
+      AppLogger.e('Failed to load categories: ${result.failure?.message}');
+      throw Exception(result.failure?.message ?? 'Failed to load categories');
+    }
+
+    return result.data ?? [];
   }
 
   /// Load kategori berdasarkan tipe (income/expense)
   /// Note: This doesn't change state, just returns filtered data
   Future<List<CategoryEntity>> getCategoriesByType(String typeStr) async {
-    final getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
+    final getCategoriesByTypeUseCase = ref.read(getCategoriesByTypeUseCaseProvider);
     final type = typeStr == 'income' ? CategoryType.income : CategoryType.expense;
-    return await getCategoriesUseCase.executeByType(type);
+    final result = await getCategoriesByTypeUseCase(type);
+
+    if (result.isFailure) {
+      AppLogger.e('Failed to load categories by type: ${result.failure?.message}');
+      return [];
+    }
+
+    return result.data ?? [];
   }
 
   /// Load categories (alias for backward compatibility during UI migration)

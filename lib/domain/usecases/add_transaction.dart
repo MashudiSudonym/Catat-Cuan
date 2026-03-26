@@ -1,21 +1,29 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/transaction/transaction_write_repository.dart';
 import 'package:catat_cuan/domain/validators/transaction_validator.dart';
 
 /// Use case untuk menambahkan transaksi baru
-class AddTransactionUseCase {
-  final TransactionRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles adding new transactions
+/// - Dependency Inversion: Depends on TransactionWriteRepository abstraction
+/// - Open/Closed: Validation logic is delegated to TransactionValidator
+class AddTransactionUseCase extends UseCase<TransactionEntity, TransactionEntity> {
+  final TransactionWriteRepository _repository;
 
   AddTransactionUseCase(this._repository);
 
-  /// Execute use case untuk menambah transaksi
-  /// Mengembalikan Result dengan TransactionEntity yang sudah disertai ID jika sukses
-  /// Mengembalikan Result dengan error jika validasi gagal atau terjadi database error
-  Future<TransactionEntity?> execute(TransactionEntity transaction) async {
+  @override
+  Future<Result<TransactionEntity>> call(TransactionEntity transaction) async {
     // Lakukan validasi menggunakan shared validator
     final validation = TransactionValidator.validateForCreation(transaction);
     if (!validation.isValid) {
-      throw ValidationException(validation.error ?? 'Validasi gagal');
+      return Result.failure(
+        ValidationFailure(validation.error ?? 'Validasi gagal'),
+      );
     }
 
     // Set timestamps
@@ -26,32 +34,13 @@ class AddTransactionUseCase {
     );
 
     // Simpan ke repository
-    final result = await _repository.addTransaction(transactionToSave);
-
-    if (result.isFailure) {
-      throw DatabaseException(result.error ?? 'Gagal menyimpan transaksi');
+    try {
+      final result = await _repository.addTransaction(transactionToSave);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal menyimpan transaksi: $e'),
+      );
     }
-
-    return result.data;
   }
-}
-
-/// Exception untuk error validasi (AC-LOG-002.2)
-class ValidationException implements Exception {
-  final String message;
-
-  ValidationException(this.message);
-
-  @override
-  String toString() => message;
-}
-
-/// Exception untuk error database
-class DatabaseException implements Exception {
-  final String message;
-
-  DatabaseException(this.message);
-
-  @override
-  String toString() => message;
 }

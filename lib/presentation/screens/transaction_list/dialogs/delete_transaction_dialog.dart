@@ -75,33 +75,33 @@ class DeleteTransactionHandler extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      try {
-        await ref.read(deleteTransactionUseCaseProvider).execute(transaction.id!);
+      final result = await ref.read(deleteTransactionUseCaseProvider)(transaction.id!);
 
-        // Invalidate transaction list providers and monthly summary to trigger refresh
-        ref.invalidate(transactionListProvider);
-        ref.invalidate(transactionListPaginatedProvider);
-        ref.invalidate(monthlySummaryProvider);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Transaksi berhasil dihapus'),
-              backgroundColor: AppColors.success,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      } catch (e) {
+      if (result.isFailure) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal menghapus transaksi: $e'),
+              content: Text(result.failure?.message ?? 'Gagal menghapus transaksi'),
               backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
             ),
           );
         }
+        return;
+      }
+
+      // Invalidate transaction list providers and monthly summary to trigger refresh
+      ref.invalidate(transactionListProvider);
+      ref.invalidate(transactionListPaginatedProvider);
+      ref.invalidate(monthlySummaryProvider);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transaksi berhasil dihapus'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }

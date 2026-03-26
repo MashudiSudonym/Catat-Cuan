@@ -1,27 +1,39 @@
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
-import 'package:catat_cuan/domain/usecases/add_transaction.dart';
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/transaction/transaction_write_repository.dart';
 
 /// Use case untuk menghapus transaksi
-class DeleteTransactionUseCase {
-  final TransactionRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles deleting transactions by ID
+/// - Dependency Inversion: Depends on TransactionWriteRepository abstraction
+class DeleteTransactionUseCase extends UseCase<void, int> {
+  final TransactionWriteRepository _repository;
 
   DeleteTransactionUseCase(this._repository);
 
-  /// Execute use case untuk menghapus transaksi berdasarkan ID
-  /// Melempar Exception jika transaksi tidak ditemukan atau terjadi error
-  Future<void> execute(int transactionId) async {
+  @override
+  Future<Result<void>> call(int transactionId) async {
     // Validasi ID
     if (transactionId <= 0) {
-      throw ValidationException('ID transaksi tidak valid');
+      return Result.failure(
+        ValidationFailure('ID transaksi tidak valid'),
+      );
     }
 
     // Hapus dari repository
-    final result = await _repository.deleteTransaction(transactionId);
-
-    if (result.isFailure) {
-      throw DatabaseException(
-        result.error ?? 'Gagal menghapus transaksi',
+    try {
+      final result = await _repository.deleteTransaction(transactionId);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal menghapus transaksi: $e'),
       );
     }
   }
+
+  /// Convenience method for backward compatibility
+  /// Delegates to the call method
+  Future<Result<void>> execute(int transactionId) => call(transactionId);
 }

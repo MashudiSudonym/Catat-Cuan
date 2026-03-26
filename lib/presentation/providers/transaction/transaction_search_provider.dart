@@ -1,4 +1,6 @@
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/usecases/search_transactions_usecase.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
@@ -36,11 +38,16 @@ class TransactionSearchNotifier extends _$TransactionSearchNotifier {
 
     final searchUseCase = ref.read(searchTransactionsUseCaseProvider);
 
-    try {
-      final results = await searchUseCase.execute(query, type: type);
-      state = AsyncValue.data(results);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    final result = await searchUseCase(SearchTransactionsParams(
+      query: query,
+      type: type,
+    ));
+
+    if (result.isFailure) {
+      AppLogger.e('Search failed: ${result.failure?.message}');
+      state = AsyncValue.data([]);
+    } else {
+      state = AsyncValue.data(result.data ?? []);
     }
   }
 

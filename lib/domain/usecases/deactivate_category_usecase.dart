@@ -1,45 +1,87 @@
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
-import 'add_category_usecase.dart' show CategoryValidationException;
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 
 /// Use case untuk menonaktifkan kategori (soft delete)
-class DeactivateCategoryUseCase {
-  final CategoryRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles deactivating categories
+/// - Dependency Inversion: Depends on CategoryReadRepository and CategoryWriteRepository abstractions
+class DeactivateCategoryUseCase extends UseCase<void, int> {
+  final CategoryWriteRepository _writeRepository;
+  final CategoryReadRepository _readRepository;
 
-  DeactivateCategoryUseCase(this._repository);
+  DeactivateCategoryUseCase(this._writeRepository, this._readRepository);
 
-  /// Menonaktifkan kategori dengan validasi
-  /// Throws [CategoryValidationException] jika kategori masih digunakan
-  /// Returns true jika berhasil dinonaktifkan
-  Future<bool> execute(int categoryId) async {
+  @override
+  Future<Result<void>> call(int categoryId) async {
     // Cek apakah kategori ada
-    final category = await _repository.getCategoryById(categoryId);
-    if (category == null) {
-      throw CategoryValidationException('Kategori tidak ditemukan');
+    final categoryResult = await _readRepository.getCategoryById(categoryId);
+
+    if (categoryResult.isFailure || categoryResult.data == null) {
+      return Result.failure(
+        const NotFoundFailure('Kategori tidak ditemukan'),
+      );
     }
+
+    final category = categoryResult.data!;
 
     // Cek apakah kategori sudah tidak aktif
     if (!category.isActive) {
-      throw CategoryValidationException('Kategori sudah tidak aktif');
+      return Result.failure(
+        const ValidationFailure('Kategori sudah tidak aktif'),
+      );
     }
 
     // Cek apakah kategori masih digunakan oleh transaksi
-    final transactionCount = await _repository.getTransactionCount(categoryId);
+    final transactionCountResult =
+        await _readRepository.getTransactionCount(categoryId);
+
+    final transactionCount = transactionCountResult.data ?? 0;
 
     if (transactionCount > 0) {
-      throw CategoryValidationException(
-        'Kategori ini tidak dapat dinonaktifkan karena masih digunakan '
-        'oleh $transactionCount transaksi. '
-        'Gunakan kategori lain untuk transaksi tersebut terlebih dahulu.',
+      return Result.failure(
+        ValidationFailure(
+          'Kategori ini tidak dapat dinonaktifkan karena masih digunakan '
+          'oleh $transactionCount transaksi. '
+          'Gunakan kategori lain untuk transaksi tersebut terlebih dahulu.',
+        ),
       );
     }
 
     // Nonaktifkan kategori
-    return await _repository.deleteCategory(categoryId);
+    try {
+      final result = await _writeRepository.deleteCategory(categoryId);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal menonaktifkan kategori: $e'),
+      );
+    }
   }
+}
 
-  /// Mendapatkan jumlah transaksi untuk sebuah kategori
-  /// Untuk menampilkan warning sebelum deactivate
-  Future<int> getTransactionCount(int categoryId) async {
-    return await _repository.getTransactionCount(categoryId);
+/// Use case untuk mendapatkan jumlah transaksi untuk sebuah kategori
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles getting transaction count
+/// - Dependency Inversion: Depends on CategoryReadRepository abstraction
+class GetCategoryTransactionCountUseCase extends UseCase<int, int> {
+  final CategoryReadRepository _readRepository;
+
+  GetCategoryTransactionCountUseCase(this._readRepository);
+
+  @override
+  Future<Result<int>> call(int categoryId) async {
+    try {
+      final result = await _readRepository.getTransactionCount(categoryId);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil jumlah transaksi: $e'),
+      );
+    }
   }
 }

@@ -44,7 +44,7 @@ CsvExportServiceImpl exportService(Ref ref) {
 /// Provider untuk ExportTransactionsUseCase
 @riverpod
 ExportTransactionsUseCase exportTransactionsUseCase(Ref ref) {
-  final transactionRepository = ref.watch(transactionRepositoryProvider);
+  final transactionRepository = ref.watch(transactionExportRepositoryProvider);
   final exportService = ref.watch(exportServiceProvider);
   return ExportTransactionsUseCase(transactionRepository, exportService);
 }
@@ -72,13 +72,13 @@ class ExportNotifier extends _$ExportNotifier {
 
     final exportUseCase = ref.read(exportTransactionsUseCaseProvider);
 
-    final result = await exportUseCase.execute(
+    final result = await exportUseCase(ExportTransactionsParams(
       startDate: startDate,
       endDate: endDate,
       categoryId: categoryId,
       type: type,
       fileNameSuffix: fileNameSuffix,
-    );
+    ));
 
     if (result.isSuccess) {
       AppLogger.i('Export successful: ${result.data}');
@@ -101,10 +101,10 @@ class ExportNotifier extends _$ExportNotifier {
     state = ExportState.loading();
 
     final exportService = ref.read(exportServiceProvider);
-    final transactionRepository = ref.read(transactionRepositoryProvider);
+    final transactionRepository = ref.read(transactionExportRepositoryProvider);
 
     try {
-      // Get transactions with filters (returns List<Map<String, dynamic>>)
+      // Get transactions with filters (returns Result<List<Map<String, dynamic>>>)
       final transactionsResult = await transactionRepository.getTransactionsWithCategoryNames(
         startDate: startDate,
         endDate: endDate,
@@ -114,7 +114,7 @@ class ExportNotifier extends _$ExportNotifier {
 
       if (transactionsResult.isFailure) {
         AppLogger.w('Failed to load transactions for export');
-        state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
+        state = ExportState.error(transactionsResult.failure?.message ?? 'Gagal memuat transaksi');
         return;
       }
 
@@ -160,10 +160,10 @@ class ExportNotifier extends _$ExportNotifier {
     state = ExportState.loading();
 
     final exportService = ref.read(exportServiceProvider);
-    final transactionRepository = ref.read(transactionRepositoryProvider);
+    final transactionRepository = ref.read(transactionExportRepositoryProvider);
 
     try {
-      // Get transactions with filters (returns List<Map<String, dynamic>>)
+      // Get transactions with filters (returns Result<List<Map<String, dynamic>>>)
       final transactionsResult = await transactionRepository.getTransactionsWithCategoryNames(
         startDate: startDate,
         endDate: endDate,
@@ -173,7 +173,7 @@ class ExportNotifier extends _$ExportNotifier {
 
       if (transactionsResult.isFailure) {
         AppLogger.w('Failed to load transactions for share');
-        state = ExportState.error(transactionsResult.error ?? 'Gagal memuat transaksi');
+        state = ExportState.error(transactionsResult.failure?.message ?? 'Gagal memuat transaksi');
         return;
       }
 

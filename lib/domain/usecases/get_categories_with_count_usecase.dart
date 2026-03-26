@@ -1,6 +1,10 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_management_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
 
 /// Hasil pengambilan kategori dengan count, dipisah per tipe
 class CategoriesWithCountResult {
@@ -28,82 +32,228 @@ class CategoriesWithCountResult {
       ];
 }
 
-/// Use case untuk mengambil kategori dengan jumlah transaksi
-class GetCategoriesWithCountUseCase {
-  final CategoryRepository _repository;
+/// Use case untuk mengambil semua kategori dengan jumlah transaksi
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles getting categories with transaction count
+/// - Dependency Inversion: Depends on CategoryReadRepository and CategoryManagementRepository abstractions
+class GetCategoriesWithCountUseCase
+    extends UseCase<CategoriesWithCountResult, NoParams> {
+  final CategoryReadRepository _readRepository;
+  final CategoryManagementRepository _managementRepository;
 
-  GetCategoriesWithCountUseCase(this._repository);
+  GetCategoriesWithCountUseCase(this._readRepository, this._managementRepository);
 
-  /// Mengambil semua kategori dengan jumlah transaksi, dipisah per tipe
-  Future<CategoriesWithCountResult> execute() async {
-    // Ambil kategori aktif per tipe
-    final incomeCategories = await _getCategoriesWithCountByType(
-      CategoryType.income,
-    );
-    final expenseCategories = await _getCategoriesWithCountByType(
-      CategoryType.expense,
-    );
+  @override
+  Future<Result<CategoriesWithCountResult>> call(NoParams params) async {
+    try {
+      // Ambil kategori aktif per tipe
+      final incomeResult = await _getCategoriesWithCountByType(
+        CategoryType.income,
+      );
 
-    // Ambil kategori tidak aktif
-    final inactiveCategories = await _getInactiveCategoriesWithCount();
+      if (incomeResult.isFailure) {
+        return Result.failure(incomeResult.failure!);
+      }
 
-    return CategoriesWithCountResult(
-      incomeCategories: incomeCategories,
-      expenseCategories: expenseCategories,
-      inactiveCategories: inactiveCategories,
-    );
-  }
+      final expenseResult = await _getCategoriesWithCountByType(
+        CategoryType.expense,
+      );
 
-  /// Mengambil kategori dengan count berdasarkan tipe
-  Future<List<CategoryWithCountEntity>> executeByType(CategoryType type) async {
-    return await _getCategoriesWithCountByType(type);
-  }
+      if (expenseResult.isFailure) {
+        return Result.failure(expenseResult.failure!);
+      }
 
-  /// Mengambil kategori tidak aktif dengan count
-  Future<List<CategoryWithCountEntity>> executeInactive() async {
-    return await _getInactiveCategoriesWithCount();
+      // Ambil kategori tidak aktif
+      final inactiveResult = await _getInactiveCategoriesWithCount();
+
+      if (inactiveResult.isFailure) {
+        return Result.failure(inactiveResult.failure!);
+      }
+
+      return Result.success(
+        CategoriesWithCountResult(
+          incomeCategories: incomeResult.data ?? [],
+          expenseCategories: expenseResult.data ?? [],
+          inactiveCategories: inactiveResult.data ?? [],
+        ),
+      );
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil kategori: $e'),
+      );
+    }
   }
 
   /// Internal method: ambil kategori dengan count berdasarkan tipe
-  Future<List<CategoryWithCountEntity>> _getCategoriesWithCountByType(
+  Future<Result<List<CategoryWithCountEntity>>> _getCategoriesWithCountByType(
     CategoryType type,
   ) async {
-    final categories = await _repository.getCategoriesWithCount(type);
+    try {
+      final categoriesResult = await _readRepository.getCategoriesWithCount(type);
 
-    // Ambil transaction count untuk setiap kategori
-    final result = <CategoryWithCountEntity>[];
-    for (final category in categories) {
-      final count = await _repository.getTransactionCount(category.id!);
-      result.add(CategoryWithCountEntity(
-        category: category,
-        transactionCount: count,
-      ));
+      if (categoriesResult.isFailure) {
+        return Result.failure(categoriesResult.failure!);
+      }
+
+      final categories = categoriesResult.data ?? [];
+
+      // Ambil transaction count untuk setiap kategori
+      final result = <CategoryWithCountEntity>[];
+      for (final category in categories) {
+        if (category.id == null) continue;
+
+        final countResult = await _readRepository.getTransactionCount(category.id!);
+
+        final count = countResult.isSuccess
+            ? (countResult.data ?? 0)
+            : 0;
+
+        result.add(CategoryWithCountEntity(
+          category: category,
+          transactionCount: count,
+        ));
+      }
+
+      return Result.success(result);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil kategori: $e'),
+      );
     }
-
-    return result;
   }
 
   /// Internal method: ambil kategori tidak aktif dengan count
-  Future<List<CategoryWithCountEntity>> _getInactiveCategoriesWithCount() async {
-    final categories = await _repository.getInactiveCategories();
+  Future<Result<List<CategoryWithCountEntity>>> _getInactiveCategoriesWithCount() async {
+    try {
+      final categoriesResult =
+          await _managementRepository.getInactiveCategories();
 
-    // Ambil transaction count untuk setiap kategori
-    final result = <CategoryWithCountEntity>[];
-    for (final category in categories) {
-      final count = await _repository.getTransactionCount(category.id!);
-      result.add(CategoryWithCountEntity(
-        category: category,
-        transactionCount: count,
-      ));
+      if (categoriesResult.isFailure) {
+        return Result.failure(categoriesResult.failure!);
+      }
+
+      final categories = categoriesResult.data ?? [];
+
+      // Ambil transaction count untuk setiap kategori
+      final result = <CategoryWithCountEntity>[];
+      for (final category in categories) {
+        if (category.id == null) continue;
+
+        final countResult = await _readRepository.getTransactionCount(category.id!);
+
+        final count = countResult.isSuccess
+            ? (countResult.data ?? 0)
+            : 0;
+
+        result.add(CategoryWithCountEntity(
+          category: category,
+          transactionCount: count,
+        ));
+      }
+
+      return Result.success(result);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil kategori: $e'),
+      );
     }
-
-    return result;
   }
+}
 
-  /// Refresh data kategori (invalidate cache jika ada)
-  Future<void> refresh() async {
-    // Untuk implementasi cache di masa depan
-    // Saat ini hanya menjalankan execute untuk memastikan data terbaru
-    await execute();
+/// Use case untuk mengambil kategori dengan count berdasarkan tipe
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles getting categories by type with count
+/// - Dependency Inversion: Depends on CategoryReadRepository abstraction
+class GetCategoriesByTypeWithCountUseCase extends UseCase<List<CategoryWithCountEntity>, CategoryType> {
+  final CategoryReadRepository _readRepository;
+
+  GetCategoriesByTypeWithCountUseCase(this._readRepository);
+
+  @override
+  Future<Result<List<CategoryWithCountEntity>>> call(CategoryType type) async {
+    try {
+      final categoriesResult = await _readRepository.getCategoriesWithCount(type);
+
+      if (categoriesResult.isFailure) {
+        return Result.failure(categoriesResult.failure!);
+      }
+
+      final categories = categoriesResult.data ?? [];
+
+      // Ambil transaction count untuk setiap kategori
+      final result = <CategoryWithCountEntity>[];
+      for (final category in categories) {
+        if (category.id == null) continue;
+
+        final countResult = await _readRepository.getTransactionCount(category.id!);
+
+        final count = countResult.isSuccess
+            ? (countResult.data ?? 0)
+            : 0;
+
+        result.add(CategoryWithCountEntity(
+          category: category,
+          transactionCount: count,
+        ));
+      }
+
+      return Result.success(result);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil kategori: $e'),
+      );
+    }
+  }
+}
+
+/// Use case untuk mengambil kategori tidak aktif dengan count
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles getting inactive categories with count
+/// - Dependency Inversion: Depends on CategoryReadRepository and CategoryManagementRepository abstractions
+class GetInactiveCategoriesWithCountUseCase
+    extends UseCase<List<CategoryWithCountEntity>, NoParams> {
+  final CategoryReadRepository _readRepository;
+  final CategoryManagementRepository _managementRepository;
+
+  GetInactiveCategoriesWithCountUseCase(this._readRepository, this._managementRepository);
+
+  @override
+  Future<Result<List<CategoryWithCountEntity>>> call(NoParams params) async {
+    try {
+      final categoriesResult =
+          await _managementRepository.getInactiveCategories();
+
+      if (categoriesResult.isFailure) {
+        return Result.failure(categoriesResult.failure!);
+      }
+
+      final categories = categoriesResult.data ?? [];
+
+      // Ambil transaction count untuk setiap kategori
+      final result = <CategoryWithCountEntity>[];
+      for (final category in categories) {
+        if (category.id == null) continue;
+
+        final countResult = await _readRepository.getTransactionCount(category.id!);
+
+        final count = countResult.isSuccess
+            ? (countResult.data ?? 0)
+            : 0;
+
+        result.add(CategoryWithCountEntity(
+          category: category,
+          transactionCount: count,
+        ));
+      }
+
+      return Result.success(result);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil kategori: $e'),
+      );
+    }
   }
 }

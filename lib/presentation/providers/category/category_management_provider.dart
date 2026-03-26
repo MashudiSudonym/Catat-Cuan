@@ -1,3 +1,4 @@
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
@@ -135,30 +136,32 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
 
     final getCategoriesWithCountUseCase = ref.read(getCategoriesWithCountUseCaseProvider);
 
-    try {
-      final result = await getCategoriesWithCountUseCase.execute();
+    final result = await getCategoriesWithCountUseCase(const NoParams());
 
-      AppLogger.i('Categories loaded: '
-          '${result.incomeCategories.length} income, '
-          '${result.expenseCategories.length} expense, '
-          '${result.inactiveCategories.length} inactive');
-
+    if (result.isFailure || result.data == null) {
+      AppLogger.e('Failed to load categories: ${result.failure?.message}');
       state = state.copyWith(
-        incomeCategories: result.incomeCategories,
-        expenseCategories: result.expenseCategories,
-        inactiveCategories: result.inactiveCategories,
-        isLoading: false,
-      );
-    } catch (e, stackTrace) {
-      AppLogger.e('Failed to load categories', e, stackTrace);
-      state = state.copyWith(
-        error: ErrorMessageMapper.getUserMessage(e),
+        error: result.failure?.message ?? 'Failed to load categories',
         isLoading: false,
         incomeCategories: [],
         expenseCategories: [],
         inactiveCategories: [],
       );
+      return;
     }
+
+    final data = result.data!;
+    AppLogger.i('Categories loaded: '
+        '${data.incomeCategories.length} income, '
+        '${data.expenseCategories.length} expense, '
+        '${data.inactiveCategories.length} inactive');
+
+    state = state.copyWith(
+      incomeCategories: data.incomeCategories,
+      expenseCategories: data.expenseCategories,
+      inactiveCategories: data.inactiveCategories,
+      isLoading: false,
+    );
   }
 
   /// Switch tab
@@ -185,17 +188,17 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
 
     final deactivateCategoryUseCase = ref.read(deactivateCategoryUseCaseProvider);
 
-    try {
-      await deactivateCategoryUseCase.execute(categoryId);
-      AppLogger.i('Category deactivated successfully: $categoryId');
-      await _loadCategories(); // Refresh data
-      return true;
-    } catch (e, stackTrace) {
-      final userMessage = ErrorMessageMapper.getUserMessage(e);
-      AppLogger.e('Failed to deactivate category', e, stackTrace);
-      state = state.copyWith(error: userMessage);
+    final result = await deactivateCategoryUseCase(categoryId);
+
+    if (result.isFailure) {
+      AppLogger.e('Failed to deactivate category: ${result.failure?.message}');
+      state = state.copyWith(error: result.failure?.message ?? 'Failed to deactivate category');
       return false;
     }
+
+    AppLogger.i('Category deactivated successfully: $categoryId');
+    await _loadCategories(); // Refresh data
+    return true;
   }
 
   /// Reactivate kategori
@@ -204,27 +207,34 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
 
     final reactivateCategoryUseCase = ref.read(reactivateCategoryUseCaseProvider);
 
-    try {
-      await reactivateCategoryUseCase.execute(categoryId);
-      AppLogger.i('Category reactivated successfully: $categoryId');
-      await _loadCategories(); // Refresh data
-      return true;
-    } catch (e, stackTrace) {
-      final userMessage = ErrorMessageMapper.getUserMessage(e);
-      AppLogger.e('Failed to reactivate category', e, stackTrace);
-      state = state.copyWith(error: userMessage);
+    final result = await reactivateCategoryUseCase(categoryId);
+
+    if (result.isFailure) {
+      AppLogger.e('Failed to reactivate category: ${result.failure?.message}');
+      state = state.copyWith(error: result.failure?.message ?? 'Failed to reactivate category');
       return false;
     }
+
+    AppLogger.i('Category reactivated successfully: $categoryId');
+    await _loadCategories(); // Refresh data
+    return true;
   }
 
   /// Reorder kategori (hanya untuk tab yang sedang aktif)
   Future<void> reorderCategories(List<int> categoryIds) async {
     AppLogger.d('Reordering ${categoryIds.length} categories');
 
-    final reorderCategoriesUseCase = ref.read(reorderCategoriesUseCaseProvider);
-
     try {
-      await reorderCategoriesUseCase.execute(categoryIds);
+      final reorderCategoriesUseCase = ref.read(reorderCategoriesUseCaseProvider);
+
+      final result = await reorderCategoriesUseCase(categoryIds);
+
+      if (result.isFailure) {
+        AppLogger.e('Failed to reorder categories: ${result.failure?.message}');
+        state = state.copyWith(error: result.failure?.message ?? 'Failed to reorder categories');
+        return;
+      }
+
       AppLogger.i('Categories reordered successfully');
       await _loadCategories(); // Refresh data
     } catch (e, stackTrace) {
@@ -238,9 +248,15 @@ class CategoryManagementNotifier extends _$CategoryManagementNotifier {
   Future<int> getTransactionCount(int categoryId) async {
     AppLogger.d('Getting transaction count for category: $categoryId');
 
-    final deactivateCategoryUseCase = ref.read(deactivateCategoryUseCaseProvider);
-    final count = await deactivateCategoryUseCase.getTransactionCount(categoryId);
+    final getCategoryTransactionCountUseCase = ref.read(getCategoryTransactionCountUseCaseProvider);
+    final result = await getCategoryTransactionCountUseCase(categoryId);
 
+    if (result.isFailure) {
+      AppLogger.e('Failed to get transaction count: ${result.failure?.message}');
+      return 0;
+    }
+
+    final count = result.data ?? 0;
     AppLogger.d('Transaction count for category $categoryId: $count');
     return count;
   }

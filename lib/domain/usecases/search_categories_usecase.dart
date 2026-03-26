@@ -1,5 +1,19 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+
+/// Parameter untuk pencarian kategori
+class SearchCategoriesParams {
+  final String query;
+  final CategoryType? typeFilter;
+
+  const SearchCategoriesParams({
+    required this.query,
+    this.typeFilter,
+  });
+}
 
 /// Hasil pencarian kategori dengan informasi tipe
 class SearchResult {
@@ -22,27 +36,37 @@ class SearchResult {
 }
 
 /// Use case untuk mencari kategori berdasarkan nama
-class SearchCategoriesUseCase {
-  final CategoryRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles searching categories
+/// - Dependency Inversion: Depends on CategoryReadRepository abstraction
+class SearchCategoriesUseCase extends UseCase<SearchResult, SearchCategoriesParams> {
+  final CategoryReadRepository _repository;
 
   SearchCategoriesUseCase(this._repository);
 
-  /// Mencari kategori berdasarkan nama dengan filter tipe
-  /// Jika typeFilter null, mencari semua tipe
-  /// Jika query kosong, mengembalikan semua kategori aktif
-  Future<SearchResult> execute(String query, {CategoryType? typeFilter}) async {
+  @override
+  Future<Result<SearchResult>> call(SearchCategoriesParams params) async {
     // Ambil semua kategori aktif
-    final allCategories = await _repository.getCategories();
+    final allCategoriesResult = await _repository.getCategories();
+
+    if (allCategoriesResult.isFailure) {
+      return Result.failure(
+        allCategoriesResult.failure!,
+      );
+    }
+
+    final allCategories = allCategoriesResult.data ?? [];
 
     // Filter berdasarkan query dan tipe
-    final searchQuery = query.toLowerCase().trim();
+    final searchQuery = params.query.toLowerCase().trim();
 
     List<CategoryEntity> incomeResults = [];
     List<CategoryEntity> expenseResults = [];
 
     for (final category in allCategories) {
       // Skip jika tidak cocok dengan tipe filter
-      if (typeFilter != null && category.type != typeFilter) {
+      if (params.typeFilter != null && category.type != params.typeFilter) {
         continue;
       }
 
@@ -58,21 +82,47 @@ class SearchCategoriesUseCase {
       }
     }
 
-    return SearchResult(
-      incomeCategories: incomeResults,
-      expenseCategories: expenseResults,
+    return Result.success(
+      SearchResult(
+        incomeCategories: incomeResults,
+        expenseCategories: expenseResults,
+      ),
     );
   }
+}
 
-  /// Mencari kategori dengan tipe tertentu saja
-  Future<List<CategoryEntity>> executeByType(
-    String query,
-    CategoryType type,
-  ) async {
-    final result = await execute(query, typeFilter: type);
+/// Use case untuk mencari kategori dengan tipe tertentu saja
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles searching categories by type
+/// - Dependency Inversion: Depends on CategoryReadRepository abstraction
+class SearchCategoriesByTypeUseCase extends UseCase<List<CategoryEntity>, SearchCategoriesParams> {
+  final CategoryReadRepository _repository;
 
-    return type == CategoryType.income
-        ? result.incomeCategories
-        : result.expenseCategories;
+  SearchCategoriesByTypeUseCase(this._repository);
+
+  @override
+  Future<Result<List<CategoryEntity>>> call(SearchCategoriesParams params) async {
+    if (params.typeFilter == null) {
+      return Result.failure(
+        const ValidationFailure('Tipe kategori wajib ditentukan'),
+      );
+    }
+
+    final result = await _repository.getCategoriesByType(params.typeFilter!);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    final categories = result.data ?? [];
+    final searchQuery = params.query.toLowerCase().trim();
+
+    final filtered = categories.where((category) {
+      return searchQuery.isEmpty ||
+          category.name.toLowerCase().contains(searchQuery);
+    }).toList();
+
+    return Result.success(filtered);
   }
 }

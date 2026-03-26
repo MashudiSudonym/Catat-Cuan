@@ -4,8 +4,11 @@
 /// by only handling insight data aggregation operations.
 library;
 
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/usecases/transaction/get_category_breakdown_usecase.dart';
 import 'package:catat_cuan/domain/usecases/transaction/get_monthly_summary_usecase.dart';
 
@@ -40,9 +43,10 @@ class InsightData {
 
 /// Use case for retrieving financial insights and recommendations
 ///
-/// This use case combines monthly summary and category breakdown
-/// to provide comprehensive financial insights.
-class GetInsightsUseCase {
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles insight data aggregation
+/// - Dependency Inversion: Depends on other use case abstractions
+class GetInsightsUseCase extends UseCase<InsightData, String> {
   final GetMonthlySummaryUseCase _getMonthlySummaryUseCase;
   final GetCategoryBreakdownUseCase _getCategoryBreakdownUseCase;
 
@@ -51,33 +55,40 @@ class GetInsightsUseCase {
     this._getCategoryBreakdownUseCase,
   );
 
-  /// Retrieves complete insight data for the specified month
-  ///
-  /// Parameters:
-  /// - [yearMonth]: Format "YYYY-MM" (e.g., "2024-03")
-  ///
-  /// Returns [InsightData] containing:
-  /// - Monthly summary (income, expense, balance, transaction count)
-  /// - Expense breakdown by category (sorted by amount)
-  ///
-  /// Throws [Exception] if retrieval fails
-  Future<InsightData> execute(String yearMonth) async {
+  @override
+  Future<Result<InsightData>> call(String yearMonth) async {
     try {
       // Fetch monthly summary and expense breakdown in parallel
       final results = await Future.wait([
-        _getMonthlySummaryUseCase.execute(yearMonth),
-        _getCategoryBreakdownUseCase.execute(yearMonth, TransactionType.expense),
+        _getMonthlySummaryUseCase(yearMonth),
+        _getCategoryBreakdownUseCase(CategoryBreakdownParams(
+          yearMonth: yearMonth,
+          type: TransactionType.expense,
+        )),
       ]);
 
-      final summary = results[0] as MonthlySummaryEntity;
-      final breakdown = results[1] as List<CategoryBreakdownEntity>;
+      final summaryResult = results[0] as Result<MonthlySummaryEntity>;
+      final breakdownResult = results[1] as Result<List<CategoryBreakdownEntity>>;
 
-      return InsightData(
-        summary: summary,
-        expenseBreakdown: breakdown,
+      // Check for errors
+      if (summaryResult.isFailure) {
+        return Result.failure(summaryResult.failure!);
+      }
+
+      if (breakdownResult.isFailure) {
+        return Result.failure(breakdownResult.failure!);
+      }
+
+      return Result.success(
+        InsightData(
+          summary: summaryResult.data!,
+          expenseBreakdown: breakdownResult.data ?? [],
+        ),
       );
     } catch (e) {
-      throw Exception('Gagal mengambil insight: ${e.toString()}');
+      return Result.failure(
+        UnknownFailure('Gagal mengambil insight: $e'),
+      );
     }
   }
 }

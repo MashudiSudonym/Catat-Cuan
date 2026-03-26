@@ -154,8 +154,8 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     }
 
     // Get transaction count for preview
-    final transactionRepository = ref.read(transactionRepositoryProvider);
-    final transactionsResult = await transactionRepository.getTransactionsWithCategoryNames(
+    final exportRepository = ref.read(transactionExportRepositoryProvider);
+    final transactionsResult = await exportRepository.getTransactionsWithCategoryNames(
       startDate: startDate,
       endDate: endDate,
       categoryId: categoryId,
@@ -168,7 +168,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(transactionsResult.error ?? 'Tidak ada transaksi untuk diekspor'),
+            content: Text(transactionsResult.failure?.message ?? 'Tidak ada transaksi untuk diekspor'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),

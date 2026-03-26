@@ -4,77 +4,100 @@
 /// by only handling category breakdown retrieval operations.
 library;
 
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/transaction/transaction_analytics_repository.dart';
+
+/// Parameter untuk mengambil category breakdown
+class CategoryBreakdownParams {
+  final String yearMonth;
+  final TransactionType type;
+
+  const CategoryBreakdownParams({
+    required this.yearMonth,
+    required this.type,
+  });
+}
 
 /// Use case for retrieving category breakdown for transactions
 ///
-/// This use case aggregates transaction amounts by category
-/// for a specific month and transaction type.
-class GetCategoryBreakdownUseCase {
-  final TransactionRepository _repository;
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles category breakdown retrieval
+/// - Dependency Inversion: Depends on TransactionAnalyticsRepository abstraction
+class GetCategoryBreakdownUseCase
+    extends UseCase<List<CategoryBreakdownEntity>, CategoryBreakdownParams> {
+  final TransactionAnalyticsRepository _repository;
 
   GetCategoryBreakdownUseCase(this._repository);
 
-  /// Retrieves category breakdown for the specified parameters
-  ///
-  /// Parameters:
-  /// - [yearMonth]: Format "YYYY-MM" (e.g., "2024-03")
-  /// - [type]: Filter by transaction type (income/expense)
-  ///
-  /// Returns a list of [CategoryBreakdownEntity] sorted by total amount (descending)
-  /// Throws [Exception] if retrieval fails
-  Future<List<CategoryBreakdownEntity>> execute(
+  @override
+  Future<Result<List<CategoryBreakdownEntity>>> call(
+    CategoryBreakdownParams params,
+  ) async {
+    try {
+      final result = await _repository.getCategoryBreakdown(
+        params.yearMonth,
+        params.type,
+      );
+
+      if (result.isSuccess && result.data != null) {
+        return result;
+      }
+
+      return Result.success([]);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil breakdown kategori: $e'),
+      );
+    }
+  }
+
+  /// Convenience method for getting category breakdown by year/month and type
+  Future<Result<List<CategoryBreakdownEntity>>> execute(
     String yearMonth,
     TransactionType type,
   ) async {
-    final result = await _repository.getCategoryBreakdown(yearMonth, type);
+    return call(CategoryBreakdownParams(
+      yearMonth: yearMonth,
+      type: type,
+    ));
+  }
 
-    if (result.isFailure) {
-      throw Exception(result.error ?? 'Gagal mengambil breakdown kategori');
+  /// Convenience method for getting all-time category breakdown
+  Future<Result<List<CategoryBreakdownEntity>>> executeAll(TransactionType type) async {
+    final getAllTimeUseCase = GetAllCategoryBreakdownUseCase(_repository);
+    return await getAllTimeUseCase(type);
+  }
+}
+
+/// Use case for retrieving all-time category breakdown
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles all-time category breakdown retrieval
+/// - Dependency Inversion: Depends on TransactionAnalyticsRepository abstraction
+class GetAllCategoryBreakdownUseCase
+    extends UseCase<List<CategoryBreakdownEntity>, TransactionType> {
+  final TransactionAnalyticsRepository _repository;
+
+  GetAllCategoryBreakdownUseCase(this._repository);
+
+  @override
+  Future<Result<List<CategoryBreakdownEntity>>> call(TransactionType type) async {
+    try {
+      final result = await _repository.getAllCategoryBreakdown(type);
+
+      if (result.isSuccess && result.data != null) {
+        return result;
+      }
+
+      return Result.success([]);
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengambil breakdown kategori semua data: $e'),
+      );
     }
-
-    return result.data ?? [];
-  }
-
-  /// Retrieves category breakdown for all transactions
-  ///
-  /// Parameters:
-  /// - [type]: Filter by transaction type (income/expense)
-  ///
-  /// Returns a list of [CategoryBreakdownEntity] sorted by total amount (descending)
-  /// Throws [Exception] if retrieval fails
-  Future<List<CategoryBreakdownEntity>> executeAll(
-    TransactionType type,
-  ) async {
-    final result = await _repository.getAllCategoryBreakdown(type);
-
-    if (result.isFailure) {
-      throw Exception(result.error ?? 'Gagal mengambil breakdown kategori semua data');
-    }
-
-    return result.data ?? [];
-  }
-
-  /// Retrieves expense category breakdown for the current month
-  Future<List<CategoryBreakdownEntity>> executeExpenseCurrentMonth() async {
-    final now = DateTime.now();
-    final yearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-    return execute(yearMonth, TransactionType.expense);
-  }
-
-  /// Retrieves expense category breakdown for a specific month
-  Future<List<CategoryBreakdownEntity>> executeExpenseByMonth(
-    String yearMonth,
-  ) async {
-    return execute(yearMonth, TransactionType.expense);
-  }
-
-  /// Retrieves income category breakdown for a specific month
-  Future<List<CategoryBreakdownEntity>> executeIncomeByMonth(
-    String yearMonth,
-  ) async {
-    return execute(yearMonth, TransactionType.income);
   }
 }

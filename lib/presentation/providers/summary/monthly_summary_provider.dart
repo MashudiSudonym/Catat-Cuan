@@ -97,12 +97,16 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
 
     // Load trend data (last 6 months including current month)
     // Skip trend data for "all" mode
-    final trendData = isAllData
-        ? <MonthlySummaryEntity>[]
-        : await getMultiMonthSummaryUseCase.executeLastNMonths(
-            referenceYearMonth: yearMonth,
-            monthCount: 6,
-          );
+    List<MonthlySummaryEntity> trendData;
+    if (isAllData) {
+      trendData = <MonthlySummaryEntity>[];
+    } else {
+      final trendResult = await getMultiMonthSummaryUseCase.executeLastNMonths(
+        referenceYearMonth: yearMonth,
+        monthCount: 6,
+      );
+      trendData = trendResult.isSuccess ? (trendResult.data ?? []) : [];
+    }
 
     // Load summary dan breakdown secara parallel
     MonthlySummaryEntity summary;
@@ -124,11 +128,14 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
 
       // Get first transaction date for month picker
       final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
-      final transactions = await getTransactionsUseCase.execute();
-      if (transactions.isNotEmpty) {
-        firstTransactionDate = transactions
-            .map((t) => t.dateTime)
-            .reduce((a, b) => a.isBefore(b) ? a : b);
+      final transactionsResult = await getTransactionsUseCase.execute();
+      if (transactionsResult.isSuccess && transactionsResult.data != null) {
+        final transactions = transactionsResult.data!;
+        if (transactions.isNotEmpty) {
+          firstTransactionDate = transactions
+              .map((t) => t.dateTime)
+              .reduce((a, b) => a.isBefore(b) ? a : b);
+        }
       }
     } else {
       // Load specific month data
@@ -144,11 +151,14 @@ class MonthlySummaryNotifier extends _$MonthlySummaryNotifier {
 
       // Get first transaction date for month picker
       final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
-      final transactions = await getTransactionsUseCase.execute();
-      if (transactions.isNotEmpty) {
-        firstTransactionDate = transactions
-            .map((t) => t.dateTime)
-            .reduce((a, b) => a.isBefore(b) ? a : b);
+      final transactionsResult = await getTransactionsUseCase.execute();
+      if (transactionsResult.isSuccess && transactionsResult.data != null) {
+        final transactions = transactionsResult.data!;
+        if (transactions.isNotEmpty) {
+          firstTransactionDate = transactions
+              .map((t) => t.dateTime)
+              .reduce((a, b) => a.isBefore(b) ? a : b);
+        }
       }
     }
 

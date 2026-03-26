@@ -1,19 +1,18 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
-
-/// Exception yang dilempar saat validasi kategori gagal
-class CategoryValidationException implements Exception {
-  final String message;
-
-  CategoryValidationException(this.message);
-
-  @override
-  String toString() => message;
-}
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 
 /// Use case untuk menambah kategori baru dengan validasi
-class AddCategoryUseCase {
-  final CategoryRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles adding categories with validation
+/// - Dependency Inversion: Depends on CategoryReadRepository and CategoryWriteRepository abstractions
+class AddCategoryUseCase extends UseCase<CategoryEntity, CategoryEntity> {
+  final CategoryWriteRepository _writeRepository;
+  final CategoryReadRepository _readRepository;
 
   // Default values untuk auto-assignment
   static const List<String> defaultColors = [
@@ -28,34 +27,41 @@ class AddCategoryUseCase {
     'expense': ['🍔', '🚗', '🔄', '🛍️', '🎬', '💊', '📚', '📄', '⚡', '🏠'],
   };
 
-  AddCategoryUseCase(this._repository);
+  AddCategoryUseCase(this._writeRepository, this._readRepository);
 
-  /// Menambah kategori baru dengan validasi
-  /// Throws [CategoryValidationException] jika validasi gagal
-  Future<CategoryEntity> execute(CategoryEntity category) async {
+  @override
+  Future<Result<CategoryEntity>> call(CategoryEntity category) async {
     // Validasi nama tidak boleh kosong
     if (category.name.trim().isEmpty) {
-      throw CategoryValidationException('Nama kategori tidak boleh kosong');
+      return Result.failure(
+        const ValidationFailure('Nama kategori tidak boleh kosong'),
+      );
     }
 
     // Validasi panjang nama
     if (category.name.trim().length < 2) {
-      throw CategoryValidationException('Nama kategori minimal 2 karakter');
+      return Result.failure(
+        const ValidationFailure('Nama kategori minimal 2 karakter'),
+      );
     }
 
     if (category.name.trim().length > 50) {
-      throw CategoryValidationException('Nama kategori maksimal 50 karakter');
+      return Result.failure(
+        const ValidationFailure('Nama kategori maksimal 50 karakter'),
+      );
     }
 
     // Validasi nama unik per tipe
-    final existing = await _repository.getCategoryByName(
+    final existingResult = await _readRepository.getCategoryByName(
       category.name.trim(),
       category.type,
     );
 
-    if (existing != null) {
-      throw CategoryValidationException(
-        'Kategori "${category.name}" untuk ${category.type.displayName} sudah ada',
+    if (existingResult.isSuccess && existingResult.data != null) {
+      return Result.failure(
+        ValidationFailure(
+          'Kategori "${category.name}" untuk ${category.type.displayName} sudah ada',
+        ),
       );
     }
 
@@ -82,7 +88,14 @@ class AddCategoryUseCase {
       updatedAt: now,
     );
 
-    return await _repository.addCategory(newCategory);
+    try {
+      final result = await _writeRepository.addCategory(newCategory);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal menambah kategori: $e'),
+      );
+    }
   }
 
   /// Mendapatkan warna random dari preset

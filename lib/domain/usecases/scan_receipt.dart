@@ -1,26 +1,33 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/parsers/receipt_amount_parser.dart';
 import 'package:catat_cuan/domain/parsers/receipt_date_time_composer.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
 
 /// Use case untuk melakukan scan struk dan ekstrak nominal & tanggal
-class ScanReceiptUseCase {
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles receipt scanning
+/// - Dependency Inversion: Depends on OcrService abstraction
+class ScanReceiptUseCase extends UseCase<ReceiptDataEntity, String> {
   final OcrService _ocrService;
 
   ScanReceiptUseCase(this._ocrService);
 
-  /// Execute use case untuk scan struk
-  /// Mengembalikan ReceiptDataEntity jika sukses
-  /// Melempar exception jika gagal
-  Future<ReceiptDataEntity> execute(String imagePath) async {
+  @override
+  Future<Result<ReceiptDataEntity>> call(String imagePath) async {
     // 1. Lakukan OCR untuk mendapatkan teks dari gambar
     final ocrResult = await _ocrService.extractText(imagePath);
 
     if (ocrResult.isFailure) {
-      throw OcrException(ocrResult.failure?.message ?? 'Gagal membaca struk');
+      return Result.failure(
+        OcrFailure(ocrResult.failure?.message ?? 'Gagal membaca struk'),
+      );
     }
 
-    final rawText = ocrResult.dataOrThrow;
+    final rawText = ocrResult.data!;
 
     // 2. Parse nominal dari teks
     final amountParseResult = ReceiptAmountParser.parseAmount(rawText);
@@ -32,24 +39,16 @@ class ScanReceiptUseCase {
     final avgConfidence = (amountParseResult.confidence + dateTimeParseResult.confidence) / 2;
 
     // 5. Buat ReceiptDataEntity
-    return ReceiptDataEntity(
-      rawText: rawText,
-      extractedAmount: amountParseResult.amount,
-      extractedDate: dateTimeParseResult.dateTime,
-      confidenceScore: avgConfidence,
-      scannedAt: DateTime.now(),
-      items: [], // TODO: Implementasi item extraction di masa depan
-      merchantName: null, // TODO: Implementasi merchant name extraction di masa depan
+    return Result.success(
+      ReceiptDataEntity(
+        rawText: rawText,
+        extractedAmount: amountParseResult.amount,
+        extractedDate: dateTimeParseResult.dateTime,
+        confidenceScore: avgConfidence,
+        scannedAt: DateTime.now(),
+        items: [], // TODO: Implementasi item extraction di masa depan
+        merchantName: null, // TODO: Implementasi merchant name extraction di masa depan
+      ),
     );
   }
-}
-
-/// Exception untuk error OCR
-class OcrException implements Exception {
-  final String message;
-
-  OcrException(this.message);
-
-  @override
-  String toString() => message;
 }

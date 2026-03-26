@@ -129,18 +129,15 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
 
   /// Load transaksi untuk edit berdasarkan ID
   Future<void> loadById(int transactionId) async {
-    final getTransactionsUseCase = ref.read(getTransactionsUseCaseProvider);
-    try {
-      final transaction = await getTransactionsUseCase.executeById(transactionId);
-      if (transaction != null) {
-        loadForEdit(transaction);
-      } else {
-        throw Exception('Transaksi tidak ditemukan');
-      }
-    } catch (e, stackTrace) {
-      AppLogger.e('Failed to load transaction by ID: $transactionId', e, stackTrace);
-      rethrow;
+    final getTransactionByIdUseCase = ref.read(getTransactionByIdUseCaseProvider);
+    final result = await getTransactionByIdUseCase(transactionId);
+
+    if (result.isFailure || result.data == null) {
+      AppLogger.e('Failed to load transaction by ID: $transactionId - ${result.failure?.message}');
+      throw Exception(result.failure?.message ?? 'Transaksi tidak ditemukan');
     }
+
+    loadForEdit(result.data!);
   }
 
   /// Reset form ke default (AC-LOG-004.1)
@@ -196,10 +193,16 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
 
       // Execute use case
       if (state.isEditMode) {
-        await updateTransactionUseCase.execute(transaction);
+        final result = await updateTransactionUseCase(transaction);
+        if (result.isFailure) {
+          throw Exception(result.failure?.message ?? 'Gagal mengupdate transaksi');
+        }
         AppLogger.i('Transaction updated successfully');
       } else {
-        await addTransactionUseCase.execute(transaction);
+        final result = await addTransactionUseCase(transaction);
+        if (result.isFailure) {
+          throw Exception(result.failure?.message ?? 'Gagal menambah transaksi');
+        }
         AppLogger.i('Transaction added successfully');
       }
 

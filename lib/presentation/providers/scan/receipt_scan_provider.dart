@@ -124,26 +124,28 @@ class ReceiptScanNotifier extends _$ReceiptScanNotifier {
 
     final scanReceiptUseCase = ref.read(scanReceiptUseCaseProvider);
 
-    try {
-      // Gunakan use case untuk scan
-      final result = await scanReceiptUseCase.execute(imagePath);
+    // Gunakan use case untuk scan
+    final result = await scanReceiptUseCase(imagePath);
 
-      AppLogger.i('OCR processing successful: extracted amount = ${result.extractedAmount}');
-      state = state.copyWith(
-        isScanning: false,
-        isProcessing: false,
-        scanResult: result,
-        errorMessage: null,
-      );
-    } catch (e, stackTrace) {
-      final userMessage = ErrorMessageMapper.getUserMessage(e);
-      AppLogger.e('OCR processing failed', e, stackTrace);
+    if (result.isFailure) {
+      final userMessage = ErrorMessageMapper.getUserMessage(result.failure);
+      AppLogger.e('OCR processing failed: ${result.failure?.message}');
       state = state.copyWith(
         isScanning: false,
         isProcessing: false,
         errorMessage: userMessage,
       );
+      return;
     }
+
+    final scanResult = result.data!;
+    AppLogger.i('OCR processing successful: extracted amount = ${scanResult.extractedAmount}');
+    state = state.copyWith(
+      isScanning: false,
+      isProcessing: false,
+      scanResult: scanResult,
+      errorMessage: null,
+    );
   }
 
   /// Reset state ke kondisi awal

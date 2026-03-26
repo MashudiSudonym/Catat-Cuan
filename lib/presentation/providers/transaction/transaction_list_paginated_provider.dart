@@ -1,6 +1,8 @@
 import 'package:catat_cuan/domain/entities/paginated_result_entity.dart';
 import 'package:catat_cuan/domain/entities/pagination_params_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
+import 'package:catat_cuan/domain/usecases/get_transactions_paginated_usecase.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'transaction_filter_provider.dart';
@@ -124,13 +126,20 @@ class TransactionListPaginatedNotifier extends _$TransactionListPaginatedNotifie
   ) async {
     final getTransactionsPaginatedUseCase = ref.read(getTransactionsPaginatedUseCaseProvider);
 
-    return await getTransactionsPaginatedUseCase.execute(
-      pagination,
+    final result = await getTransactionsPaginatedUseCase(GetTransactionsPaginatedParams(
+      pagination: pagination,
       startDate: filterState.startDate,
       endDate: filterState.endDate,
       categoryId: filterState.categoryId,
       type: filterState.type,
-    );
+    ));
+
+    if (result.isFailure || result.data == null) {
+      AppLogger.e('Failed to load paginated transactions: ${result.failure?.message}');
+      throw Exception(result.failure?.message ?? 'Failed to load transactions');
+    }
+
+    return result.data!;
   }
 
   /// Load more items (next page)

@@ -1,22 +1,29 @@
+import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
-import 'package:catat_cuan/domain/usecases/add_transaction.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/transaction/transaction_write_repository.dart';
 import 'package:catat_cuan/domain/validators/transaction_validator.dart';
 
 /// Use case untuk mengupdate transaksi yang sudah ada
-class UpdateTransactionUseCase {
-  final TransactionRepository _repository;
+///
+/// Following SOLID principles:
+/// - Single Responsibility: Only handles updating transactions
+/// - Dependency Inversion: Depends on TransactionWriteRepository abstraction
+/// - Open/Closed: Validation logic is delegated to TransactionValidator
+class UpdateTransactionUseCase extends UseCase<TransactionEntity, TransactionEntity> {
+  final TransactionWriteRepository _repository;
 
   UpdateTransactionUseCase(this._repository);
 
-  /// Execute use case untuk mengupdate transaksi
-  /// Mengembalikan TransactionEntity yang sudah diupdate jika sukses
-  /// Melempar Exception jika validasi gagal atau transaksi tidak ditemukan
-  Future<TransactionEntity?> execute(TransactionEntity transaction) async {
+  @override
+  Future<Result<TransactionEntity>> call(TransactionEntity transaction) async {
     // Lakukan validasi menggunakan shared validator (dengan requireId: true)
     final validation = TransactionValidator.validateForUpdate(transaction);
     if (!validation.isValid) {
-      throw ValidationException(validation.error ?? 'Validasi gagal');
+      return Result.failure(
+        ValidationFailure(validation.error ?? 'Validasi gagal'),
+      );
     }
 
     // Update timestamp
@@ -25,12 +32,13 @@ class UpdateTransactionUseCase {
     );
 
     // Update ke repository
-    final result = await _repository.updateTransaction(transactionToUpdate);
-
-    if (result.isFailure) {
-      throw DatabaseException(result.error ?? 'Gagal mengupdate transaksi');
+    try {
+      final result = await _repository.updateTransaction(transactionToUpdate);
+      return result;
+    } catch (e) {
+      return Result.failure(
+        DatabaseFailure('Gagal mengupdate transaksi: $e'),
+      );
     }
-
-    return result.data;
   }
 }

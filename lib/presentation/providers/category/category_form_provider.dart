@@ -77,18 +77,15 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
 
   /// Load kategori untuk edit berdasarkan ID
   Future<void> loadById(int categoryId) async {
-    final getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
-    try {
-      final category = await getCategoriesUseCase.executeById(categoryId);
-      if (category != null) {
-        loadForEdit(category);
-      } else {
-        throw Exception('Kategori tidak ditemukan');
-      }
-    } catch (e, stackTrace) {
-      AppLogger.e('Failed to load category by ID: $categoryId', e, stackTrace);
-      rethrow;
+    final getCategoryByIdUseCase = ref.read(getCategoryByIdUseCaseProvider);
+    final result = await getCategoryByIdUseCase(categoryId);
+
+    if (result.isFailure || result.data == null) {
+      AppLogger.e('Failed to load category by ID: $categoryId - ${result.failure?.message}');
+      throw Exception(result.failure?.message ?? 'Kategori tidak ditemukan');
     }
+
+    loadForEdit(result.data!);
   }
 
   /// Initialize dengan tipe tertentu (untuk quick add dari transaction form)
@@ -146,10 +143,16 @@ class CategoryFormNotifier extends _$CategoryFormNotifier {
 
       // Execute use case
       if (state.isEditMode) {
-        await updateCategoryUseCase.execute(category);
+        final result = await updateCategoryUseCase(category);
+        if (result.isFailure) {
+          throw Exception(result.failure?.message ?? 'Gagal mengupdate kategori');
+        }
         AppLogger.i('Category updated successfully');
       } else {
-        await addCategoryUseCase.execute(category);
+        final result = await addCategoryUseCase(category);
+        if (result.isFailure) {
+          throw Exception(result.failure?.message ?? 'Gagal menambah kategori');
+        }
         AppLogger.i('Category added successfully');
       }
 

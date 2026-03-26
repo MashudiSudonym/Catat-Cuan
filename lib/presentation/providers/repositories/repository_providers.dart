@@ -4,15 +4,15 @@ import 'package:catat_cuan/data/repositories/category/category_read_repository_i
 import 'package:catat_cuan/data/repositories/category/category_write_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/category/category_management_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/category/category_seeding_repository_impl.dart';
-import 'package:catat_cuan/data/repositories/category/category_repository_adapter.dart';
-import 'package:catat_cuan/data/repositories/transaction/transaction_repository_adapter.dart';
-import 'package:catat_cuan/data/repositories/transaction_repository_impl.dart';
-import 'package:catat_cuan/domain/repositories/category_repository.dart';
+import 'package:catat_cuan/data/repositories/transaction/basic_transaction_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_analytics_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_export_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_query_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_search_repository_impl.dart';
 import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_management_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_seeding_repository.dart';
-import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_repositories.dart';
 
 /// Provider untuk DatabaseHelper
@@ -20,97 +20,60 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
   return DatabaseHelper();
 });
 
-/// Provider untuk TransactionRepository (legacy monolithic interface)
-///
-/// @deprecated Use segregated repository providers below for new code
-/// Following DIP: Provides abstraction (TransactionRepository), not concrete implementation
-@Deprecated('Use segregated repository providers instead')
-final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
-  return TransactionRepositoryImpl(ref.read(databaseHelperProvider));
-});
+/// ============================================================================
+/// Transaction Repository Providers (Segregated Interfaces)
+/// ============================================================================
 
-/// Provider untuk TransactionRepositoryAdapter
+/// Provider for TransactionReadRepository (segregated interface)
 ///
-/// Internal provider that creates the adapter wrapping the legacy implementation.
-/// This is used by all the segregated repository providers below.
-final _transactionRepositoryAdapterProvider = Provider<TransactionRepositoryAdapter>((ref) {
-  final legacyImpl = TransactionRepositoryImpl(ref.read(databaseHelperProvider));
-  return TransactionRepositoryAdapter(legacyImpl);
-});
-
-/// Provider untuk TransactionReadRepository (segregated interface)
-///
-/// Provides only read operations for transactions
-/// Use this when you only need to query transaction data
+/// Provides only read operations for transactions.
+/// Use this when you only need to query transaction data (by ID or all).
 final transactionReadRepositoryProvider = Provider<TransactionReadRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
+  return BasicTransactionRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
-/// Provider untuk TransactionWriteRepository (segregated interface)
+/// Provider for TransactionWriteRepository (segregated interface)
 ///
-/// Provides only write operations for transactions
-/// Use this when you only need to create/update/delete transactions
+/// Provides only write operations for transactions.
+/// Use this when you only need to create/update/delete transactions.
 final transactionWriteRepositoryProvider = Provider<TransactionWriteRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
+  return BasicTransactionRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
-/// Provider untuk TransactionQueryRepository (segregated interface)
+/// Provider for TransactionQueryRepository (segregated interface)
 ///
-/// Provides filtering and pagination operations for transactions
-/// Use this when you need to query transactions with filters or pagination
+/// Provides filtering and pagination operations for transactions.
+/// Use this when you need to query transactions with filters or pagination.
 final transactionQueryRepositoryProvider = Provider<TransactionQueryRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
+  return TransactionQueryRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
-/// Provider untuk TransactionSearchRepository (segregated interface)
+/// Provider for TransactionSearchRepository (segregated interface)
 ///
-/// Provides search operations for transactions
-/// Use this when you need to search transactions by text
+/// Provides search operations for transactions.
+/// Use this when you need to search transactions by text.
 final transactionSearchRepositoryProvider = Provider<TransactionSearchRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
+  return TransactionSearchRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
-/// Provider untuk TransactionAnalyticsRepository (segregated interface)
+/// Provider for TransactionAnalyticsRepository (segregated interface)
 ///
-/// Provides analytics and summary operations for transactions
-/// Use this when you need summaries, breakdowns, and aggregations
+/// Provides analytics and summary operations for transactions.
+/// Use this when you need summaries, breakdowns, and aggregations.
 final transactionAnalyticsRepositoryProvider = Provider<TransactionAnalyticsRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
+  return TransactionAnalyticsRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
-/// Provider untuk TransactionExportRepository (segregated interface)
+/// Provider for TransactionExportRepository (segregated interface)
 ///
-/// Provides export data preparation operations for transactions
-/// Use this when you need to prepare transaction data for export
+/// Provides export data preparation operations for transactions.
+/// Use this when you need to prepare transaction data for export.
 final transactionExportRepositoryProvider = Provider<TransactionExportRepository>((ref) {
-  return ref.read(_transactionRepositoryAdapterProvider);
-});
-
-/// Provider untuk CategoryRepository (legacy monolithic interface)
-///
-/// @deprecated Use segregated repository providers below for new code
-/// Following DIP: Provides abstraction (CategoryRepository), not concrete implementation
-@Deprecated('Use segregated category repository providers instead')
-final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
-  // Use the adapter that combines segregated repositories
-  return ref.read(_categoryRepositoryAdapterProvider);
-});
-
-/// Provider untuk CategoryRepositoryAdapter
-///
-/// Internal provider that creates the adapter combining the segregated implementations.
-/// This is used by the legacy categoryRepositoryProvider for backward compatibility.
-final _categoryRepositoryAdapterProvider = Provider<CategoryRepositoryAdapter>((ref) {
-  return CategoryRepositoryAdapter(
-    ref.read(categoryReadRepositoryProvider),
-    ref.read(categoryWriteRepositoryProvider),
-    ref.read(categoryManagementRepositoryProvider),
-    ref.read(categorySeedingRepositoryProvider),
-  );
+  return TransactionExportRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
 /// ============================================================================
-/// Segregated Category Repository Providers
+/// Category Repository Providers (Segregated Interfaces)
 /// ============================================================================
 
 /// Provider untuk CategoryReadRepository (segregated interface)
