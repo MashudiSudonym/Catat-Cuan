@@ -1,5 +1,4 @@
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/domain/repositories/category/category_repositories.dart';
 
 /// Legacy monolithic CategoryRepository interface
 ///
@@ -29,7 +28,8 @@ import 'package:catat_cuan/domain/repositories/category/category_repositories.da
 ///   final CategoryWriteRepository _writeRepo;
 /// }
 /// ```
-@Deprecated('Use segregated interfaces from category/category_repositories.dart instead')
+@Deprecated(
+    'Use segregated interfaces from category/category_repositories.dart instead')
 abstract class CategoryRepository {
   /// @deprecated Use CategoryReadRepository.getCategories() instead
   @deprecated
@@ -81,7 +81,8 @@ abstract class CategoryRepository {
 
   /// @deprecated Use CategoryReadRepository.getCategoryByName() instead
   @deprecated
-  Future<CategoryEntity?> getCategoryByName(String name, CategoryType type, {int? excludeId});
+  Future<CategoryEntity?> getCategoryByName(String name, CategoryType type,
+      {int? excludeId});
 
   /// @deprecated Use CategoryReadRepository.getTransactionCount() instead
   @deprecated
