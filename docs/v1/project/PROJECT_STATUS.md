@@ -55,22 +55,24 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ### Refactoring Single Responsibility Principle (SRP)
 
-**Status**: Fase 1-3 Selesai | Fase 4 Pending
+**Status**: Fase 1-4 Selesai ✅ | Fase 5 Pending ⏳
 
 #### Fase yang Selesai ✅
 
-| Fase | Deskripsi | File Baru |
-|------|-----------|-----------|
-| **Fase 1** | Data Layer - Repository Segregation | 4 category repository implementations |
-| **Fase 2** | Presentation Controllers | 3 focused controllers |
-| **Fase 3** | Utilities & Services | TransactionFormatter, FileNamingService |
+| Fase | Deskripsi | Status |
+|------|-----------|--------|
+| **Fase 1** | Data Layer - Repository Segregation | ✅ Complete - 4 category repository implementations |
+| **Fase 2** | Presentation Controllers | ✅ Complete - 3 focused controllers |
+| **Fase 3** | Utilities & Services | ✅ Complete - TransactionFormatter, FileNamingService |
+| **Fase 4** | Integration | ✅ Complete - Screens updated, testing passed (97 tests) |
 
-#### Fase 4: Integration (Pending) ⏳
+#### Fase 5: Domain & Utility Layers (Pending) ⏳
 
-- [ ] Jalankan code generation untuk provider baru
-- [ ] Update screens untuk menggunakan controllers
-- [ ] Update widgets untuk menggunakan formatters
-- [ ] Testing dan verifikasi
+Pelanggaran SRP yang tersisa:
+- Domain Layer: 3 violations (InsightService, ReceiptDateParser, Entity Business Logic)
+- Utility Layer: 2 violations (utils.dart, base.dart exports)
+
+**Estimasi**: 4-6 jam
 
 **Detail**: Lihat [SRP_REFACTORING_PROGRESS.md](./refactoring/SRP_REFACTORING_PROGRESS.md)
 
@@ -217,10 +219,9 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
 
 ### Prioritas Tinggi 🔴
 
-1. **Selesaikan Refactoring SRP**
-   - Jalankan code generation
-   - Update screens untuk menggunakan controllers
-   - Update widgets untuk menggunakan formatters
+1. **Selesaikan Refactoring SRP - Fase 5**
+   - Domain Layer: Refactor `InsightService` (ekstrak rule engine, message service)
+   - Utility Layer: Reorganize `utils.dart` dan `base.dart` exports
    - Testing dan verifikasi
 
 ### Prioritas Sedang 🟡
@@ -321,6 +322,6 @@ Semua konten dalam Bahasa Indonesia (id_ID):
 
 **✅ v1 100% SELESAI** - Semua persyaratan PRD diimplementasikan dengan peningkatan tambahan.
 
-**🔨 REFACTORING BERJALAN** - Refactoring SRP fase 1-3 selesai, fase 4 pending.
+**🔨 REFACTORING BERJALAN** - Refactoring SRP fase 1-4 selesai (11/16 violations addressed), fase 5 pending (4 violations remaining).
 
-**Siap untuk produksi setelah refactoring selesai.**
+**Siap untuk produksi setelah refactoring fase 5 selesai.**

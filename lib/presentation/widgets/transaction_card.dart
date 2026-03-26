@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:catat_cuan/presentation/utils/formatters/transaction_formatter.dart';
 import 'package:intl/intl.dart';
 import '../utils/utils.dart';
 import 'base/base.dart';
@@ -147,15 +148,7 @@ class TransactionCard extends ConsumerWidget {
   }
 
   Color _getCategoryColor() {
-    final colorStr = category.color;
-    if (colorStr.isNotEmpty) {
-      try {
-        return Color(int.parse(colorStr, radix: 16));
-      } catch (_) {
-        // Fall through to default
-      }
-    }
-    return AppColors.getCategoryColor(category.id ?? 0);
+    return TransactionFormatter.getCategoryColor(category);
   }
 
   String _formatAmount(WidgetRef ref) {
@@ -180,12 +173,23 @@ class TransactionCard extends ConsumerWidget {
       if (transactionDate == yesterday) {
         datePrefix = 'Kemarin';
       } else {
-        datePrefix = DateFormat('dd MMM yyyy', 'id_ID').format(transaction.dateTime);
+        // Use formatter for consistent date formatting
+        final days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        final dayName = days[transaction.dateTime.weekday - 1];
+        datePrefix = '$dayName, ${transaction.dateTime.day} ${_getMonthName(transaction.dateTime.month)} ${transaction.dateTime.year}';
       }
     }
 
-    final time = DateFormat('HH:mm', 'id_ID').format(transaction.dateTime);
+    final time = '${transaction.dateTime.hour.toString().padLeft(2, '0')}:${transaction.dateTime.minute.toString().padLeft(2, '0')}';
     return '$datePrefix, $time';
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+    return months[month - 1];
   }
 
   Widget _buildActionMenu(BuildContext context, Color secondaryColor) {

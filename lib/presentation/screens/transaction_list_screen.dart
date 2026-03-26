@@ -153,67 +153,43 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     BuildContext context,
     WidgetRef ref,
     TransactionSelectionState selectionState,
-  ) {
-    final count = selectionState.selectedCount;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Transaksi'),
-        content: Text(
-          '$count transaksi akan dihapus secara permanen.\n\n'
-          'Apakah Anda yakin?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                final ids = selectionState.selectedIds.toList();
-                await ref
-                    .read(deleteMultipleTransactionsUseCaseProvider)
-                    .execute(ids);
+  ) async {
+    final controller = ref.read(transactionDeleteControllerProvider);
+    final ids = selectionState.selectedIds.toList();
 
-                if (context.mounted) {
-                  // Exit selection mode
-                  _exitSelectionMode(ref);
-
-                  // Invalidate all transaction list providers and summary to trigger refresh
-                  ref.invalidate(transactionListProvider);
-                  ref.invalidate(transactionListPaginatedProvider);
-                  ref.invalidate(monthlySummaryProvider);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('$count transaksi berhasil dihapus'),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus transaksi: $e'),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.expense,
-            ),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
+    final success = await controller.showBatchDeleteConfirmation(
+      context,
+      ids,
     );
+
+    if (context.mounted) {
+      if (success) {
+        // Exit selection mode
+        _exitSelectionMode(ref);
+
+        // Invalidate all transaction list providers and summary to trigger refresh
+        ref.invalidate(transactionListProvider);
+        ref.invalidate(transactionListPaginatedProvider);
+        ref.invalidate(monthlySummaryProvider);
+
+        final count = selectionState.selectedCount;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$count transaksi berhasil dihapus'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menghapus transaksi'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -607,61 +583,37 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     BuildContext context,
     WidgetRef ref,
     TransactionEntity transaction,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Transaksi'),
-        content: Text(
-          'Apakah Anda yakin ingin menghapus transaksi ini?\n\n'
-          '${transaction.amount.toCurrency(ref: ref)}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await ref
-                    .read(deleteTransactionUseCaseProvider)
-                    .execute(transaction.id!);
-                if (context.mounted) {
-                  // Invalidate all transaction list providers and summary to trigger refresh
-                  ref.invalidate(transactionListProvider);
-                  ref.invalidate(transactionListPaginatedProvider);
-                  ref.invalidate(monthlySummaryProvider);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Transaksi berhasil dihapus'),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus transaksi: $e'),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.expense,
-            ),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
+  ) async {
+    final controller = ref.read(transactionDeleteControllerProvider);
+    final success = await controller.showDeleteConfirmation(
+      context,
+      transaction.id!,
     );
+
+    if (context.mounted) {
+      if (success) {
+        // Invalidate all transaction list providers and summary to trigger refresh
+        ref.invalidate(transactionListProvider);
+        ref.invalidate(transactionListPaginatedProvider);
+        ref.invalidate(monthlySummaryProvider);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transaksi berhasil dihapus'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menghapus transaksi'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }
 

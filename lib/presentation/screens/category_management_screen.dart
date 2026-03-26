@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/category_list_item.dart';
-import 'package:catat_cuan/presentation/widgets/deactivate_category_dialog.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
@@ -232,22 +231,29 @@ class _CategoryManagementScreenState
     int oldIndex,
     int newIndex,
   ) async {
-    // Adjust newIndex when moving down
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
+    final controller = ref.read(categoryManagementControllerProvider);
+    final List<CategoryEntity> categoryEntities =
+        categories.cast<CategoryWithCountEntity>().map((c) => c.category).toList();
+
+    final success = await controller.handleReorder(
+      oldIndex,
+      newIndex,
+      categoryEntities,
+    );
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal mengurutkan kategori'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } else {
+      // Refresh the list
+      ref.read(categoryManagementProvider.notifier).refresh();
     }
-
-    // Create a copy of the categories list
-    final List<CategoryWithCountEntity> reorderedCategories =
-        categories.cast<CategoryWithCountEntity>().toList();
-    final item = reorderedCategories.removeAt(oldIndex);
-    reorderedCategories.insert(newIndex, item);
-
-    // Create list of category IDs in new order
-    final categoryIds = reorderedCategories.map((c) => c.category.id!).toList();
-
-    // Call reorder use case via notifier
-    await ref.read(categoryManagementProvider.notifier).reorderCategories(categoryIds);
   }
 
   Widget _buildEmptyState() {
@@ -369,22 +375,19 @@ class _CategoryManagementScreenState
     BuildContext context,
     CategoryWithCountEntity categoryWithCount,
   ) async {
+    final controller = ref.read(categoryManagementControllerProvider);
     final category = categoryWithCount.category;
-    final transactionCount = categoryWithCount.transactionCount;
 
-    // Show confirmation dialog using DeactivateCategoryDialog
-    final result = await DeactivateCategoryDialog.show(
-      context: context,
-      categoryName: category.name,
-      transactionCount: transactionCount,
+    final success = await controller.showDeleteConfirmation(
+      context,
+      category,
     );
 
-    if (result == true && transactionCount == 0) {
-      final success = await ref
-          .read(categoryManagementProvider.notifier)
-          .deactivateCategory(category.id!);
-
-      if (context.mounted && !success) {
+    if (context.mounted) {
+      if (success) {
+        // Refresh the list
+        ref.read(categoryManagementProvider.notifier).refresh();
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Gagal menonaktifkan kategori'),

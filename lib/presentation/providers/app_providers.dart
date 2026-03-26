@@ -60,6 +60,9 @@ export 'export/export_provider.dart';
 // Onboarding providers
 export 'onboarding/onboarding_provider.dart';
 
+// Controller providers (SRP refactoring)
+export 'controllers/controller_providers.dart';
+
 // ============================================================================
 // State Classes (for backward compatibility with UI)
 // ============================================================================

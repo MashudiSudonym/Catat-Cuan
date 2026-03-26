@@ -407,7 +407,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
               if (success && mounted) {
                 // Clear receipt scan session after successful transaction save
-                ref.read(receiptScanProvider.notifier).reset();
+                final scanController = ref.read(receiptScanningControllerProvider);
+                scanController.reset();
 
                 // Show success snackbar (AC-LOG-004.2)
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -448,64 +449,38 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
   void _showDeleteConfirmation(
     BuildContext context,
     TransactionFormState formState,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Transaksi'),
-        content: const Text(
-          'Apakah Anda yakin ingin menghapus transaksi ini?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              context.pop();
-              final messenger = ScaffoldMessenger.of(context);
-              final navigator = Navigator.of(context);
-              try {
-                await ref
-                    .read(deleteTransactionUseCaseProvider)
-                    .execute(widget.transactionToEdit!.id!);
-
-                // Invalidate transaction list providers and summary to trigger refresh
-                ref.invalidate(transactionListProvider);
-                ref.invalidate(transactionListPaginatedProvider);
-                ref.invalidate(monthlySummaryProvider);
-
-                if (mounted) {
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Transaksi berhasil dihapus'),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                  navigator.pop();
-                }
-              } catch (e) {
-                if (mounted) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus transaksi: $e'),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.expense,
-            ),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
+  ) async {
+    final controller = ref.read(transactionDeleteControllerProvider);
+    final success = await controller.showDeleteConfirmation(
+      context,
+      widget.transactionToEdit!.id!,
     );
+
+    if (context.mounted) {
+      if (success) {
+        // Invalidate transaction list providers and summary to trigger refresh
+        ref.invalidate(transactionListProvider);
+        ref.invalidate(transactionListPaginatedProvider);
+        ref.invalidate(monthlySummaryProvider);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transaksi berhasil dihapus'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menghapus transaksi'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   /// Show quick add category bottom sheet

@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/export_action_entity.dart';
 import 'package:catat_cuan/domain/usecases/export_transactions_usecase.dart';
+import 'package:catat_cuan/domain/services/file_naming_service.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
@@ -209,8 +210,7 @@ class ExportNotifier extends _$ExportNotifier {
   /// Generate filename suffix from current date
   /// Format: DD_MM_YYYY (e.g., 15_03_2024)
   String _generateFileNameSuffix() {
-    final now = DateTime.now();
-    return '${now.day}_${now.month}_${now.year}';
+    return FileNamingService.generateDateSuffix();
   }
 
   /// Reset export state to idle

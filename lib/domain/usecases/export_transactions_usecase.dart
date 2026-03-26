@@ -3,6 +3,7 @@ import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/transaction_repository.dart';
 import 'package:catat_cuan/domain/services/export_service.dart';
+import 'package:catat_cuan/domain/services/file_naming_service.dart';
 
 /// Use case untuk export transaksi ke CSV
 class ExportTransactionsUseCase {
@@ -57,8 +58,7 @@ class ExportTransactionsUseCase {
   /// Generate filename suffix dari tanggal hari ini
   /// Format: YYYYMMDD (contoh: 20240315)
   String _generateFileNameSuffix() {
-    final now = DateTime.now();
-    return '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+    return FileNamingService.generateDateSuffix();
   }
 }
 

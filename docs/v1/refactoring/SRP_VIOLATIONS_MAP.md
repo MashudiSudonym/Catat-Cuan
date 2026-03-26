@@ -3,7 +3,7 @@
 **Dibuat**: 2026-03-26
 **Terakhir Diupdate**: 2026-03-26
 **Tujuan**: Dokumen ini memetakan semua file yang melanggar SRP sebagai patokan refactoring
-**Status**: ✅ Phase 1 & 2 Selesai (11 violations addressed)
+**Status**: ✅ Phase 1-4 Selesai (11 violations addressed) | Phase 5 Pending
 
 ---
 
@@ -14,9 +14,10 @@
 | Phase 1: Data Layer (Category) | ✅ Complete | 4 segregated repositories + adapter |
 | Phase 2: Presentation Controllers | ✅ Complete | 3 controllers created |
 | Phase 3: Utilities | ✅ Complete | 2 utilities created |
-| Phase 4: Integration | ⏳ Pending | Screens update, testing |
+| Phase 4: Integration | ✅ Complete | Screens updated, testing passed |
+| Phase 5: Domain & Utility Layers | ⏳ Pending | 5 remaining violations |
 
-**Total Violations Addressed**: 11 / 16 (69%)
+**Total Violations Addressed**: 11 / 16 (69%) - **Phase 1-4 Complete**
 
 ---
 
@@ -593,15 +594,15 @@ Gunakan checklist ini untuk melacak progress refactoring:
 - [ ] Split `ReceiptDateParser` (optional)
 
 ### Presentation Layer
-- [ ] Extract `TransactionGrouper` dari `TransactionListScreen`
-- [ ] Create `TransactionListUIManager`
-- [x] Create `TransactionDeleteController` (done)
-- [x] Extract `ReceiptScanningController` (done - delegates to provider)
+- [ ] Extract `TransactionGrouper` dari `TransactionListScreen` (optional, low priority)
+- [ ] Create `TransactionListUIManager` (optional, low priority)
+- [x] Create `TransactionDeleteController` (done - Phase 2)
+- [x] Extract `ReceiptScanningController` (done - Phase 2, delegates to provider)
 - [x] Refactor `ReceiptScanProvider` (already delegates to services)
-- [ ] Consolidate `TransactionCard` widgets
-- [x] Extract `CategoryManagementController` (handles reorder + delete)
-- [x] Extract `TransactionFormatter` (done)
-- [ ] Update screens to use controllers
+- [ ] Consolidate `TransactionCard` widgets (optional, low priority)
+- [x] Extract `CategoryManagementController` (handles reorder + delete, done - Phase 2)
+- [x] Extract `TransactionFormatter` (done - Phase 3)
+- [x] Update screens to use controllers (done - Phase 4)
 
 ### Utility Layer
 - [ ] Reorganize `utils.dart` exports

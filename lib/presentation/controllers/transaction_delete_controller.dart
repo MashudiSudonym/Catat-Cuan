@@ -22,7 +22,7 @@ class TransactionDeleteController {
   /// Returns true if deletion was successful, false otherwise
   Future<bool> showDeleteConfirmation(
     BuildContext context,
-    String transactionId,
+    int transactionId,
   ) async {
     final confirmed = await _showConfirmationDialog(
       context,
@@ -41,7 +41,7 @@ class TransactionDeleteController {
   /// Returns true if all deletions were successful, false otherwise
   Future<bool> showBatchDeleteConfirmation(
     BuildContext context,
-    List<String> transactionIds,
+    List<int> transactionIds,
   ) async {
     if (transactionIds.isEmpty) return false;
 
@@ -61,21 +61,21 @@ class TransactionDeleteController {
   /// Delete a single transaction without confirmation
   ///
   /// This is useful when confirmation is handled elsewhere
-  Future<void> deleteTransaction(String id) async {
+  Future<void> deleteTransaction(int id) async {
     await _deleteSingleTransaction(id);
   }
 
   /// Delete multiple transactions without confirmation
   ///
   /// This is useful when confirmation is handled elsewhere
-  Future<void> deleteBatch(List<String> ids) async {
+  Future<void> deleteBatch(List<int> ids) async {
     await _deleteBatchTransactions(ids);
   }
 
   /// Internal method to delete a single transaction
-  Future<bool> _deleteSingleTransaction(String id) async {
+  Future<bool> _deleteSingleTransaction(int id) async {
     try {
-      await _deleteTransactionUseCase.execute(int.parse(id));
+      await _deleteTransactionUseCase.execute(id);
       return true;
     } catch (e) {
       debugPrint('Failed to delete transaction: $e');
@@ -84,10 +84,9 @@ class TransactionDeleteController {
   }
 
   /// Internal method to delete multiple transactions
-  Future<bool> _deleteBatchTransactions(List<String> ids) async {
+  Future<bool> _deleteBatchTransactions(List<int> ids) async {
     try {
-      final intIds = ids.map((id) => int.parse(id)).toList();
-      await _deleteMultipleTransactionsUseCase.execute(intIds);
+      await _deleteMultipleTransactionsUseCase.execute(ids);
       return true;
     } catch (e) {
       debugPrint('Failed to delete transactions: $e');
