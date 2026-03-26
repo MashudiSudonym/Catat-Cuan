@@ -1,7 +1,9 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
+import 'package:catat_cuan/data/models/category_breakdown_model.dart';
 import 'package:catat_cuan/data/models/monthly_summary_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
@@ -17,7 +19,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// - Multi-month trends
 /// - All-time summaries
 ///
-/// For basic CRUD operations, use BasicTransactionRepositoryImpl.
+/// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering and pagination, use TransactionQueryRepositoryImpl.
 class TransactionAnalyticsRepositoryImpl
     implements TransactionAnalyticsRepository {

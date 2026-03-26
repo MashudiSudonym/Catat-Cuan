@@ -15,7 +15,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// - Optional filtering by transaction type
 /// - Configurable result limits
 ///
-/// For basic CRUD operations, use BasicTransactionRepositoryImpl.
+/// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering by date range, use TransactionQueryRepositoryImpl.
 class TransactionSearchRepositoryImpl
     implements TransactionSearchRepository {

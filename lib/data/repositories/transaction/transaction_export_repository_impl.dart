@@ -13,7 +13,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// - Fetching transactions with category names for CSV export
 /// - Supporting the same filters as query operations
 ///
-/// For basic CRUD operations, use BasicTransactionRepositoryImpl.
+/// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering and pagination, use TransactionQueryRepositoryImpl.
 class TransactionExportRepositoryImpl
     implements TransactionExportRepository {

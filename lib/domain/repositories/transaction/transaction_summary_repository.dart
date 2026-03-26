@@ -12,6 +12,7 @@
 library;
 
 import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 

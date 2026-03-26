@@ -4,7 +4,8 @@ import 'package:catat_cuan/data/repositories/category/category_read_repository_i
 import 'package:catat_cuan/data/repositories/category/category_write_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/category/category_management_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/category/category_seeding_repository_impl.dart';
-import 'package:catat_cuan/data/repositories/transaction/basic_transaction_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_read_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/transaction/transaction_write_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_analytics_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_export_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_query_repository_impl.dart';
@@ -29,7 +30,7 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
 /// Provides only read operations for transactions.
 /// Use this when you only need to query transaction data (by ID or all).
 final transactionReadRepositoryProvider = Provider<TransactionReadRepository>((ref) {
-  return BasicTransactionRepositoryImpl(ref.read(databaseHelperProvider));
+  return TransactionReadRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
 /// Provider for TransactionWriteRepository (segregated interface)
@@ -37,7 +38,7 @@ final transactionReadRepositoryProvider = Provider<TransactionReadRepository>((r
 /// Provides only write operations for transactions.
 /// Use this when you only need to create/update/delete transactions.
 final transactionWriteRepositoryProvider = Provider<TransactionWriteRepository>((ref) {
-  return BasicTransactionRepositoryImpl(ref.read(databaseHelperProvider));
+  return TransactionWriteRepositoryImpl(ref.read(databaseHelperProvider));
 });
 
 /// Provider for TransactionQueryRepository (segregated interface)

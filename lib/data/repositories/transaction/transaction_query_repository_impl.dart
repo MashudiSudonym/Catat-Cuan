@@ -16,7 +16,7 @@ import 'package:sqflite/sqflite.dart';
 /// - Filtering by date range, category, type
 /// - Pagination with configurable page size
 ///
-/// For basic CRUD operations, use BasicTransactionRepositoryImpl.
+/// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For search operations, use TransactionSearchRepositoryImpl.
 /// For analytics, use TransactionAnalyticsRepositoryImpl.
 class TransactionQueryRepositoryImpl implements TransactionQueryRepository {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/domain/entities/recommendation_entity.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 

@@ -1,4 +1,6 @@
+import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/domain/entities/recommendation_entity.dart';
 import 'package:catat_cuan/domain/services/insight/insight_configuration_service.dart';
 import 'package:catat_cuan/domain/services/insight/insight_rule_engine.dart';
 import 'package:catat_cuan/domain/services/insight/recommendation_formatter_service.dart';

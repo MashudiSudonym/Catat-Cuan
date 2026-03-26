@@ -1,4 +1,6 @@
+import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
+import 'package:catat_cuan/domain/entities/recommendation_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

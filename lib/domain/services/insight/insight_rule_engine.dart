@@ -1,3 +1,4 @@
+import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/services/insight/insight_configuration_service.dart';
 
