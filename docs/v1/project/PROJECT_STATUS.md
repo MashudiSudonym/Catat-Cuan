@@ -189,14 +189,25 @@ Following the Testing Pyramid principle:
   - Keyword-based extraction (Total, Jumlah, Tagihan, etc.)
   - Fallback extraction for largest amount
   - Real-world receipt examples
+- ✅ Transaction Validator tests (48 tests)
+  - validate() - general validation
+  - validateForCreation() - creation-specific
+  - validateForUpdate() - update-specific with ID check
+  - validateAmount(), validateCategoryId(), validateNote()
+  - ValidationResult success/error
+  - Real-world validation scenarios
+- ✅ Entity tests (63 tests)
+  - TransactionEntity (28 tests) - creation, immutability, types, amounts, equality
+  - CategoryEntity (35 tests) - creation, immutability, colors, icons, active status
+  - TransactionType enum (10 tests) - fromString, displayName, value
+  - CategoryType enum (8 tests) - fromString, displayName, value
 
-**In Progress**:
+**Pending**:
 - ⏳ Receipt Date Parser tests (already exists, verification needed)
 - ⏳ Receipt Time Parser tests (already exists, verification needed)
 - ⏳ Receipt DateTime Composer tests (already exists, verification needed)
-- ⏳ Transaction Validator tests (new)
 
-**Current Test Count**: 139/139 passing ✅
+**Current Test Count**: 250/250 passing ✅
 
 ### Test Infrastructure
 
