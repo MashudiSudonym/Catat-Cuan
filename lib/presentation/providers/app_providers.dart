@@ -57,6 +57,9 @@ export 'scan/receipt_scan_provider.dart';
 // Export providers
 export 'export/export_provider.dart';
 
+// Import providers
+export 'import/import_provider.dart';
+
 // Onboarding providers
 export 'onboarding/onboarding_provider.dart';
 

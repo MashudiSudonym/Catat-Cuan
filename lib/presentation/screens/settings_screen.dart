@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
+import 'package:catat_cuan/presentation/widgets/import_result_dialog.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Settings screen for app preferences
@@ -106,6 +108,28 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
+          // Data Section
+          _buildSectionHeader('Data'),
+
+          AppGlassContainer.glassCard(
+            margin: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: ListTile(
+              leading: Icon(
+                Icons.upload_file_outlined,
+                color: isDark ? Colors.white : AppColors.textPrimary,
+              ),
+              title: const Text('Impor Transaksi'),
+              subtitle: const Text('Impor data dari file CSV'),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiary,
+              ),
+              onTap: () => _handleImport(context, ref),
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
           // App Info Section
           _buildSectionHeader('Informasi Aplikasi'),
 
@@ -162,6 +186,62 @@ class SettingsScreen extends ConsumerWidget {
         return 'Terang';
       case ThemeModeOption.dark:
         return 'Gelap';
+    }
+  }
+
+  Future<void> _handleImport(BuildContext context, WidgetRef ref) async {
+    // Pick CSV file
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final filePath = result.files.single.path;
+    if (filePath == null) return;
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Impor Transaksi'),
+        content: const Text(
+          'Data dari file CSV akan diimpor. Transaksi yang sudah ada tidak akan diduplikasi. Lanjutkan?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Impor'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Perform import
+    await ref.read(importProvider.notifier).importTransactions(filePath);
+
+    if (!context.mounted) return;
+
+    final importState = ref.read(importProvider);
+
+    if (importState.isSuccess) {
+      ImportResultDialog.show(context, result: importState.result!);
+      ref.read(importProvider.notifier).reset();
+    } else if (importState.isError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(importState.errorMessage ?? 'Impor gagal'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      ref.read(importProvider.notifier).reset();
     }
   }
 }

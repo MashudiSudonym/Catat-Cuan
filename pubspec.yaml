@@ -72,6 +72,9 @@ dependencies:
   # CSV Export
   share_plus: ^12.0.1
 
+  # CSV Import
+  file_picker: ^9.2.1
+
   # Logging
   logger: ^2.0.0
 

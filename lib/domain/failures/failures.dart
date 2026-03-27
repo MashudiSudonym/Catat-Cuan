@@ -19,3 +19,4 @@ export 'ocr_failure.dart';
 export 'unknown_failure.dart';
 export 'not_found_failure.dart';
 export 'export_failure.dart';
+export 'import_failure.dart';
