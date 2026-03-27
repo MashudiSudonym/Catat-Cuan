@@ -870,6 +870,8 @@ class DatabaseSchemaManager {
 }
 ```
 
+**Note**: For complete database schema documentation including tables, indexes, and migrations, see [DATABASE_SCHEMA.md](../v1/database/DATABASE_SCHEMA.md).
+
 ---
 
 ## Presentation Layer

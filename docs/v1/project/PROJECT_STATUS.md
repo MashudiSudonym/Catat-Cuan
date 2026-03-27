@@ -19,6 +19,8 @@
 | [CODING_STANDARDS.md](../guides/CODING_STANDARDS.md) | English | File naming, imports, documentation |
 | [SOLID.md](../guides/SOLID.md) | English | SOLID principles with real examples |
 | [DESIGN_SYSTEM_GUIDE.md](../design/DESIGN_SYSTEM_GUIDE.md) | English | Glassmorphism design system |
+| [DATABASE_SCHEMA.md](../database/DATABASE_SCHEMA.md) | English | Database schema documentation |
+| [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
 | [PRD](../product/00-PRD.md) | Indonesian | Product Requirements Document |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
 

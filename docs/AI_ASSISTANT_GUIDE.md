@@ -677,6 +677,7 @@ flutter build ios                         # iOS
 - [CODING_STANDARDS.md](guides/CODING_STANDARDS.md) - File naming and conventions
 - [SOLID.md](guides/SOLID.md) - SOLID principles with examples
 - [DESIGN_SYSTEM_GUIDE.md](v1/design/DESIGN_SYSTEM_GUIDE.md) - UI design system
+- [DATABASE_SCHEMA.md](v1/database/DATABASE_SCHEMA.md) - Database schema documentation (EN/ID)
 
 ---
 

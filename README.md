@@ -150,6 +150,10 @@ flutter test --coverage
 #### Design System
 - [DESIGN_SYSTEM_GUIDE.md](./docs/v1/design/DESIGN_SYSTEM_GUIDE.md) - Glassmorphism + Riverpod 3.x
 
+#### Database
+- [DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md) - Dokumentasi skema database lengkap
+- [DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md) - Database schema documentation (English)
+
 #### Project Status
 - [PROJECT_STATUS.md](./docs/v1/project/PROJECT_STATUS.md) - Status proyek (EN/ID)
 - [REFACTORING_HISTORY.md](./docs/v1/project/REFACTORING_HISTORY.md) - Perjalanan SOLID refactoring
@@ -272,6 +276,10 @@ Catat Cuan gives you **conscious control** over your personal finances. Understa
 - [PRD](./docs/v1/product/00-PRD.md) - Product Requirements
 - [SPECs](./docs/v1/product/) - Feature specifications
 - [Status](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Implementation dashboard
+
+**Database:**
+- [DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md) - Complete database schema documentation
+- [DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md) - Dokumentasi skema database (Indonesian)
 
 ---
 

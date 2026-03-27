@@ -135,6 +135,10 @@ flutter test --coverage                            # With coverage
 - **[docs/v1/product/](./docs/v1/product/)** - All SPEC documents with verified checklists
 - **[docs/v1/product/IMPLEMENTATION_STATUS.md](./docs/v1/product/IMPLEMENTATION_STATUS.md)** - Verification dashboard
 
+### Database
+- **[DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md)** - Database schema documentation (English)
+- **[DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md)** - Dokumentasi skema database (Indonesian)
+
 ### Project Status
 - **[docs/v1/project/PROJECT_STATUS.md](./docs/v1/project/PROJECT_STATUS.md)** - Project status (EN/ID)
 - **[docs/v1/project/REFACTORING_HISTORY.md](./docs/v1/project/REFACTORING_HISTORY.md)** - SOLID refactoring journey
