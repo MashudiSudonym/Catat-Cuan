@@ -366,6 +366,7 @@ lib/domain/
 │       └── transaction_repositories.dart (barrel export)
 └── services/                      # Domain services
     ├── export_service.dart
+    ├── import_service.dart
     └── insight_service.dart
 ```
 
@@ -393,6 +394,7 @@ lib/data/
     ├── receipt_ocr_service_impl.dart
     ├── image_picker_service_impl.dart
     ├── csv_export_service_impl.dart
+    ├── csv_import_service_impl.dart
     └── shared_preferences_service.dart
 ```
 
@@ -764,7 +766,7 @@ flutter build ios                         # iOS
 - **Architecture**: Clean Architecture with 100% SRP compliance ✅
 - **State Management**: Riverpod 3.3.1 with @riverpod annotation ✅
 - **Database**: SQLite with SchemaManager version 2 ✅
-- **Code Quality**: 97/97 tests passing, 0 analyzer errors ✅
+- **Code Quality**: 263/263 tests passing, 0 analyzer errors ✅
 - **Documentation**: Comprehensive guides available ✅
 
-**Last Updated**: 2026-03-27
+**Last Updated**: 2026-03-28

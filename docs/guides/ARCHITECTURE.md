@@ -316,6 +316,11 @@ abstract class TransactionAnalyticsRepository {
 abstract class TransactionExportRepository {
   Future<Either<Failure, String>> exportTransactionsToCsv(List<TransactionEntity> transactions);
 }
+
+// lib/domain/repositories/transaction/transaction_import_repository.dart
+abstract class TransactionImportRepository {
+  Future<Either<Failure, ImportResultEntity>> importTransactionsFromCsv(String csvContent);
+}
 ```
 
 ### Benefits
@@ -582,12 +587,39 @@ class TransactionFormNotifier extends _$TransactionFormNotifier {
 #### Domain Services (in domain layer)
 - Business logic that doesn't naturally fit in entities or value objects
 - No dependencies on external frameworks
-- Examples: `ExportService`, `InsightService`
+- Examples: `ExportService`, `ImportService`, `InsightService`
+```
+
+// Implementation in data layer
+// lib/data/services/csv_export_service_impl.dart
+class CsvExportServiceImpl implements ExportService {
+  @override
+  Future<Either<Failure, String>> exportTransactionsToCsv(
+    List<TransactionEntity> transactions,
+  ) async {
+    try {
+      final csv = transactions.map((t) => t.toCsvRow()).join('\n');
+      return Right(csv);
+    } catch (e) {
+      return Left(ExportFailure(e.toString()));
+    }
+  }
+}
+```
 
 ```dart
 // lib/domain/services/export_service.dart
 abstract class ExportService {
   Future<Either<Failure, String>> exportTransactionsToCsv(List<TransactionEntity> transactions);
+}
+
+// lib/domain/services/import_service.dart
+abstract class ImportService {
+  Future<Either<Failure, ImportResultEntity>> importTransactionsFromCsv(
+    String csvContent,
+    List<TransactionEntity> existingTransactions,
+    List<CategoryEntity> categories,
+  );
 }
 
 // Implementation in data layer
@@ -603,6 +635,59 @@ class CsvExportServiceImpl implements ExportService {
     } catch (e) {
       return Left(ExportFailure(e.toString()));
     }
+  }
+}
+
+// lib/data/services/csv_import_service_impl.dart
+class CsvImportServiceImpl implements ImportService {
+  @override
+  Future<Either<Failure, ImportResultEntity>> importTransactionsFromCsv(
+    String csvContent,
+    List<TransactionEntity> existingTransactions,
+    List<CategoryEntity> categories,
+  ) async {
+    try {
+      // Parse CSV with Indonesian format
+      final rows = csvContent.split('\n');
+      final headers = rows[0].split(',');
+
+      // Validate header
+      if (!_isValidHeader(headers)) {
+        return const Left(ImportFailure('Format CSV tidak valid'));
+      }
+
+      // Parse and validate rows
+      final imported = <TransactionEntity>[];
+      final skipped = <ImportRowError>[];
+      final errors = <ImportRowError>[];
+
+      // Deduplication check
+      final existingKeys = existingTransactions
+          .map((t) => '${t.amount}_${t.dateTime.toIso8601String()}')
+          .toSet();
+
+      for (var i = 1; i < rows.length; i++) {
+        // Parse and validate each row
+        // ... implementation details
+      }
+
+      return Right(ImportResultEntity(
+        imported: imported,
+        skipped: skipped,
+        errors: errors,
+      ));
+    } catch (e) {
+      return Left(ImportFailure(e.toString()));
+    }
+  }
+
+  bool _isValidHeader(List<String> headers) {
+    // Check for required columns
+    return headers.contains('ID') &&
+        headers.contains('Tanggal') &&
+        headers.contains('Jenis') &&
+        headers.contains('Kategori') &&
+        headers.contains('Jumlah');
   }
 }
 ```
