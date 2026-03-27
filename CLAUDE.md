@@ -75,6 +75,58 @@ class MyNotifier extends _$MyNotifier {
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
+### 5. Post-Change Workflow - Commit & Update Documentation ⚠️
+**⚠️ CRITICAL**: After making any code changes, AI MUST:
+1. Commit the changes with proper git commit message
+2. Update `docs/v1/project/PROJECT_STATUS.md` if applicable
+
+**Why**: Ensures changes are tracked in git history and project documentation stays synchronized with implementation.
+
+**Workflow**:
+```bash
+# After completing changes and running tests
+git add .
+git commit -m "type: description of changes
+
+Co-Authored-By: Claude (glm-4.7) <noreply@anthropic.com>"
+```
+
+**When to update PROJECT_STATUS.md**:
+- New features implemented → Add to "Fitur yang Diimplementasikan"
+- Bug fixes → Update status if applicable
+- Refactoring → Update "Pekerjaan Saat Ini" section
+- Database changes → Add to "Database Migration History"
+- Documentation changes → Update "Last Updated" date
+
+**Example Commit Message Types**:
+- `feat:` New feature
+- `fix:` Bug fix
+- `refactor:` Code refactoring
+- `docs:` Documentation changes
+- `test:` Test additions/changes
+- `chore:` Maintenance tasks
+
+### 6. Context7 Documentation Reference ⚠️
+**⚠️ CRITICAL**: Before providing any implementation guidance for third-party packages, AI MUST:
+1. Query Context7 for the latest package documentation
+2. Use the most up-to-date information available
+3. Reference the specific library ID used
+
+**Why**: Flutter/Dart ecosystem evolves rapidly. Using outdated patterns can lead to deprecated APIs, breaking changes, or missed improvements. Context7 provides current documentation and examples.
+
+**When to use Context7**:
+- Providing examples for flutter_riverpod, go_router, freezed, etc.
+- Explaining package-specific patterns or APIs
+- Suggesting implementation approaches for third-party packages
+- Answering questions about package features or best practices
+- ANY time you're about to write code using external packages
+
+**Key Packages to Always Check**:
+- `riverpod` - /refiic/riverpod
+- `go_router` - /flutter/packages
+- `freezed` - /rrousselGit/freezed
+- `sqflite` - /tekartik/sqflite
+
 ---
 
 ## 📁 Reference Locations
