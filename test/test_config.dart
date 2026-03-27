@@ -10,7 +10,6 @@ class TestConfig {
 
   // === Test Data Constants ===
   static const double defaultTestAmount = 50000.0;
-  static const String defaultTestDescription = 'Test Transaction';
   static const int defaultCategoryId = 1;
 
   // === Test Configuration Methods ===
@@ -24,7 +23,7 @@ class TestConfig {
     CategoryEntity actual,
     CategoryEntity expected, {
     bool checkId = true,
-    bool checkCreatedAt = false,
+    bool checkTimestamps = false,
   }) {
     if (checkId) {
       expect(actual.id, equals(expected.id));
@@ -33,10 +32,11 @@ class TestConfig {
     expect(actual.icon, equals(expected.icon));
     expect(actual.color, equals(expected.color));
     expect(actual.type, equals(expected.type));
-    expect(actual.displayOrder, equals(expected.displayOrder));
+    expect(actual.sortOrder, equals(expected.sortOrder));
     expect(actual.isActive, equals(expected.isActive));
-    if (checkCreatedAt) {
+    if (checkTimestamps) {
       expect(actual.createdAt, equals(expected.createdAt));
+      expect(actual.updatedAt, equals(expected.updatedAt));
     }
   }
 
@@ -44,18 +44,19 @@ class TestConfig {
     TransactionEntity actual,
     TransactionEntity expected, {
     bool checkId = true,
-    bool checkCreatedAt = false,
+    bool checkTimestamps = false,
   }) {
     if (checkId) {
       expect(actual.id, equals(expected.id));
     }
     expect(actual.categoryId, equals(expected.categoryId));
-    expect(actual.description, equals(expected.description));
+    expect(actual.note, equals(expected.note));
     expect(actual.amount, equals(expected.amount));
     expect(actual.type, equals(expected.type));
-    expect(actual.date, equals(expected.date));
-    if (checkCreatedAt) {
+    expect(actual.dateTime, equals(expected.dateTime));
+    if (checkTimestamps) {
       expect(actual.createdAt, equals(expected.createdAt));
+      expect(actual.updatedAt, equals(expected.updatedAt));
     }
   }
 
@@ -81,8 +82,8 @@ class TestConfig {
     for (final expectedTransaction in expected) {
       final match = actual.any((txn) =>
           txn.id == expectedTransaction.id &&
-          txn.description == expectedTransaction.description);
-      expect(match, isTrue, reason: 'Transaction ${expectedTransaction.description} not found');
+          txn.note == expectedTransaction.note);
+      expect(match, isTrue, reason: 'Transaction ${expectedTransaction.note} not found');
     }
   }
 
@@ -91,7 +92,8 @@ class TestConfig {
     return color.startsWith('#FF') && color.length == 9;
   }
 
-  static bool isValidCategoryIcon(String icon) {
+  static bool isValidCategoryIcon(String? icon) {
+    if (icon == null) return true; // Icon is optional
     return icon.isNotEmpty && icon.runes.length <= 4; // Max 2 emojis or chars
   }
 
@@ -120,7 +122,7 @@ class CustomMatchers {
 
   static Matcher isValidCategory() {
     return predicate((CategoryEntity cat) =>
-        cat.id > 0 &&
+        (cat.id ?? 0) > 0 &&
         cat.name.isNotEmpty &&
         TestConfig.isValidCategoryColor(cat.color) &&
         TestConfig.isValidCategoryIcon(cat.icon));
@@ -128,9 +130,10 @@ class CustomMatchers {
 
   static Matcher isValidTransaction() {
     return predicate((TransactionEntity txn) =>
-        txn.id > 0 &&
+        (txn.id ?? 0) > 0 &&
         txn.categoryId > 0 &&
-        txn.description.isNotEmpty &&
+        txn.note != null &&
+        txn.note!.isNotEmpty &&
         TestConfig.isValidAmount(txn.amount));
   }
 }
