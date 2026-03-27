@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
@@ -17,11 +18,13 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 ///
 /// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering by date range, use TransactionQueryRepositoryImpl.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class TransactionSearchRepositoryImpl
     implements TransactionSearchRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionSearchRepositoryImpl(this._dbHelper);
+  TransactionSearchRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<List<TransactionEntity>>> searchTransactions(
@@ -34,8 +37,6 @@ class TransactionSearchRepositoryImpl
     );
 
     try {
-      final db = await _dbHelper.database;
-
       final String searchPattern = '%${query.toLowerCase()}%';
 
       String sql = '''
@@ -49,7 +50,7 @@ class TransactionSearchRepositoryImpl
         )
       ''';
 
-      List<dynamic> args = [searchPattern, searchPattern];
+      List<Object?> args = [searchPattern, searchPattern];
 
       if (type != null) {
         sql += ' AND t.type = ?';
@@ -63,7 +64,7 @@ class TransactionSearchRepositoryImpl
         args.add(limit);
       }
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery(sql, args);
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery(sql, args);
 
       final transactions = maps
           .map((map) => TransactionModel.fromMap(map).toEntity())

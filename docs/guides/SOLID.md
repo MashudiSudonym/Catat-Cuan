@@ -198,6 +198,51 @@ You should be able to add new functionality without changing existing code. This
    }
    ```
 
+5. **LocalDataSource abstraction** - Data source layer following OCP and DIP.
+
+   ```dart
+   // Data source abstraction (lib/data/datasources/local/local_data_source.dart)
+   abstract class LocalDataSource {
+     Future<List<Map<String, dynamic>>> query(String table, {...});
+     Future<List<Map<String, dynamic>>> rawQuery(String sql, List<Object?>? arguments);
+     Future<int> insert(String table, Map<String, dynamic> values);
+     Future<int> update(String table, Map<String, dynamic> values, {...});
+     Future<int> delete(String table, {...});
+     Future<void> transaction(Future<void> Function() action);
+     Future<void> close();
+   }
+
+   // SQLite implementation
+   class SqliteDataSource implements LocalDataSource {
+     final DatabaseHelper _dbHelper;
+     SqliteDataSource(this._dbHelper);
+
+     @override
+     Future<List<Map<String, dynamic>>> query(String table, {...}) async {
+       final db = await _dbHelper.database;
+       return db.query(table, ...);
+     }
+     // ... other methods
+   }
+
+   // Repository depends on abstraction, not concretion
+   class TransactionReadRepositoryImpl implements TransactionReadRepository {
+     final LocalDataSource _dataSource; // ✅ Abstract dependency
+
+     TransactionReadRepositoryImpl(this._dataSource);
+
+     Future<Result<List<TransactionEntity>>> getTransactions() async {
+       final maps = await _dataSource.query(...); // ✅ Storage-agnostic
+     }
+   }
+
+   // Future: Can add Hive, Isar, or REST API implementations
+   // without modifying any repository code!
+   class HiveDataSource implements LocalDataSource {
+     // Hive-specific implementation
+   }
+   ```
+
 ---
 
 ### 3. Liskov Substitution Principle (LSP)
@@ -645,10 +690,10 @@ Catat Cuan has achieved **100% Single Responsibility Principle compliance** thro
 | Principle | Compliance | Evidence |
 |-----------|------------|----------|
 | **SRP** | 100% | Each class has one reason to change |
-| **OCP** | 95% | New features added through extensions |
-| **LSP** | 100% | All repositories substitutable |
+| **OCP** | 100% | New data sources can be added without modifying repositories |
+| **LSP** | 100% | All repositories and data sources substitutable |
 | **ISP** | 100% | 10+ segregated interfaces |
-| **DIP** | 100% | All dependencies inverted |
+| **DIP** | 100% | All dependencies inverted (including LocalDataSource) |
 
 ### Code Examples
 

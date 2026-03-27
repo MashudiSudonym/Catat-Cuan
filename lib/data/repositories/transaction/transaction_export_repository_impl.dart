@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
@@ -15,11 +16,13 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 ///
 /// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering and pagination, use TransactionQueryRepositoryImpl.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class TransactionExportRepositoryImpl
     implements TransactionExportRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionExportRepositoryImpl(this._dbHelper);
+  TransactionExportRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<List<Map<String, dynamic>>>> getTransactionsWithCategoryNames({
@@ -31,8 +34,6 @@ class TransactionExportRepositoryImpl
     AppLogger.d('Fetching transactions with category names for export');
 
     try {
-      final db = await _dbHelper.database;
-
       String sql = '''
         SELECT
           t.*,
@@ -43,7 +44,7 @@ class TransactionExportRepositoryImpl
       ''';
 
       final List<String> whereConditions = [];
-      final List<dynamic> whereArgs = [];
+      final List<Object?> whereArgs = [];
 
       if (startDate != null) {
         whereConditions.add('date(t.date_time) >= date(?)');
@@ -74,7 +75,7 @@ class TransactionExportRepositoryImpl
         ORDER BY t.date_time DESC
       ''';
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery(
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery(
         sql,
         whereArgs.isNotEmpty ? whereArgs : null,
       );

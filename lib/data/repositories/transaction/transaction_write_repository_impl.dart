@@ -1,11 +1,11 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_write_repository.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
-import 'package:sqflite/sqflite.dart';
 
 /// Implementation of write operations for transactions
 ///
@@ -18,10 +18,12 @@ import 'package:sqflite/sqflite.dart';
 /// For read operations, use TransactionReadRepositoryImpl.
 /// For filtering, pagination, search, and analytics, use the specialized
 /// repository implementations instead.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionWriteRepositoryImpl(this._dbHelper);
+  TransactionWriteRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<TransactionEntity>> addTransaction(
@@ -30,17 +32,14 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     AppLogger.d('Adding transaction: ${transaction.type} - ${transaction.amount}');
 
     try {
-      final db = await _dbHelper.database;
-
       final model = TransactionModel.fromEntity(transaction);
 
-      final id = await db.insert(
+      final id = await _dataSource.insert(
         DatabaseHelper.tableTransactions,
         model.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.abort,
       );
 
-      final inserted = await db.query(
+      final inserted = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         where: 'id = ?',
         whereArgs: [id],
@@ -78,15 +77,13 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
         );
       }
 
-      final db = await _dbHelper.database;
-
       final model = TransactionModel.fromEntity(transaction);
 
-      final rowsAffected = await db.update(
+      final rowsAffected = await _dataSource.update(
         DatabaseHelper.tableTransactions,
         model.toMap(),
         where: 'id = ?',
-        whereArgs: [transaction.id],
+        whereArgs: [transaction.id!],
       );
 
       if (rowsAffected == 0) {
@@ -98,10 +95,10 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
         );
       }
 
-      final updated = await db.query(
+      final updated = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         where: 'id = ?',
-        whereArgs: [transaction.id],
+        whereArgs: [transaction.id!],
       );
 
       if (updated.isEmpty) {
@@ -127,9 +124,7 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     AppLogger.d('Deleting transaction: ID $id');
 
     try {
-      final db = await _dbHelper.database;
-
-      final rowsAffected = await db.delete(
+      final rowsAffected = await _dataSource.delete(
         DatabaseHelper.tableTransactions,
         where: 'id = ?',
         whereArgs: [id],
@@ -157,8 +152,7 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     AppLogger.d('Deleting all transactions');
 
     try {
-      final db = await _dbHelper.database;
-      await db.delete(DatabaseHelper.tableTransactions);
+      await _dataSource.delete(DatabaseHelper.tableTransactions);
       AppLogger.i('All transactions deleted successfully');
       return Result.success(null);
     } catch (e, stackTrace) {
@@ -183,10 +177,8 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
         );
       }
 
-      final db = await _dbHelper.database;
-
       final inList = ids.map((id) => '?').join(',');
-      final rowsAffected = await db.delete(
+      final rowsAffected = await _dataSource.delete(
         DatabaseHelper.tableTransactions,
         where: 'id IN ($inList)',
         whereArgs: ids,

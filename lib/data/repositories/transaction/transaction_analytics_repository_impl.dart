@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/models/category_breakdown_model.dart';
 import 'package:catat_cuan/data/models/monthly_summary_model.dart';
@@ -21,11 +22,13 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 ///
 /// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For filtering and pagination, use TransactionQueryRepositoryImpl.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class TransactionAnalyticsRepositoryImpl
     implements TransactionAnalyticsRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionAnalyticsRepositoryImpl(this._dbHelper);
+  TransactionAnalyticsRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<MonthlySummaryEntity>> getMonthlySummary(
@@ -34,10 +37,9 @@ class TransactionAnalyticsRepositoryImpl
     AppLogger.d('TransactionAnalytics: Fetching monthly summary for $yearMonth');
 
     try {
-      final db = await _dbHelper.database;
       AppLogger.d('TransactionAnalytics: Database acquired, executing query...');
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT
           strftime('%Y-%m', date_time) as year_month,
           SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
@@ -81,10 +83,9 @@ class TransactionAnalyticsRepositoryImpl
     AppLogger.d('TransactionAnalytics: Fetching all-time summary');
 
     try {
-      final db = await _dbHelper.database;
       AppLogger.d('TransactionAnalytics: Database acquired for all-time summary, executing query...');
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT
           'all' as year_month,
           SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
@@ -93,7 +94,7 @@ class TransactionAnalyticsRepositoryImpl
           SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as balance,
           COUNT(*) as transaction_count
         FROM ${DatabaseHelper.tableTransactions}
-      ''');
+      ''', null);
 
       AppLogger.d('TransactionAnalytics: All-time query returned ${maps.length} rows');
 
@@ -130,10 +131,9 @@ class TransactionAnalyticsRepositoryImpl
     AppLogger.d('TransactionAnalytics: Fetching category breakdown for $yearMonth, type=${type.value}');
 
     try {
-      final db = await _dbHelper.database;
       AppLogger.d('TransactionAnalytics: Database acquired, executing breakdown query...');
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT
           c.${CategoryFields.id},
           c.${CategoryFields.name},
@@ -183,10 +183,9 @@ class TransactionAnalyticsRepositoryImpl
     AppLogger.d('TransactionAnalytics: Fetching all-time category breakdown for type=${type.value}');
 
     try {
-      final db = await _dbHelper.database;
       AppLogger.d('TransactionAnalytics: Database acquired, executing all-time breakdown query...');
 
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT
           c.${CategoryFields.id},
           c.${CategoryFields.name},
@@ -240,9 +239,7 @@ class TransactionAnalyticsRepositoryImpl
     );
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT
           strftime('%Y-%m', date_time) as year_month,
           SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,

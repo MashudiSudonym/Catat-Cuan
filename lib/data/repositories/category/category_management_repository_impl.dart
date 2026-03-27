@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/models/category_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
@@ -11,20 +12,20 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 ///
 /// Responsibility: Managing category status and ordering
 /// Following SRP - only handles management operations (reactivate, reorder)
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class CategoryManagementRepositoryImpl
     implements CategoryManagementRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  CategoryManagementRepositoryImpl(this._dbHelper);
+  CategoryManagementRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<List<CategoryEntity>>> getInactiveCategories() async {
     AppLogger.d('Fetching inactive categories');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: '${CategoryFields.isActive} = ?',
         whereArgs: [0],
@@ -49,9 +50,7 @@ class CategoryManagementRepositoryImpl
     AppLogger.d('Reactivating category: ID $id');
 
     try {
-      final db = await _dbHelper.database;
-
-      final rowsAffected = await db.update(
+      final rowsAffected = await _dataSource.update(
         DatabaseHelper.tableCategories,
         {
           CategoryFields.isActive: 1,
@@ -91,23 +90,22 @@ class CategoryManagementRepositoryImpl
     }
 
     try {
-      final db = await _dbHelper.database;
-      final batch = db.batch();
+      // Use transaction for batch operations
+      await _dataSource.transaction(() async {
+        // Batch update sort_order for all categories
+        for (int i = 0; i < categoryIds.length; i++) {
+          await _dataSource.update(
+            DatabaseHelper.tableCategories,
+            {
+              CategoryFields.sortOrder: i + 1,
+              CategoryFields.updatedAt: DateTime.now().toIso8601String(),
+            },
+            where: '${CategoryFields.id} = ?',
+            whereArgs: [categoryIds[i]],
+          );
+        }
+      });
 
-      // Batch update sort_order for all categories
-      for (int i = 0; i < categoryIds.length; i++) {
-        batch.update(
-          DatabaseHelper.tableCategories,
-          {
-            CategoryFields.sortOrder: i + 1,
-            CategoryFields.updatedAt: DateTime.now().toIso8601String(),
-          },
-          where: '${CategoryFields.id} = ?',
-          whereArgs: [categoryIds[i]],
-        );
-      }
-
-      await batch.commit(noResult: true);
       AppLogger.i('Categories reordered successfully');
       return Result.success(null);
     } catch (e, stackTrace) {

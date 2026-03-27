@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/models/category_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
@@ -6,33 +7,31 @@ import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
-import 'package:sqflite/sqflite.dart';
 
 /// Implementation of CategoryWriteRepository
 ///
 /// Responsibility: Writing category data to the database
 /// Following SRP - only handles write operations (create, update, delete)
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class CategoryWriteRepositoryImpl implements CategoryWriteRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  CategoryWriteRepositoryImpl(this._dbHelper);
+  CategoryWriteRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<CategoryEntity>> addCategory(CategoryEntity category) async {
     AppLogger.d('Adding category: ${category.name} (${category.type.value})');
 
     try {
-      final db = await _dbHelper.database;
-
       final model = CategoryModel.fromEntity(category);
 
-      final id = await db.insert(
+      final id = await _dataSource.insert(
         DatabaseHelper.tableCategories,
         model.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.abort,
       );
 
-      final inserted = await db.query(
+      final inserted = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: '${CategoryFields.id} = ?',
         whereArgs: [id],
@@ -67,15 +66,13 @@ class CategoryWriteRepositoryImpl implements CategoryWriteRepository {
         );
       }
 
-      final db = await _dbHelper.database;
-
       final model = CategoryModel.fromEntity(category);
 
-      final rowsAffected = await db.update(
+      final rowsAffected = await _dataSource.update(
         DatabaseHelper.tableCategories,
         model.toMap(),
         where: '${CategoryFields.id} = ?',
-        whereArgs: [category.id],
+        whereArgs: [category.id!],
       );
 
       if (rowsAffected == 0) {
@@ -85,10 +82,10 @@ class CategoryWriteRepositoryImpl implements CategoryWriteRepository {
         );
       }
 
-      final updated = await db.query(
+      final updated = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: '${CategoryFields.id} = ?',
-        whereArgs: [category.id],
+        whereArgs: [category.id!],
       );
 
       if (updated.isEmpty) {
@@ -112,10 +109,8 @@ class CategoryWriteRepositoryImpl implements CategoryWriteRepository {
     AppLogger.d('Soft deleting category: ID $id');
 
     try {
-      final db = await _dbHelper.database;
-
       // Soft delete dengan set isActive = 0
-      final rowsAffected = await db.update(
+      final rowsAffected = await _dataSource.update(
         DatabaseHelper.tableCategories,
         {
           CategoryFields.isActive: 0,

@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/paginated_result_entity.dart';
@@ -19,10 +20,12 @@ import 'package:sqflite/sqflite.dart';
 /// For basic CRUD operations, use TransactionReadRepositoryImpl and TransactionWriteRepositoryImpl.
 /// For search operations, use TransactionSearchRepositoryImpl.
 /// For analytics, use TransactionAnalyticsRepositoryImpl.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionQueryRepositoryImpl(this._dbHelper);
+  TransactionQueryRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<List<TransactionEntity>>> getTransactionsByFilter({
@@ -37,10 +40,8 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
     );
 
     try {
-      final db = await _dbHelper.database;
-
       final List<String> whereConditions = [];
-      final List<dynamic> whereArgs = [];
+      final List<Object> whereArgs = [];
 
       if (startDate != null) {
         whereConditions.add('date(date_time) >= date(?)');
@@ -66,7 +67,7 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
           ? whereConditions.join(' AND ')
           : null;
 
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         where: whereClause,
         whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
@@ -102,10 +103,8 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
     );
 
     try {
-      final db = await _dbHelper.database;
-
       final List<String> whereConditions = [];
-      final List<dynamic> whereArgs = [];
+      final List<Object> whereArgs = [];
 
       if (startDate != null) {
         whereConditions.add('date(date_time) >= date(?)');
@@ -136,13 +135,14 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
         ${whereClause != null ? 'WHERE $whereClause' : ''}
       ''';
 
-      final countResult = await db.rawQuery(
+      final countResult = await _dataSource.rawQuery(
         countQuery,
         whereArgs.isNotEmpty ? whereArgs : null,
       );
+
       final totalItems = Sqflite.firstIntValue(countResult) ?? 0;
 
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         where: whereClause?.replaceFirst('WHERE ', ''),
         whereArgs: whereArgs.isNotEmpty ? whereArgs : null,

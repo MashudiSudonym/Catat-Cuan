@@ -189,18 +189,18 @@ class TransactionModel {
   }
 }
 
-// Repository Implementation
+// Repository Implementation (Following DIP)
 // lib/data/repositories/transaction/transaction_write_repository_impl.dart
 class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
-  final DatabaseHelper _databaseHelper;
+  final LocalDataSource _dataSource;  // ✅ Abstract dependency
 
-  TransactionWriteRepositoryImpl(this._databaseHelper);
+  TransactionWriteRepositoryImpl(this._dataSource);
 
   @override
   Future<Either<Failure, TransactionEntity>> addTransaction(TransactionEntity transaction) async {
     try {
       final model = TransactionModel.fromEntity(transaction);
-      final id = await _databaseHelper.insertTransaction(model);
+      final id = await _dataSource.insert('transactions', model.toMap());
       final result = transaction.copyWith(id: id);
       return Right(result);
     } catch (e) {
@@ -737,13 +737,50 @@ abstract class TransactionWriteRepository {
 
 ### Purpose: Implement domain interfaces and manage data sources
 
-#### Repository Implementation
+### Data Source Abstraction (SOLID Compliance)
+
+The data layer uses a **LocalDataSource** abstraction to achieve 100% SOLID compliance (OCP, LSP, DIP):
+
+```dart
+// lib/data/datasources/local/local_data_source.dart
+/// Abstract data source for local storage
+///
+/// Following OCP: Can be extended for SQLite, Hive, Isar, etc.
+/// Following DIP: High-level modules depend on this abstraction
+abstract class LocalDataSource {
+  Future<List<Map<String, dynamic>>> query(String table, {...});
+  Future<List<Map<String, dynamic>>> rawQuery(String sql, List<Object?>? arguments);
+  Future<int> insert(String table, Map<String, dynamic> values);
+  Future<int> update(String table, Map<String, dynamic> values, {...});
+  Future<int> delete(String table, {...});
+  Future<void> transaction(Future<void> Function() action);
+  Future<void> close();
+}
+
+// SQLite implementation
+// lib/data/datasources/local/sqlite_data_source.dart
+class SqliteDataSource implements LocalDataSource {
+  final DatabaseHelper _dbHelper;
+
+  SqliteDataSource(this._dbHelper);
+
+  @override
+  Future<List<Map<String, dynamic>>> query(...) async {
+    final db = await _dbHelper.database;
+    return db.query(...);
+  }
+  // ... other methods
+}
+```
+
+#### Repository Implementation (Following DIP)
+
 ```dart
 // lib/data/repositories/transaction/transaction_write_repository_impl.dart
 class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
-  final DatabaseHelper _databaseHelper;
+  final LocalDataSource _dataSource;  // ✅ Abstract dependency
 
-  TransactionWriteRepositoryImpl(this._databaseHelper);
+  TransactionWriteRepositoryImpl(this._dataSource);
 
   @override
   Future<Either<Failure, TransactionEntity>> addTransaction(
@@ -751,7 +788,7 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
   ) async {
     try {
       final model = TransactionModel.fromEntity(transaction);
-      final id = await _databaseHelper.insertTransaction(model);
+      final id = await _dataSource.insert(tableTransactions, model.toMap());
       final result = transaction.copyWith(id: id);
       return Right(result);
     } on DatabaseException catch (e) {
@@ -765,7 +802,10 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
   ) async {
     try {
       final model = TransactionModel.fromEntity(transaction);
-      await _databaseHelper.updateTransaction(model);
+      await _dataSource.update(tableTransactions, model.toMap(),
+        where: 'id = ?',
+        whereArgs: [transaction.id],
+      );
       return Right(transaction);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -774,7 +814,16 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
 }
 ```
 
-#### Data Source
+#### Benefits of Data Source Abstraction
+
+1. **Open/Closed Principle**: New data sources can be added without modifying repositories
+2. **Liskov Substitution**: Any `LocalDataSource` implementation can be substituted
+3. **Dependency Inversion**: High-level modules depend on abstractions, not concretions
+4. **Testability**: Easy to mock data sources for testing
+5. **Flexibility**: Can switch between SQLite, Hive, Isar, or REST API
+
+#### Database Helper (SQLite Connection)
+
 ```dart
 // lib/data/datasources/local/database_helper.dart
 class DatabaseHelper {
@@ -795,11 +844,6 @@ class DatabaseHelper {
       onCreate: DatabaseSchemaManager.onCreate,
       onUpgrade: DatabaseSchemaManager.onUpgrade,
     );
-  }
-
-  Future<int> insertTransaction(TransactionModel model) async {
-    final db = await database;
-    return await db.insert(tableTransactions, model.toMap());
   }
 }
 ```

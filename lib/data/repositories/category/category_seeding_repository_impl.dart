@@ -1,27 +1,27 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/models/category_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/category/category_seeding_repository.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
-import 'package:sqflite/sqflite.dart';
 
 /// Implementation of CategorySeedingRepository
 ///
 /// Responsibility: Seeding default category data
 /// Following SRP - only handles seeding operations
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class CategorySeedingRepositoryImpl implements CategorySeedingRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  CategorySeedingRepositoryImpl(this._dbHelper);
+  CategorySeedingRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<bool>> needsSeed() async {
     try {
-      final db = await _dbHelper.database;
-
-      final result = await db.query(
+      final result = await _dataSource.query(
         DatabaseHelper.tableCategories,
         limit: 1,
       );
@@ -54,19 +54,17 @@ class CategorySeedingRepositoryImpl implements CategorySeedingRepository {
       final now = DateTime.now();
       final categories = _getDefaultCategories(now);
 
-      final db = await _dbHelper.database;
-      final batch = db.batch();
+      // Use transaction for batch operations
+      await _dataSource.transaction(() async {
+        for (final category in categories) {
+          final model = CategoryModel.fromEntity(category);
+          await _dataSource.insert(
+            DatabaseHelper.tableCategories,
+            model.toMap(),
+          );
+        }
+      });
 
-      for (final category in categories) {
-        final model = CategoryModel.fromEntity(category);
-        batch.insert(
-          DatabaseHelper.tableCategories,
-          model.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.abort,
-        );
-      }
-
-      await batch.commit(noResult: true);
       AppLogger.i('Seeded ${categories.length} default categories');
       return Result.success(null);
     } catch (e, stackTrace) {

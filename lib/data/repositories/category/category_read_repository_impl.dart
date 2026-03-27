@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/models/category_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
@@ -11,19 +12,19 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 ///
 /// Responsibility: Reading category data from the database
 /// Following SRP - only handles read operations
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
 class CategoryReadRepositoryImpl implements CategoryReadRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  CategoryReadRepositoryImpl(this._dbHelper);
+  CategoryReadRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<List<CategoryEntity>>> getCategories() async {
     AppLogger.d('Fetching all active categories');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: '${CategoryFields.isActive} = ?',
         whereArgs: [1],
@@ -49,9 +50,7 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
     AppLogger.d('Fetching categories by type: ${type.value}');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where:
             '${CategoryFields.type} = ? AND ${CategoryFields.isActive} = ?',
@@ -77,9 +76,7 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
     AppLogger.d('Fetching category by ID: $id');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: '${CategoryFields.id} = ?',
         whereArgs: [id],
@@ -108,10 +105,8 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
     AppLogger.d('Fetching categories with transaction count: ${type.value}');
 
     try {
-      final db = await _dbHelper.database;
-
       // Use LEFT JOIN to get transaction count
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final List<Map<String, dynamic>> maps = await _dataSource.rawQuery('''
         SELECT c.*,
                COUNT(t.id) as transaction_count
         FROM ${DatabaseHelper.tableCategories} c
@@ -151,11 +146,9 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
     AppLogger.d('Fetching category by name: "$name" (${type.value})');
 
     try {
-      final db = await _dbHelper.database;
-
       String whereClause =
           '${CategoryFields.name} = ? AND ${CategoryFields.type} = ?';
-      List<dynamic> whereArgs = [name, type.value];
+      List<Object> whereArgs = [name, type.value];
 
       // Add excludeId condition if provided (for update scenario)
       if (excludeId != null) {
@@ -163,7 +156,7 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
         whereArgs = [...whereArgs, excludeId];
       }
 
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableCategories,
         where: whereClause,
         whereArgs: whereArgs,
@@ -190,9 +183,7 @@ class CategoryReadRepositoryImpl implements CategoryReadRepository {
     AppLogger.d('Fetching transaction count for category: $categoryId');
 
     try {
-      final db = await _dbHelper.database;
-
-      final result = await db.rawQuery('''
+      final result = await _dataSource.rawQuery('''
         SELECT COUNT(*) as count
         FROM ${DatabaseHelper.tableTransactions}
         WHERE ${TransactionFields.categoryId} = ?

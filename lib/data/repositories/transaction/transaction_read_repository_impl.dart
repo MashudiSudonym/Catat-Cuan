@@ -1,4 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
+import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
@@ -16,19 +17,20 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// For write operations, use TransactionWriteRepositoryImpl.
 /// For filtering, pagination, search, and analytics, use the specialized
 /// repository implementations instead.
+///
+/// Following DIP: Depends on LocalDataSource abstraction, not concrete DatabaseHelper.
+/// This makes the repository testable and flexible to different storage implementations.
 class TransactionReadRepositoryImpl implements TransactionReadRepository {
-  final DatabaseHelper _dbHelper;
+  final LocalDataSource _dataSource;
 
-  TransactionReadRepositoryImpl(this._dbHelper);
+  TransactionReadRepositoryImpl(this._dataSource);
 
   @override
   Future<Result<TransactionEntity>> getTransactionById(int id) async {
     AppLogger.d('Fetching transaction by ID: $id');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         where: 'id = ?',
         whereArgs: [id],
@@ -56,9 +58,7 @@ class TransactionReadRepositoryImpl implements TransactionReadRepository {
     AppLogger.d('Fetching all transactions');
 
     try {
-      final db = await _dbHelper.database;
-
-      final List<Map<String, dynamic>> maps = await db.query(
+      final List<Map<String, dynamic>> maps = await _dataSource.query(
         DatabaseHelper.tableTransactions,
         orderBy: 'date_time DESC',
       );
