@@ -52,6 +52,10 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         await ref
             .read(transactionFormProvider.notifier)
             .loadById(widget.transactionId!);
+        if (mounted) {
+          final formState = ref.read(transactionFormProvider);
+          _noteController.text = formState.note ?? '';
+        }
       });
     }
   }
@@ -94,11 +98,11 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.transactionToEdit == null
-            ? 'Tambah Transaksi'
-            : 'Edit Transaksi'),
+        title: Text(formState.isEditMode
+            ? 'Edit Transaksi'
+            : 'Tambah Transaksi'),
         actions: [
-          if (widget.transactionToEdit != null)
+          if (formState.isEditMode)
             TextButton(
               onPressed: formState.isSubmitting
                   ? null
@@ -413,9 +417,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      widget.transactionToEdit == null
-                          ? 'Transaksi berhasil ditambahkan'
-                          : 'Transaksi berhasil diperbarui',
+                      formState.isEditMode
+                          ? 'Transaksi berhasil diperbarui'
+                          : 'Transaksi berhasil ditambahkan',
                     ),
                     backgroundColor: AppColors.success,
                     behavior: SnackBarBehavior.floating,
@@ -436,9 +440,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : Text(
-              widget.transactionToEdit == null
-                  ? 'Simpan Transaksi'
-                  : 'Update Transaksi',
+              formState.isEditMode
+                  ? 'Update Transaksi'
+                  : 'Simpan Transaksi',
               style: const TextStyle(fontSize: 16),
             ),
     );
@@ -452,7 +456,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     final controller = ref.read(transactionDeleteControllerProvider);
     final success = await controller.showDeleteConfirmation(
       context,
-      widget.transactionToEdit!.id!,
+      formState.editingTransaction!.id!,
     );
 
     if (context.mounted) {
