@@ -179,7 +179,7 @@ Following the Testing Pyramid principle:
 | **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
 | **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
 
-### Phase 1: Foundation (In Progress)
+### Phase 1: Foundation (Completed ✅)
 
 **Completed**:
 - ✅ Test infrastructure setup (helpers, fixtures, mocks)
@@ -202,12 +202,18 @@ Following the Testing Pyramid principle:
   - TransactionType enum (10 tests) - fromString, displayName, value
   - CategoryType enum (8 tests) - fromString, displayName, value
 
-**Pending**:
-- ⏳ Receipt Date Parser tests (already exists, verification needed)
-- ⏳ Receipt Time Parser tests (already exists, verification needed)
-- ⏳ Receipt DateTime Composer tests (already exists, verification needed)
+### Phase 2: Use Case Tests (In Progress 🚧)
 
-**Current Test Count**: 250/250 passing ✅
+**Completed**:
+- ✅ Category use case tests (13 tests)
+  - GetCategoriesUseCase (6 tests)
+  - GetCategoryByIdUseCase (7 tests)
+
+**Pending**:
+- ⏳ Remaining category use cases (4 files)
+- ⏳ Transaction use cases (16 files)
+
+**Current Test Count**: 263/263 passing ✅
 
 ### Test Infrastructure
 
