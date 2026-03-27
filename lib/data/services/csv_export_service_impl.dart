@@ -91,15 +91,9 @@ class CsvExportServiceImpl implements ExportService {
     return exportDir;
   }
 
-  /// Generate CSV file with transaction data
-  /// Returns the created file
-  Future<File> _generateCsvFile(
-    List<Map<String, dynamic>> transactions,
-    String fileName,
-    Directory directory,
-  ) async {
-    AppLogger.d('Generating CSV file with ${transactions.length} rows');
-
+  /// Generate CSV string from transaction data
+  /// Public for testability — allows unit testing without file I/O
+  String generateCsvString(List<Map<String, dynamic>> transactions) {
     // Define CSV headers in Indonesian
     const headers = [
       'ID',
@@ -133,6 +127,20 @@ class CsvExportServiceImpl implements ExportService {
       }
       return cellStr;
     }).join(',')).join('\n');
+
+    return csvString;
+  }
+
+  /// Generate CSV file with transaction data
+  /// Returns the created file
+  Future<File> _generateCsvFile(
+    List<Map<String, dynamic>> transactions,
+    String fileName,
+    Directory directory,
+  ) async {
+    AppLogger.d('Generating CSV file with ${transactions.length} rows');
+
+    final csvString = generateCsvString(transactions);
     AppLogger.d('CSV string generated (${csvString.length} characters)');
 
     // Write to file
@@ -160,14 +168,12 @@ class CsvExportServiceImpl implements ExportService {
     return type == 'income' ? 'Pemasukan' : 'Pengeluaran';
   }
 
-  /// Format currency with Indonesian thousand separators
+  /// Format currency as plain number (no thousand separators)
+  /// Uses raw numbers in CSV to avoid misinterpretation by spreadsheet software
   String _formatCurrency(dynamic amount) {
     final doubleValue = amount is String
         ? double.parse(amount)
         : (amount is int ? amount.toDouble() : amount as double);
-    return doubleValue.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    return doubleValue.toStringAsFixed(0);
   }
 }
