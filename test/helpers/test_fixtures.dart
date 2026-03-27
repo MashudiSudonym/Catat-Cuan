@@ -11,8 +11,8 @@ class TestFixtures {
   static DateTime get yesterday => today.subtract(const Duration(days: 1));
   static DateTime get tomorrow => today.add(const Duration(days: 1));
 
-  static DateTime get march18_2026 => const DateTime(2026, 3, 18, 14, 30);
-  static DateTime get march20_2026 => const DateTime(2026, 3, 20, 10, 15);
+  static DateTime get march18_2026 => DateTime(2026, 3, 18, 14, 30);
+  static DateTime get march20_2026 => DateTime(2026, 3, 20, 10, 15);
 
   // === Category Entity Fixtures ===
   static CategoryEntity categoryFood({
