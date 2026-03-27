@@ -2,7 +2,7 @@
 
 **Version**: 1.0 (Complete)
 **Status**: ✅ v1 Complete | ✅ 100% SRP Compliance
-**Last Updated**: 27 March 2026
+**Last Updated**: 28 March 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
 
@@ -46,7 +46,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 97/97 tests passing, 0 analyzer errors
+- **Code Quality**: 263/263 tests passing, 0 analyzer errors
 
 ---
 
@@ -54,7 +54,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 
 **Versi**: 1.0 (Selesai)
 **Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP
-**Terakhir Diperbarui**: 27 Maret 2026
+**Terakhir Diperbarui**: 28 Maret 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Lokal**: Indonesia (id_ID)
 
@@ -94,6 +94,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 | Pagination (infinite scroll) | 20 item per halaman |
 | Pencarian full-text | Cari di catatan dan nama kategori |
 | Ekspor CSV & share | Format Indonesia, share langsung |
+| Impor CSV | Impor transaksi dari file CSV dengan deduplikasi |
 | Drag-drop reorder kategori | Urutan kategori kustom |
 | Hapus multi-select | Hapus beberapa transaksi sekaligus |
 | Sistem desain glassmorphism | Konsistensi visual lengkap |
@@ -123,7 +124,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **97/97 tests passing** ✅
+- **263/263 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
