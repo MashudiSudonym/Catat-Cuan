@@ -156,6 +156,57 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ---
 
+## Testing Pyramid Implementation
+
+**Status**: 🚧 In Progress (Phase 1 - Foundation)
+
+### Implementation Plan
+
+Following the Testing Pyramid principle:
+- **70% Unit Tests**: Test individual components in isolation
+- **20% Integration Tests**: Verify component interactions
+- **10% E2E Tests**: Critical user journeys only
+
+### Progress
+
+| Phase | Description | Status | Tests |
+|-------|-------------|--------|-------|
+| **Phase 1** | Test Infrastructure & Parsers | 🚧 In Progress | 42/42 passing |
+| **Phase 2** | Entity & Validator Tests | ⏳ Pending | 0/16 planned |
+| **Phase 3** | Use Case Tests | ⏳ Pending | 0/27 planned |
+| **Phase 4** | Data Layer Tests | ⏳ Pending | 0/20 planned |
+| **Phase 5** | Presentation Tests | ⏳ Pending | 0/11 planned |
+| **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
+| **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
+
+### Phase 1: Foundation (In Progress)
+
+**Completed**:
+- ✅ Test infrastructure setup (helpers, fixtures, mocks)
+- ✅ Receipt Amount Parser tests (42 tests)
+  - Valid Indonesian formats (Rp 75.000, 75.000, 75.000,50)
+  - Invalid formats and edge cases
+  - Keyword-based extraction (Total, Jumlah, Tagihan, etc.)
+  - Fallback extraction for largest amount
+  - Real-world receipt examples
+
+**In Progress**:
+- ⏳ Receipt Date Parser tests (already exists, verification needed)
+- ⏳ Receipt Time Parser tests (already exists, verification needed)
+- ⏳ Receipt DateTime Composer tests (already exists, verification needed)
+- ⏳ Transaction Validator tests (new)
+
+**Current Test Count**: 139/139 passing ✅
+
+### Test Infrastructure
+
+Created reusable test utilities:
+- `test/helpers/test_fixtures.dart` - Fake data generators
+- `test/helpers/mock_helpers.dart` - Mock repository factories
+- `test/test_config.dart` - Test configuration and helpers
+
+---
+
 ## Database Migration History
 
 | Version | Description | Changes |
