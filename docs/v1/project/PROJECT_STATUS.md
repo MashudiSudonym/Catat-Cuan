@@ -46,7 +46,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 263/263 tests passing, 0 analyzer errors
+- **Code Quality**: 272/272 tests passing, 0 analyzer errors
 
 ---
 
@@ -124,7 +124,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **263/263 tests passing** ✅
+- **263/263 tests passing** ✅ → **272/272 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
@@ -215,7 +215,7 @@ Following the Testing Pyramid principle:
 - ⏳ Remaining category use cases (4 files)
 - ⏳ Transaction use cases (16 files)
 
-**Current Test Count**: 263/263 passing ✅
+**Current Test Count**: 272/272 passing ✅
 
 ### Test Infrastructure
 
@@ -293,7 +293,7 @@ Created reusable test utilities:
 
 ### Project (English)
 - [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) - Complete SOLID refactoring journey
-- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (263 tests)
+- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (272 tests)
 - [IMPLEMENTATION_STATUS.md](../product/IMPLEMENTATION_STATUS.md) - Verification dashboard for all SPEC checklists
 - [CHECKLIST_VERIFICATION.md](../product/CHECKLIST_VERIFICATION.md) - Verification methodology
 
@@ -531,7 +531,6 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
    - Cloud sync
    - Budgeting lengkap
    - Multi-currency
-   - Export ke Excel/CSV
 
 ---
 
