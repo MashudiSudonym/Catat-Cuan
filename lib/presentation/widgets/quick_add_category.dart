@@ -306,7 +306,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Gagal menambahkan kategori. Silakan coba lagi.';
         _isSubmitting = false;
       });
     }

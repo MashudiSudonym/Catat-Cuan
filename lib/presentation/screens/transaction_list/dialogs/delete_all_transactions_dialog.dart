@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/app_colors.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 /// Dialog untuk konfirmasi hapus semua transaksi
 /// Following SRP: Only handles delete all confirmation dialog
@@ -73,11 +75,12 @@ class DeleteAllTransactionsHandler {
             ),
           );
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        AppLogger.e('Failed to delete all transactions', e, stackTrace);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal menghapus transaksi: $e'),
+              content: Text(ErrorMessageMapper.getUserMessage(e)),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ),

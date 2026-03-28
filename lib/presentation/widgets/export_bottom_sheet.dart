@@ -8,6 +8,8 @@ import 'package:catat_cuan/presentation/providers/transaction/transaction_filter
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/export_action_dialog.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_router.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Export options bottom sheet
@@ -239,7 +241,8 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
           );
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Export failed', e, stackTrace);
       // Dismiss loading dialog if still showing
       if (rootNavigatorKey.currentContext != null &&
           Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).canPop()) {
@@ -249,7 +252,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       _showResultDialog(
         rootNavigatorKey.currentContext!,
         isSuccess: false,
-        errorMessage: 'Terjadi kesalahan: $e',
+        errorMessage: ErrorMessageMapper.getUserMessage(e),
       );
     }
   }

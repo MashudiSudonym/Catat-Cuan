@@ -70,12 +70,36 @@ class MyNotifier extends _$MyNotifier {
 - **Category**: 4 interfaces (Read, Write, Management, Seeding)
 - **Transaction**: 6+ interfaces (Read, Write, Query, Search, Analytics, Export)
 
-### 4. Code Generation
+### 4. Never Expose Technical Errors to UI ⚠️
+**⚠️ CRITICAL**: Technical error details (`$e`, `e.toString()`, stack traces, exception class names, internal messages) must NEVER be shown to users via SnackBar, Toast, Dialog, or any UI element.
+
+```dart
+// ❌ WRONG — leaks technical details to user
+} catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Gagal menyimpan: $e')),
+  );
+}
+
+// ✅ CORRECT — log technical details, show user-friendly message
+} catch (e, stackTrace) {
+  AppLogger.e('Failed to save transaction', e, stackTrace);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(ErrorMessageMapper.getUserMessage(e))),
+  );
+}
+```
+
+**Why**: Exception messages contain internal class names, English text, and implementation details. Users see Indonesian UI — technical errors confuse them and expose internals.
+
+**Use**: `ErrorMessageMapper.getUserMessage(e)` from `lib/presentation/utils/error/error_message_mapper.dart`
+
+### 5. Code Generation
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-### 5. Post-Change Workflow - Commit & Update Documentation ⚠️
+### 6. Post-Change Workflow - Commit & Update Documentation ⚠️
 **⚠️ CRITICAL**: After making any code changes, AI MUST:
 1. Commit the changes with proper git commit message
 2. Update `docs/v1/project/PROJECT_STATUS.md` if applicable
@@ -106,7 +130,7 @@ Co-Authored-By: Claude (glm-4.7) <noreply@anthropic.com>"
 - `test:` Test additions/changes
 - `chore:` Maintenance tasks
 
-### 6. Context7 Documentation Reference ⚠️
+### 7. Context7 Documentation Reference ⚠️
 **⚠️ CRITICAL**: Before providing any implementation guidance for third-party packages, AI MUST:
 1. Query Context7 for the latest package documentation
 2. Use the most up-to-date information available

@@ -6,6 +6,8 @@ import 'package:catat_cuan/presentation/providers/onboarding/onboarding_provider
 import 'package:catat_cuan/presentation/providers/onboarding/category_seeding_provider.dart';
 import 'package:catat_cuan/presentation/widgets/onboarding_page.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
@@ -223,14 +225,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (mounted) {
         context.go(AppRoutes.transactions);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to seed categories', e, stackTrace);
       if (mounted) {
         setState(() {
           _isSeeding = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menyiapkan data: $e'),
+            content: Text(ErrorMessageMapper.getUserMessage(e)),
             backgroundColor: AppColors.error,
           ),
         );
