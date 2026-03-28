@@ -9,7 +9,6 @@ import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/export_action_dialog.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_router.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
-import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
 
 /// Export options bottom sheet
 class ExportOptionsBottomSheet extends ConsumerWidget {
@@ -120,9 +119,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
   }
 
   void _handleExport(BuildContext context, WidgetRef ref, ExportOption option) async {
-    // Capture stable root context BEFORE closing the bottom sheet
-    final rootContext = rootNavigatorKey.currentContext;
-
     // Get filter parameters
     DateTime? startDate;
     DateTime? endDate;
@@ -167,6 +163,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     final fileName = _generateFileName(option);
 
     // Show action dialog while bottom sheet context is still valid
+    if (!context.mounted) return;
     final action = await ExportActionDialog.show(
       context,
       fileName: '$fileName.csv',
@@ -179,76 +176,81 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     }
 
     // Execute export based on selected action
-    if (action != null && rootContext != null) {
-      // Show loading dialog using stable root context
-      showDialog(
-        context: rootContext,
-        barrierDismissible: false,
-        builder: (dialogContext) => _ExportLoadingDialog(action: action),
-      );
+    if (action == null) return;
 
-      try {
-        // Call export service directly — avoids Riverpod auto-dispose issue
-        // when bottom sheet closes and no widget watches exportProvider
-        final exportService = ref.read(exportServiceProvider);
+    // Show loading dialog using root navigator key (no local BuildContext variable)
+    if (rootNavigatorKey.currentContext == null) return;
+    showDialog(
+      context: rootNavigatorKey.currentContext!,
+      barrierDismissible: false,
+      builder: (dialogContext) => _ExportLoadingDialog(action: action),
+    );
 
-        if (action == ExportAction.saveToDevice) {
-          final result = await exportService.saveTransactionsToCsv(
-            transactions: transactions,
-            fileName: fileName,
-          );
+    try {
+      // Call export service directly — avoids Riverpod auto-dispose issue
+      // when bottom sheet closes and no widget watches exportProvider
+      final exportService = ref.read(exportServiceProvider);
 
-          // Dismiss loading dialog
-          Navigator.of(rootContext, rootNavigator: true).pop();
-
-          if (result.isSuccess) {
-            _showResultDialog(
-              rootContext,
-              isSuccess: true,
-              action: ExportAction.saveToDevice,
-              filePath: result.data,
-            );
-          } else {
-            _showResultDialog(
-              rootContext,
-              isSuccess: false,
-              errorMessage: result.failure?.message ?? 'Gagal menyimpan file',
-            );
-          }
-        } else {
-          final result = await exportService.shareTransactionsToCsv(
-            transactions: transactions,
-            fileName: fileName,
-          );
-
-          // Dismiss loading dialog
-          Navigator.of(rootContext, rootNavigator: true).pop();
-
-          if (result.isSuccess) {
-            _showResultDialog(
-              rootContext,
-              isSuccess: true,
-              action: ExportAction.share,
-            );
-          } else {
-            _showResultDialog(
-              rootContext,
-              isSuccess: false,
-              errorMessage: result.failure?.message ?? 'Gagal membagikan file',
-            );
-          }
-        }
-      } catch (e) {
-        // Dismiss loading dialog if still showing
-        if (Navigator.of(rootContext, rootNavigator: true).canPop()) {
-          Navigator.of(rootContext, rootNavigator: true).pop();
-        }
-        _showResultDialog(
-          rootContext,
-          isSuccess: false,
-          errorMessage: 'Terjadi kesalahan: $e',
+      if (action == ExportAction.saveToDevice) {
+        final result = await exportService.saveTransactionsToCsv(
+          transactions: transactions,
+          fileName: fileName,
         );
+
+        // Dismiss loading dialog
+        if (rootNavigatorKey.currentContext == null) return;
+        Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).pop();
+
+        if (result.isSuccess) {
+          _showResultDialog(
+            rootNavigatorKey.currentContext!,
+            isSuccess: true,
+            action: ExportAction.saveToDevice,
+            filePath: result.data,
+          );
+        } else {
+          _showResultDialog(
+            rootNavigatorKey.currentContext!,
+            isSuccess: false,
+            errorMessage: result.failure?.message ?? 'Gagal menyimpan file',
+          );
+        }
+      } else {
+        final result = await exportService.shareTransactionsToCsv(
+          transactions: transactions,
+          fileName: fileName,
+        );
+
+        // Dismiss loading dialog
+        if (rootNavigatorKey.currentContext == null) return;
+        Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).pop();
+
+        if (result.isSuccess) {
+          _showResultDialog(
+            rootNavigatorKey.currentContext!,
+            isSuccess: true,
+            action: ExportAction.share,
+          );
+        } else {
+          _showResultDialog(
+            rootNavigatorKey.currentContext!,
+            isSuccess: false,
+            errorMessage: result.failure?.message ?? 'Gagal membagikan file',
+          );
+        }
       }
+    } catch (e) {
+      // Dismiss loading dialog if still showing
+      if (rootNavigatorKey.currentContext != null &&
+          Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).canPop()) {
+        Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).pop();
+      }
+      if (rootNavigatorKey.currentContext == null) return;
+      _showResultDialog(
+        rootNavigatorKey.currentContext!,
+        isSuccess: false,
+        errorMessage: 'Terjadi kesalahan: $e',
+      );
     }
   }
 
