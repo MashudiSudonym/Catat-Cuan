@@ -77,10 +77,23 @@ class CsvExportServiceImpl implements ExportService {
   }
 
   /// Get the export directory for saving CSV files
-  /// Creates "CatatCuan/Exports" subdirectory in Documents folder
+  /// Uses external storage so files are visible in file managers.
+  /// Creates "CatatCuan/Exports" subdirectory.
+  /// On Android: /storage/emulated/0/Android/data/<package>/files/CatatCuan/Exports/
+  /// On iOS: NSDocumentsDirectory (visible via iTunes file sharing)
   Future<Directory> _getExportDirectory() async {
-    final documentsDir = await getApplicationDocumentsDirectory();
-    final exportDir = Directory('${documentsDir.path}/CatatCuan/Exports');
+    final directory = await getExternalStorageDirectory();
+    if (directory == null) {
+      // Fallback to app documents directory if external storage is unavailable
+      AppLogger.w('External storage unavailable, falling back to app documents directory');
+      final documentsDir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${documentsDir.path}/CatatCuan/Exports');
+      if (!await exportDir.exists()) {
+        await exportDir.create(recursive: true);
+      }
+      return exportDir;
+    }
+    final exportDir = Directory('${directory.path}/CatatCuan/Exports');
 
     // Create directory if it doesn't exist
     if (!await exportDir.exists()) {

@@ -16,7 +16,8 @@ import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 
 /// Navigator keys for shell routes
 /// Following SRP: Separate keys for root and shell navigation
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+/// Public so other widgets (e.g., export bottom sheet) can use it for stable context access
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Create GoRouter configuration with Riverpod integration
 /// Following SOLID principles:
@@ -24,7 +25,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// - DIP: Depends on Ref abstraction, not concrete implementations
 GoRouter createGoRouter(Ref ref) {
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     debugLogDiagnostics: true,
     initialLocation: AppRoutes.transactions,
     redirect: (context, state) {
@@ -82,7 +83,7 @@ GoRouter createGoRouter(Ref ref) {
                   // Add transaction (full-screen, uses parentNavigatorKey)
                   GoRoute(
                     path: 'add',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (context, state) => MaterialPage(
                       key: state.pageKey,
                       child: const TransactionFormScreen(),
@@ -91,7 +92,7 @@ GoRouter createGoRouter(Ref ref) {
                   // Edit transaction (full-screen, uses parentNavigatorKey)
                   GoRoute(
                     path: 'edit/:id',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (context, state) {
                       final transactionId = int.parse(state.pathParameters['id']!);
                       return MaterialPage(
@@ -105,7 +106,7 @@ GoRouter createGoRouter(Ref ref) {
                   // Scan receipt (full-screen, uses parentNavigatorKey)
                   GoRoute(
                     path: 'scan',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (context, state) => MaterialPage(
                       key: state.pageKey,
                       child: const ScanReceiptScreen(),
@@ -129,7 +130,7 @@ GoRouter createGoRouter(Ref ref) {
                   // Category management (full-screen, uses parentNavigatorKey)
                   GoRoute(
                     path: 'categories',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (context, state) => MaterialPage(
                       key: state.pageKey,
                       child: const CategoryManagementScreen(),
@@ -138,7 +139,7 @@ GoRouter createGoRouter(Ref ref) {
                       // Add category
                       GoRoute(
                         path: 'add',
-                        parentNavigatorKey: _rootNavigatorKey,
+                        parentNavigatorKey: rootNavigatorKey,
                         pageBuilder: (context, state) => MaterialPage(
                           key: state.pageKey,
                           child: const CategoryFormScreen(),
@@ -147,7 +148,7 @@ GoRouter createGoRouter(Ref ref) {
                       // Edit category
                       GoRoute(
                         path: 'edit/:id',
-                        parentNavigatorKey: _rootNavigatorKey,
+                        parentNavigatorKey: rootNavigatorKey,
                         pageBuilder: (context, state) {
                           final categoryId = int.parse(state.pathParameters['id']!);
                           return MaterialPage(
@@ -170,7 +171,7 @@ GoRouter createGoRouter(Ref ref) {
       // Settings route (can be accessed from any tab)
       GoRoute(
         path: AppRoutes.settings,
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           child: const SettingsScreen(),

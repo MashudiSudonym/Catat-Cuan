@@ -7,6 +7,7 @@ import 'package:catat_cuan/presentation/providers/repositories/repository_provid
 import 'package:catat_cuan/presentation/providers/transaction/transaction_filter_provider.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/export_action_dialog.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_router.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Export options bottom sheet
@@ -135,6 +136,9 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
   }
 
   void _handleExport(BuildContext context, WidgetRef ref, ExportOption option) async {
+    // Capture stable root context BEFORE closing the bottom sheet
+    final rootContext = rootNavigatorKey.currentContext;
+
     // Store notifier reference before any navigation
     final exportNotifier = ref.read(exportProvider.notifier);
 
@@ -145,7 +149,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     TransactionType? type;
 
     if (option == ExportOption.filtered) {
-      // Apply current filter
       final filterState = ref.read(transactionFilterProvider);
       startDate = filterState.startDate;
       endDate = filterState.endDate;
@@ -164,7 +167,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
     // Check for errors
     if (transactionsResult.isFailure || (transactionsResult.data?.isEmpty ?? true)) {
-      // Show error and return - context should still be valid here
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -173,7 +175,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        // Close the bottom sheet
         Navigator.pop(context);
       }
       return;
@@ -182,41 +183,29 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     // Generate file name
     final fileName = _generateFileName(option);
 
-    // Show action dialog FIRST, while bottom sheet is still open
-    // This ensures context is still valid
+    // Show action dialog while bottom sheet context is still valid
     final action = await ExportActionDialog.show(
       context,
       fileName: '$fileName.csv',
       transactionCount: transactionsResult.data!.length,
     );
 
-    // Now close the bottom sheet
+    // Close the bottom sheet
     if (context.mounted) {
       Navigator.pop(context);
     }
 
-    // Wait for the bottom sheet to fully close
-    await Future.delayed(const Duration(milliseconds: 200));
-
     // Execute export based on selected action
-    if (action != null) {
-      // Show loading dialog using root navigator (context from bottom sheet is now invalid)
-      try {
-        final rootContext = Navigator.of(context, rootNavigator: true).context;
+    if (action != null && rootContext != null) {
+      // Show loading dialog using stable root context
+      showDialog(
+        context: rootContext,
+        barrierDismissible: false,
+        builder: (dialogContext) => _ExportLoadingDialog(action: action),
+      );
 
-        showDialog(
-          context: rootContext,
-          barrierDismissible: false,
-          builder: (dialogContext) => _ExportLoadingDialog(
-            action: action,
-          ),
-        );
-      } catch (e) {
-        return;
-      }
-
-      // Execute export
       try {
+        // Execute export
         if (action == ExportAction.saveToDevice) {
           await exportNotifier.saveTransactionsToCsv(
             startDate: startDate,
@@ -235,81 +224,45 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
           );
         }
 
-        // Wait a bit for state to update
-        await Future.delayed(const Duration(milliseconds: 200));
+        // Dismiss loading dialog
+        Navigator.of(rootContext, rootNavigator: true).pop();
 
-        // Close loading dialog and show result
-        try {
-          final rootContext = Navigator.of(context, rootNavigator: true).context;
-          Navigator.pop(rootContext); // Close loading dialog
-
-          // Get final state - use a try-catch to handle disposed ref
-          try {
-            final currentState = ref.read(exportProvider);
-
-            // Show result dialog based on state
-            if (currentState.isSuccess) {
-              _showResultDialog(
-                rootContext,
-                isSuccess: true,
-                action: currentState.lastAction,
-                filePath: currentState.filePath,
-              );
-              // Reset state
-              ref.read(exportProvider.notifier).reset();
-            } else if (currentState.isError) {
-              _showResultDialog(
-                rootContext,
-                isSuccess: false,
-                errorMessage: currentState.errorMessage,
-              );
-              // Reset state
-              ref.read(exportProvider.notifier).reset();
-            } else {
-              // State is still loading - this shouldn't happen but handle it
-              _showResultDialog(
-                rootContext,
-                isSuccess: true,
-                action: action,
-                filePath: 'File CSV berhasil diproses. Silakan cek folder Documents/CatatCuan/Exports/',
-              );
-              // Reset state
-              ref.read(exportProvider.notifier).reset();
-            }
-          } on StateError {
-            // Ref was disposed - file was still saved successfully
-            _showResultDialog(
-              rootContext,
-              isSuccess: true,
-              action: action,
-              filePath: 'File CSV berhasil disimpan. Silakan cek folder Documents/CatatCuan/Exports/',
-            );
-            // Can't reset state since ref is disposed
-          }
-        } catch (e) {
-          // Error handling for dialog operations
-        }
-      } catch (e) {
-        // Try to close loading dialog and show error
-        try {
-          final rootContext = Navigator.of(context, rootNavigator: true).context;
-          if (Navigator.canPop(rootContext)) {
-            Navigator.pop(rootContext); // Close loading dialog
-          }
+        // Read final state and show result
+        final currentState = ref.read(exportProvider);
+        if (currentState.isSuccess) {
+          _showResultDialog(
+            rootContext,
+            isSuccess: true,
+            action: currentState.lastAction,
+            filePath: currentState.filePath,
+          );
+        } else if (currentState.isError) {
           _showResultDialog(
             rootContext,
             isSuccess: false,
-            errorMessage: 'Terjadi kesalahan: ${e.toString()}',
+            errorMessage: currentState.errorMessage,
           );
-        } catch (e2) {
-          // Failed to show error dialog
+        } else {
+          // State still loading — export likely succeeded
+          _showResultDialog(
+            rootContext,
+            isSuccess: true,
+            action: action,
+            filePath: 'File CSV berhasil diproses.',
+          );
         }
-        // Reset state
-        try {
-          ref.read(exportProvider.notifier).reset();
-        } catch (e3) {
-          // Failed to reset state
+        ref.read(exportProvider.notifier).reset();
+      } catch (e) {
+        // Dismiss loading dialog if still showing
+        if (Navigator.of(rootContext, rootNavigator: true).canPop()) {
+          Navigator.of(rootContext, rootNavigator: true).pop();
         }
+        _showResultDialog(
+          rootContext,
+          isSuccess: false,
+          errorMessage: 'Terjadi kesalahan: $e',
+        );
+        ref.read(exportProvider.notifier).reset();
       }
     }
   }
@@ -353,7 +306,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
             Text(
               isSuccess
                   ? (action == ExportAction.saveToDevice
-                      ? 'File CSV berhasil disimpan di:\n$filePath'
+                      ? 'File CSV berhasil disimpan di:\n\n$filePath\n\nBuka File Manager > Android/data/ > cari folder CatatCuan/Exports/'
                       : 'File CSV berhasil dibagikan')
                   : (errorMessage ?? 'Terjadi kesalahan saat mengekspor'),
               style: TextStyle(
