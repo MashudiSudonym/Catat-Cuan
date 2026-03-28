@@ -48,7 +48,7 @@ class CsvImportServiceImpl implements ImportService {
       final headers = _parseCsvRow(headerLine);
       if (!_validateHeaders(headers)) {
         return Result.failure(
-          const ImportFailure('Format header CSV tidak sesuai. Expected: ID,Tanggal,Jenis,Kategori,Jumlah,Catatan'),
+          const ImportFailure('Format header CSV tidak sesuai. Kolom: ID,Tanggal,Jenis,Kategori,Jumlah,Catatan'),
         );
       }
 
@@ -81,7 +81,7 @@ class CsvImportServiceImpl implements ImportService {
       return Result.success(parsedRows);
     } catch (e, stackTrace) {
       AppLogger.e('Failed to parse CSV file', e, stackTrace);
-      return Result.failure(ImportFailure('Gagal membaca file CSV: $e'));
+      return Result.failure(const ImportFailure('Gagal membaca file CSV. Silakan coba lagi.'));
     }
   }
 

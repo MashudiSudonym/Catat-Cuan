@@ -48,7 +48,7 @@ class TransactionReadRepositoryImpl implements TransactionReadRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transaction by ID: $id', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil transaksi: $e'),
+        DatabaseFailure('Gagal mengambil transaksi'),
       );
     }
   }
@@ -72,7 +72,7 @@ class TransactionReadRepositoryImpl implements TransactionReadRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil transaksi: $e'),
+        DatabaseFailure('Gagal mengambil transaksi'),
       );
     }
   }

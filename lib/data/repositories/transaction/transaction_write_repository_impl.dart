@@ -58,7 +58,7 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to add transaction', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal menyimpan transaksi: $e'),
+        DatabaseFailure('Gagal menyimpan transaksi'),
       );
     }
   }
@@ -114,7 +114,8 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to update transaction', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengubah transaksi: $e'),
+        DatabaseFailure('Gagal mengubah transaksi'),
+
       );
     }
   }
@@ -142,7 +143,8 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete transaction: $id', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal menghapus transaksi: $e'),
+        DatabaseFailure('Gagal menghapus transaksi'),
+
       );
     }
   }
@@ -158,7 +160,8 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete all transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal menghapus semua transaksi: $e'),
+        DatabaseFailure('Gagal menghapus semua transaksi'),
+
       );
     }
   }
@@ -196,7 +199,8 @@ class TransactionWriteRepositoryImpl implements TransactionWriteRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to delete multiple transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal menghapus transaksi: $e'),
+        DatabaseFailure('Gagal menghapus transaksi'),
+
       );
     }
   }
