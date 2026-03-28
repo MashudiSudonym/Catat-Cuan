@@ -29,24 +29,24 @@ GoRouter createGoRouter(Ref ref) {
     debugLogDiagnostics: true,
     initialLocation: AppRoutes.transactions,
     redirect: (context, state) {
-      // Watch onboarding state for reactive redirects
-      final onboardingState = ref.read(onboardingProvider);
+      // Watch category seeding state for reactive redirects
+      final seedingState = ref.read(categorySeedingProvider);
 
-      // Check if user has seen onboarding
-      if (onboardingState.hasValue || onboardingState.isLoading) {
-        final hasSeenOnboarding = onboardingState.value ?? false;
+      // Check if categories exist (determines if onboarding is needed)
+      if (seedingState.hasValue || seedingState.isLoading) {
+        final categoriesExist = seedingState.value ?? false;
 
         // If trying to access onboarding route
         if (state.matchedLocation == AppRoutes.onboarding) {
-          // If already seen onboarding, redirect to home
-          if (hasSeenOnboarding) {
+          // If categories already exist, redirect to home
+          if (categoriesExist) {
             return AppRoutes.transactions;
           }
           return null; // Show onboarding
         }
 
-        // If trying to access other routes without seeing onboarding
-        if (!hasSeenOnboarding && state.matchedLocation != AppRoutes.onboarding) {
+        // If trying to access other routes without categories (need onboarding)
+        if (!categoriesExist && state.matchedLocation != AppRoutes.onboarding) {
           return AppRoutes.onboarding;
         }
       }

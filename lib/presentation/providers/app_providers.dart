@@ -62,6 +62,7 @@ export 'import/import_provider.dart';
 
 // Onboarding providers
 export 'onboarding/onboarding_provider.dart';
+export 'onboarding/category_seeding_provider.dart';
 
 // Controller providers (SRP refactoring)
 export 'controllers/controller_providers.dart';
@@ -83,11 +84,10 @@ export 'package:catat_cuan/presentation/providers/summary/monthly_summary_provid
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/presentation/providers/cache_provider.dart';
 
-/// Provider untuk inisialisasi data awal (seed categories)
-/// Menggunakan FutureProvider dengan cache untuk mencegah re-execution saat app resume
+/// Provider for lightweight app initialization
+/// Seeding is now handled by CategorySeedingNotifier after onboarding
 final appInitializationProvider = FutureProvider<void>((ref) async {
   // Keep the provider alive even when no one is listening
   ref.keepAlive();
@@ -98,16 +98,6 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
   // If already initialized, skip
   if (ref.read(cacheProvider.notifier).isSet(cacheKey)) {
     return;
-  }
-
-  // Perform initialization
-  final categorySeedingRepository = ref.read(categorySeedingRepositoryProvider);
-
-  // Cek apakah perlu seed default categories
-  final needsSeedResult = await categorySeedingRepository.needsSeed();
-
-  if (needsSeedResult.isSuccess && (needsSeedResult.data ?? false)) {
-    await categorySeedingRepository.seedDefaultCategories();
   }
 
   // Mark as initialized

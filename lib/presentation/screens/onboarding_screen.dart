@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:catat_cuan/presentation/models/onboarding_page_data.dart';
 import 'package:catat_cuan/presentation/providers/onboarding/onboarding_provider.dart';
+import 'package:catat_cuan/presentation/providers/onboarding/category_seeding_provider.dart';
 import 'package:catat_cuan/presentation/widgets/onboarding_page.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
@@ -21,6 +22,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isSeeding = false;
 
   @override
   void dispose() {
@@ -62,7 +64,41 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               right: 0,
               child: _buildBottomSection(),
             ),
+
+            // Loading overlay during seeding
+            if (_isSeeding) _buildSeedingOverlay(),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Build loading overlay shown during category seeding
+  Widget _buildSeedingOverlay() {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.5),
+      child: Center(
+        child: AppGlassContainer.glassCard(
+          child: Padding(
+            padding: AppSpacing.all(AppSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
+                AppSpacingWidget.verticalMD(),
+                Text(
+                  'Menyiapkan data...',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -71,11 +107,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   /// Build skip button
   Widget _buildSkipButton() {
     return TextButton(
-      onPressed: _handleSkip,
+      onPressed: _isSeeding ? null : _handleSkip,
       child: Text(
         'Lewati',
         style: TextStyle(
-          color: AppColors.textSecondary,
+          color: _isSeeding
+              ? AppColors.textSecondary.withValues(alpha: 0.5)
+              : AppColors.textSecondary,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -108,10 +146,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _handleNext,
+                onPressed: _isSeeding ? null : _handleNext,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      AppColors.primary.withValues(alpha: 0.5),
                   padding: AppSpacing.symmetric(
                     horizontal: AppSpacing.xl,
                     vertical: AppSpacing.md,
@@ -120,13 +160,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     borderRadius: AppRadius.mdAll,
                   ),
                 ),
-                child: Text(
-                  _currentPage == onboardingPages.length - 1 ? 'Mulai' : 'Lanjut',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: _isSeeding
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        _currentPage == onboardingPages.length - 1
+                            ? 'Mulai'
+                            : 'Lanjut',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -137,22 +188,53 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   /// Handle skip button press
   void _handleSkip() {
-    // Skip without marking as seen - will show again on next launch
-    context.go(AppRoutes.transactions);
+    _performSeedingAndNavigate();
   }
 
   /// Handle next/start button press
   void _handleNext() {
     if (_currentPage == onboardingPages.length - 1) {
-      // Last page - complete onboarding and navigate to home
-      ref.read(onboardingProvider.notifier).completeOnboarding();
-      context.go(AppRoutes.transactions);
+      // Last page - seed categories and navigate to home
+      _performSeedingAndNavigate();
     } else {
       // Go to next page
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  /// Seed default categories and navigate to the main app
+  Future<void> _performSeedingAndNavigate() async {
+    if (_isSeeding) return;
+
+    setState(() {
+      _isSeeding = true;
+    });
+
+    try {
+      // Mark onboarding as seen
+      await ref.read(onboardingProvider.notifier).completeOnboarding();
+
+      // Seed default categories
+      await ref.read(categorySeedingProvider.notifier).seedCategories();
+
+      if (mounted) {
+        context.go(AppRoutes.transactions);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSeeding = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menyiapkan data: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 }
