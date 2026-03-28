@@ -4,6 +4,7 @@ import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/utils/app_colors.dart';
 import 'package:catat_cuan/presentation/utils/currency_formatter.dart';
+import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 
 /// Dialog untuk konfirmasi hapus transaksi
 /// Following SRP: Only handles delete confirmation dialog
@@ -81,7 +82,7 @@ class DeleteTransactionHandler extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.failure?.message ?? 'Gagal menghapus transaksi'),
+              content: Text(ErrorMessageMapper.getUserMessage(result.failure)),
               backgroundColor: AppColors.error,
             ),
           );

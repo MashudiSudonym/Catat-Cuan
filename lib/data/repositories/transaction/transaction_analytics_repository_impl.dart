@@ -73,7 +73,7 @@ class TransactionAnalyticsRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('TransactionAnalytics: Failed to get monthly summary', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil ringkasan bulanan: $e'),
+        DatabaseFailure('Gagal mengambil ringkasan bulanan'),
       );
     }
   }
@@ -118,7 +118,7 @@ class TransactionAnalyticsRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('TransactionAnalytics: Failed to get all-time summary', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil ringkasan semua data: $e'),
+        DatabaseFailure('Gagal mengambil ringkasan semua data'),
       );
     }
   }
@@ -171,7 +171,7 @@ class TransactionAnalyticsRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('TransactionAnalytics: Failed to get category breakdown', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil breakdown kategori: $e'),
+        DatabaseFailure('Gagal mengambil breakdown kategori'),
       );
     }
   }
@@ -224,7 +224,7 @@ class TransactionAnalyticsRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('TransactionAnalytics: Failed to get all-time category breakdown', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil breakdown kategori semua data: $e'),
+        DatabaseFailure('Gagal mengambil breakdown kategori semua data'),
       );
     }
   }
@@ -267,7 +267,7 @@ class TransactionAnalyticsRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get multi-month summary', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil ringkasan multi-bulan: $e'),
+        DatabaseFailure('Gagal mengambil ringkasan multi-bulan'),
       );
     }
   }

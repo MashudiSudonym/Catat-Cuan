@@ -83,7 +83,8 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get filtered transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil transaksi: $e'),
+        DatabaseFailure('Gagal mengambil transaksi'),
+
       );
     }
   }
@@ -171,7 +172,8 @@ class TransactionQueryRepositoryImpl implements TransactionQueryRepository {
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get paginated transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil transaksi: $e'),
+        DatabaseFailure('Gagal mengambil transaksi'),
+
       );
     }
   }

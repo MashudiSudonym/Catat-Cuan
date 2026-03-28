@@ -149,7 +149,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(transactionsResult.failure?.message ?? 'Tidak ada transaksi untuk diekspor'),
+            content: Text(ErrorMessageMapper.getUserMessage(transactionsResult.failure)),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -214,7 +214,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
           _showResultDialog(
             rootNavigatorKey.currentContext!,
             isSuccess: false,
-            errorMessage: result.failure?.message ?? 'Gagal menyimpan file',
+            errorMessage: ErrorMessageMapper.getUserMessage(result.failure),
           );
         }
       } else {
@@ -237,7 +237,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
           _showResultDialog(
             rootNavigatorKey.currentContext!,
             isSuccess: false,
-            errorMessage: result.failure?.message ?? 'Gagal membagikan file',
+            errorMessage: ErrorMessageMapper.getUserMessage(result.failure),
           );
         }
       }

@@ -85,7 +85,7 @@ class TransactionExportRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('Failed to get transactions with category names', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mengambil transaksi: $e'),
+        DatabaseFailure('Gagal mengambil transaksi'),
       );
     }
   }

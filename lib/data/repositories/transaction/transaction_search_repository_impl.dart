@@ -75,7 +75,7 @@ class TransactionSearchRepositoryImpl
     } catch (e, stackTrace) {
       AppLogger.e('Failed to search transactions', e, stackTrace);
       return Result.failure(
-        DatabaseFailure('Gagal mencari transaksi: $e'),
+        DatabaseFailure('Gagal mencari transaksi'),
       );
     }
   }
