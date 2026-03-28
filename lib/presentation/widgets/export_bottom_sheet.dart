@@ -9,6 +9,7 @@ import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/export_action_dialog.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_router.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
+import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
 
 /// Export options bottom sheet
 class ExportOptionsBottomSheet extends ConsumerWidget {
@@ -36,8 +37,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exportState = ref.watch(exportProvider);
-
     return DraggableScrollableSheet(
       initialChildSize: 0.4,
       minChildSize: 0.3,
@@ -69,47 +68,32 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                 ),
               ),
 
-              // Loading state
-              if (exportState.isLoading)
-                const Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        AppSpacingWidget.verticalLG(),
-                        Text('Mengekspor transaksi...'),
-                      ],
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: AppSpacing.horizontal(AppSpacing.lg),
+                  children: [
+                    _buildExportOption(
+                      context,
+                      ref,
+                      icon: Icons.download,
+                      title: 'Ekspor Semua',
+                      subtitle: 'Unduh semua transaksi',
+                      option: ExportOption.all,
                     ),
-                  ),
-                )
-              else
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    padding: AppSpacing.horizontal(AppSpacing.lg),
-                    children: [
-                      _buildExportOption(
-                        context,
-                        ref,
-                        icon: Icons.download,
-                        title: 'Ekspor Semua',
-                        subtitle: 'Unduh semua transaksi',
-                        option: ExportOption.all,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.md),
 
-                      _buildExportOption(
-                        context,
-                        ref,
-                        icon: Icons.filter_list,
-                        title: 'Ekspor dengan Filter Saat Ini',
-                        subtitle: 'Gunakan filter yang sedang aktif',
-                        option: ExportOption.filtered,
-                      ),
-                    ],
-                  ),
+                    _buildExportOption(
+                      context,
+                      ref,
+                      icon: Icons.filter_list,
+                      title: 'Ekspor dengan Filter Saat Ini',
+                      subtitle: 'Gunakan filter yang sedang aktif',
+                      option: ExportOption.filtered,
+                    ),
+                  ],
                 ),
+              ),
             ],
           ),
         );
@@ -139,9 +123,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     // Capture stable root context BEFORE closing the bottom sheet
     final rootContext = rootNavigatorKey.currentContext;
 
-    // Store notifier reference before any navigation
-    final exportNotifier = ref.read(exportProvider.notifier);
-
     // Get filter parameters
     DateTime? startDate;
     DateTime? endDate;
@@ -156,7 +137,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       type = filterState.type;
     }
 
-    // Get transaction count for preview
+    // Get transactions for export
     final exportRepository = ref.read(transactionExportRepositoryProvider);
     final transactionsResult = await exportRepository.getTransactionsWithCategoryNames(
       startDate: startDate,
@@ -180,6 +161,8 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       return;
     }
 
+    final transactions = transactionsResult.data!;
+
     // Generate file name
     final fileName = _generateFileName(option);
 
@@ -187,7 +170,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     final action = await ExportActionDialog.show(
       context,
       fileName: '$fileName.csv',
-      transactionCount: transactionsResult.data!.length,
+      transactionCount: transactions.length,
     );
 
     // Close the bottom sheet
@@ -205,53 +188,56 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       );
 
       try {
-        // Execute export
+        // Call export service directly — avoids Riverpod auto-dispose issue
+        // when bottom sheet closes and no widget watches exportProvider
+        final exportService = ref.read(exportServiceProvider);
+
         if (action == ExportAction.saveToDevice) {
-          await exportNotifier.saveTransactionsToCsv(
-            startDate: startDate,
-            endDate: endDate,
-            categoryId: categoryId,
-            type: type,
-            fileNameSuffix: fileName,
+          final result = await exportService.saveTransactionsToCsv(
+            transactions: transactions,
+            fileName: fileName,
           );
-        } else {
-          await exportNotifier.shareTransactionsToCsv(
-            startDate: startDate,
-            endDate: endDate,
-            categoryId: categoryId,
-            type: type,
-            fileNameSuffix: fileName,
-          );
-        }
 
-        // Dismiss loading dialog
-        Navigator.of(rootContext, rootNavigator: true).pop();
+          // Dismiss loading dialog
+          Navigator.of(rootContext, rootNavigator: true).pop();
 
-        // Read final state and show result
-        final currentState = ref.read(exportProvider);
-        if (currentState.isSuccess) {
-          _showResultDialog(
-            rootContext,
-            isSuccess: true,
-            action: currentState.lastAction,
-            filePath: currentState.filePath,
-          );
-        } else if (currentState.isError) {
-          _showResultDialog(
-            rootContext,
-            isSuccess: false,
-            errorMessage: currentState.errorMessage,
-          );
+          if (result.isSuccess) {
+            _showResultDialog(
+              rootContext,
+              isSuccess: true,
+              action: ExportAction.saveToDevice,
+              filePath: result.data,
+            );
+          } else {
+            _showResultDialog(
+              rootContext,
+              isSuccess: false,
+              errorMessage: result.failure?.message ?? 'Gagal menyimpan file',
+            );
+          }
         } else {
-          // State still loading — export likely succeeded
-          _showResultDialog(
-            rootContext,
-            isSuccess: true,
-            action: action,
-            filePath: 'File CSV berhasil diproses.',
+          final result = await exportService.shareTransactionsToCsv(
+            transactions: transactions,
+            fileName: fileName,
           );
+
+          // Dismiss loading dialog
+          Navigator.of(rootContext, rootNavigator: true).pop();
+
+          if (result.isSuccess) {
+            _showResultDialog(
+              rootContext,
+              isSuccess: true,
+              action: ExportAction.share,
+            );
+          } else {
+            _showResultDialog(
+              rootContext,
+              isSuccess: false,
+              errorMessage: result.failure?.message ?? 'Gagal membagikan file',
+            );
+          }
         }
-        ref.read(exportProvider.notifier).reset();
       } catch (e) {
         // Dismiss loading dialog if still showing
         if (Navigator.of(rootContext, rootNavigator: true).canPop()) {
@@ -262,7 +248,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
           isSuccess: false,
           errorMessage: 'Terjadi kesalahan: $e',
         );
-        ref.read(exportProvider.notifier).reset();
       }
     }
   }
