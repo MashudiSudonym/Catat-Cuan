@@ -84,22 +84,10 @@ export 'package:catat_cuan/presentation/providers/summary/monthly_summary_provid
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:catat_cuan/presentation/providers/cache_provider.dart';
 
 /// Provider for lightweight app initialization
 /// Seeding is now handled by CategorySeedingNotifier after onboarding
 final appInitializationProvider = FutureProvider<void>((ref) async {
   // Keep the provider alive even when no one is listening
   ref.keepAlive();
-
-  // Use a cache key to track if we've already initialized
-  const cacheKey = 'app_initialized';
-
-  // If already initialized, skip
-  if (ref.read(cacheProvider.notifier).isSet(cacheKey)) {
-    return;
-  }
-
-  // Mark as initialized
-  ref.read(cacheProvider.notifier).set(cacheKey);
 });
