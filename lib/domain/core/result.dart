@@ -39,7 +39,7 @@ class Result<T> {
   factory Result.failure(Failure failure) => Result._(data: null, failure: failure);
 
   /// Whether the result is successful
-  bool get isSuccess => data != null;
+  bool get isSuccess => failure == null;
 
   /// Whether the result is a failure
   bool get isFailure => failure != null;
