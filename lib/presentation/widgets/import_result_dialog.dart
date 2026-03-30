@@ -71,6 +71,12 @@ class ImportResultDialog extends StatelessWidget {
             _buildStatsRow(context),
             const AppSpacingWidget.verticalLG(),
 
+            // Auto-created categories info (if any)
+            if (result.hasCategoriesCreated) ...[
+              _buildCategoriesCreatedInfo(context),
+              const AppSpacingWidget.verticalLG(),
+            ],
+
             // Errors section (if any)
             if (result.hasErrors) ...[
               _buildErrorsSection(context),
@@ -170,6 +176,39 @@ class ImportResultDialog extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoriesCreatedInfo(BuildContext context) {
+    return Container(
+      padding: AppSpacing.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.info.withValues(alpha: 0.1),
+        borderRadius: AppRadius.mdAll,
+        border: Border.all(
+          color: AppColors.info.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.add_circle_outline,
+            color: AppColors.info,
+            size: 20,
+          ),
+          const AppSpacingWidget.horizontalSM(),
+          Expanded(
+            child: Text(
+              '${result.categoriesCreated} kategori baru dibuat otomatis',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

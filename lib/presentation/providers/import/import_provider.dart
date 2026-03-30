@@ -42,11 +42,15 @@ CsvImportServiceImpl importService(Ref ref) {
 ImportTransactionsUseCase importTransactionsUseCase(Ref ref) {
   final importService = ref.watch(importServiceProvider);
   final categoryReadRepo = ref.watch(categoryReadRepositoryProvider);
+  final categoryWriteRepo = ref.watch(categoryWriteRepositoryProvider);
+  final categoryManagementRepo = ref.watch(categoryManagementRepositoryProvider);
   final transactionWriteRepo = ref.watch(transactionWriteRepositoryProvider);
   final transactionQueryRepo = ref.watch(transactionQueryRepositoryProvider);
   return ImportTransactionsUseCase(
     importService,
     categoryReadRepo,
+    categoryWriteRepo,
+    categoryManagementRepo,
     transactionWriteRepo,
     transactionQueryRepo,
   );

@@ -12,11 +12,15 @@ class ImportResult {
   /// List of row-level errors encountered during import
   final List<ImportRowError> errors;
 
+  /// Number of categories auto-created during import
+  final int categoriesCreated;
+
   const ImportResult({
     required this.totalRows,
     required this.imported,
     required this.skipped,
     required this.errors,
+    this.categoriesCreated = 0,
   });
 
   /// Whether any rows had errors
@@ -24,6 +28,9 @@ class ImportResult {
 
   /// Whether the import was fully successful (all rows imported, no errors)
   bool get isFullySuccessful => imported == totalRows && errors.isEmpty;
+
+  /// Whether any categories were auto-created during import
+  bool get hasCategoriesCreated => categoriesCreated > 0;
 }
 
 /// Represents an error for a specific CSV row

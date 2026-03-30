@@ -4,7 +4,9 @@ import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/entities/import_result_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/repositories/category/category_management_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
+import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_query_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_write_repository.dart';
 import 'package:catat_cuan/domain/services/import_service.dart';
@@ -25,12 +27,16 @@ class ImportTransactionsParams {
 class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactionsParams> {
   final ImportService _importService;
   final CategoryReadRepository _categoryReadRepository;
+  final CategoryWriteRepository _categoryWriteRepository;
+  final CategoryManagementRepository _categoryManagementRepository;
   final TransactionWriteRepository _transactionWriteRepository;
   final TransactionQueryRepository _transactionQueryRepository;
 
   ImportTransactionsUseCase(
     this._importService,
     this._categoryReadRepository,
+    this._categoryWriteRepository,
+    this._categoryManagementRepository,
     this._transactionWriteRepository,
     this._transactionQueryRepository,
   );
@@ -75,6 +81,7 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
     int imported = 0;
     int skipped = 0;
     final errors = <ImportRowError>[];
+    final createdCategories = <String>{}; // Track created category keys
 
     for (final row in parsedRows) {
       final rowDisplay = '${row.date},${row.type},${row.category},${row.amount}';
@@ -112,15 +119,22 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
         continue;
       }
 
-      // Resolve category
+      // Resolve or create category
       final categoryKey = '${row.category.toLowerCase()}_${type == TransactionType.income ? 'income' : 'expense'}';
-      final categoryId = categoryMap[categoryKey];
+      final categoryType = type == TransactionType.income ? CategoryType.income : CategoryType.expense;
+
+      final categoryId = await _resolveOrCreateCategory(
+        row.category,
+        categoryType,
+        categoryKey,
+        categoryMap,
+        createdCategories,
+        errors,
+        row,
+        rowDisplay,
+      );
+
       if (categoryId == null) {
-        errors.add(ImportRowError(
-          rowNumber: row.rowNumber,
-          rowData: rowDisplay,
-          errorMessage: 'Kategori tidak ditemukan: "${row.category}" (${type.displayName})',
-        ));
         continue;
       }
 
@@ -167,6 +181,7 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
       imported: imported,
       skipped: skipped,
       errors: errors,
+      categoriesCreated: createdCategories.length,
     );
 
     AppLogger.i('Import complete: ${result.imported}/${result.totalRows} imported, ${result.skipped} skipped, ${result.errors.length} errors');
@@ -228,5 +243,75 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
     // Remove thousand separators (dots in Indonesian format)
     final cleaned = amountStr.replaceAll('.', '').replaceAll(',', '.').trim();
     return double.tryParse(cleaned);
+  }
+
+  /// Resolve category by name, reactivate if soft-deleted, or create new one
+  ///
+  /// Returns category ID if successful, null if failed (error already added to errors list)
+  Future<int?> _resolveOrCreateCategory(
+    String categoryName,
+    CategoryType type,
+    String categoryKey,
+    Map<String, int> categoryMap,
+    Set<String> createdCategories,
+    List<ImportRowError> errors,
+    ParsedCsvRow row,
+    String rowDisplay,
+  ) async {
+    // 1. Check categoryMap (active categories) — if found, return ID directly
+    final existingId = categoryMap[categoryKey];
+    if (existingId != null) {
+      return existingId;
+    }
+
+    // 2. Call getCategoryByName(name, type) — searches ALL categories including inactive
+    final categoryResult = await _categoryReadRepository.getCategoryByName(categoryName, type);
+    if (categoryResult.isSuccess && categoryResult.data != null) {
+      final category = categoryResult.data!;
+      // If found and isActive == false → call reactivateCategory(id) → return ID
+      if (!category.isActive && category.id != null) {
+        final reactivateResult = await _categoryManagementRepository.reactivateCategory(category.id!);
+        if (reactivateResult.isSuccess) {
+          AppLogger.d('Reactivated soft-deleted category: ${category.name} (ID: ${category.id})');
+          return category.id!;
+        }
+        // Reactivate failed, will fall through to create new
+      } else if (category.isActive && category.id != null) {
+        // Defensive fallback: active category not in map (shouldn't happen)
+        return category.id;
+      }
+    }
+
+    // 3. If no match at all → create new via addCategory() with defaults
+    final now = DateTime.now();
+    final newCategory = CategoryEntity(
+      name: categoryName,
+      type: type,
+      color: '#6B7280', // neutral gray
+      icon: null,
+      sortOrder: categoryMap.length + 1,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    final addResult = await _categoryWriteRepository.addCategory(newCategory);
+    if (addResult.isSuccess && addResult.data?.id != null) {
+      final newId = addResult.data!.id!;
+      AppLogger.d('Created new category: $categoryName (ID: $newId)');
+      // Cache in categoryMap so same unknown category in multiple rows is only created once
+      categoryMap[categoryKey] = newId;
+      // Track that we created this category
+      createdCategories.add(categoryKey);
+      return newId;
+    }
+
+    // 5. If both reactivate and create fail → return null (row becomes error)
+    errors.add(ImportRowError(
+      rowNumber: row.rowNumber,
+      rowData: rowDisplay,
+      errorMessage: 'Gagal membuat kategori: "${categoryName}" (${type.displayName})',
+    ));
+    return null;
   }
 }
