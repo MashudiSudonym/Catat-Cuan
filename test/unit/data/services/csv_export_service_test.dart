@@ -13,7 +13,7 @@ void main() {
       final transactions = [
         {
           'id': 1,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 14, 30).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Makanan',
           'amount': 5000,
@@ -31,7 +31,7 @@ void main() {
       final transactions = [
         {
           'id': 2,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 9, 0).millisecondsSinceEpoch,
           'type': 'income',
           'category_name': 'Gaji',
           'amount': 15000000,
@@ -49,7 +49,7 @@ void main() {
       final transactions = [
         {
           'id': 3,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 23, 59).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Parkir',
           'amount': 500,
@@ -66,7 +66,7 @@ void main() {
       final transactions = [
         {
           'id': 4,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 0, 0).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Makanan',
           'amount': '7500',
@@ -84,7 +84,7 @@ void main() {
       final transactions = [
         {
           'id': 5,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 12, 15).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Makanan',
           'amount': 25000.0,
@@ -105,7 +105,7 @@ void main() {
         final transactions = [
           {
             'id': 1,
-            'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+            'date_time': DateTime(2026, 3, 15, 14, 30).millisecondsSinceEpoch,
             'type': 'expense',
             'category_name': 'Test',
             'amount': amount,
@@ -114,11 +114,11 @@ void main() {
         ];
 
         final csv = service.generateCsvString(transactions);
-        // Extract amount from CSV (5th column)
+        // Extract amount from CSV (6th column, after ID, Tanggal, Waktu, Jenis, Kategori)
         final lines = csv.split('\n');
         final dataLine = lines[1];
         final columns = dataLine.split(',');
-        final amountStr = columns[4];
+        final amountStr = columns[5];
 
         // Simulate import's _parseAmount
         final cleaned = amountStr.replaceAll('.', '').replaceAll(',', '.').trim();
@@ -132,14 +132,14 @@ void main() {
     test('CSV has correct headers', () {
       final csv = service.generateCsvString([]);
 
-      expect(csv, startsWith('ID,Tanggal,Jenis,Kategori,Jumlah,Catatan'));
+      expect(csv, startsWith('ID,Tanggal,Waktu,Jenis,Kategori,Jumlah,Catatan'));
     });
 
     test('multiple transactions are on separate lines', () {
       final transactions = [
         {
           'id': 1,
-          'date_time': DateTime(2026, 1, 1).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 1, 1, 8, 30).millisecondsSinceEpoch,
           'type': 'income',
           'category_name': 'Gaji',
           'amount': 10000000,
@@ -147,7 +147,7 @@ void main() {
         },
         {
           'id': 2,
-          'date_time': DateTime(2026, 1, 2).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 1, 2, 13, 45).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Makanan',
           'amount': 50000,
@@ -167,7 +167,7 @@ void main() {
       final transactions = [
         {
           'id': 1,
-          'date_time': DateTime(2026, 3, 15).millisecondsSinceEpoch,
+          'date_time': DateTime(2026, 3, 15, 14, 30).millisecondsSinceEpoch,
           'type': 'expense',
           'category_name': 'Makanan',
           'amount': 10000,
@@ -178,6 +178,42 @@ void main() {
       final csv = service.generateCsvString(transactions);
 
       expect(csv, contains('"ayam, nasi, teh"'));
+    });
+
+    test('time is formatted as HH:mm', () {
+      final transactions = [
+        {
+          'id': 1,
+          'date_time': DateTime(2026, 3, 15, 14, 30).millisecondsSinceEpoch,
+          'type': 'expense',
+          'category_name': 'Makanan',
+          'amount': 10000,
+          'note': '',
+        },
+        {
+          'id': 2,
+          'date_time': DateTime(2026, 3, 15, 9, 5).millisecondsSinceEpoch,
+          'type': 'expense',
+          'category_name': 'Makanan',
+          'amount': 10000,
+          'note': '',
+        },
+        {
+          'id': 3,
+          'date_time': DateTime(2026, 3, 15, 0, 0).millisecondsSinceEpoch,
+          'type': 'expense',
+          'category_name': 'Makanan',
+          'amount': 10000,
+          'note': '',
+        },
+      ];
+
+      final csv = service.generateCsvString(transactions);
+      final lines = csv.split('\n');
+
+      expect(lines[1], contains(',14:30,'));
+      expect(lines[2], contains(',09:05,'));
+      expect(lines[3], contains(',00:00,'));
     });
   });
 }

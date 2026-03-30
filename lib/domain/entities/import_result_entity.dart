@@ -59,6 +59,9 @@ class ParsedCsvRow {
   /// Date string in dd/MM/yyyy format
   final String date;
 
+  /// Time string in HH:mm format (empty for backward compatibility with old CSV files)
+  final String time;
+
   /// Transaction type string ("Pemasukan" or "Pengeluaran")
   final String type;
 
@@ -74,6 +77,7 @@ class ParsedCsvRow {
   const ParsedCsvRow({
     required this.rowNumber,
     required this.date,
+    this.time = '',
     required this.type,
     required this.category,
     required this.amount,

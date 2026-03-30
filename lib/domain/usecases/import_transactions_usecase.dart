@@ -98,7 +98,7 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
       }
 
       // Parse date
-      final dateTime = _parseDate(row.date);
+      final dateTime = _parseDateTime(row.date, row.time);
       if (dateTime == null) {
         errors.add(ImportRowError(
           rowNumber: row.rowNumber,
@@ -217,8 +217,8 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
     }
   }
 
-  /// Parse date from dd/MM/yyyy format
-  DateTime? _parseDate(String dateStr) {
+  /// Parse date from dd/MM/yyyy format with optional time in HH:mm format
+  DateTime? _parseDateTime(String dateStr, [String timeStr = '']) {
     final parts = dateStr.split('/');
     if (parts.length != 3) return null;
 
@@ -232,7 +232,19 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
     if (day < 1 || day > 31) return null;
 
     try {
-      return DateTime(year, month, day);
+      int hour = 0;
+      int minute = 0;
+
+      // Parse time if provided
+      if (timeStr.isNotEmpty) {
+        final timeParts = timeStr.split(':');
+        if (timeParts.length == 2) {
+          hour = int.tryParse(timeParts[0]) ?? 0;
+          minute = int.tryParse(timeParts[1]) ?? 0;
+        }
+      }
+
+      return DateTime(year, month, day, hour, minute);
     } catch (_) {
       return null;
     }

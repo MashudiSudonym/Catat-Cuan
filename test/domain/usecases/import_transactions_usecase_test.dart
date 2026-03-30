@@ -65,6 +65,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '25000',
@@ -137,6 +138,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '25000',
@@ -145,6 +147,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 3,
           date: '15/03/2026',
+          time: '15:45',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '30000',
@@ -218,6 +221,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '25000',
@@ -290,6 +294,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '25000',
@@ -380,6 +385,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan Siang',
           amount: '25000',
@@ -427,6 +433,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan',
           amount: '25000',
@@ -491,6 +498,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan',
           amount: '25000',
@@ -512,7 +520,7 @@ void main() {
         ),
       ];
 
-      final testDate = DateTime(2026, 3, 15);
+      final testDate = DateTime(2026, 3, 15, 14, 30);
       final existingTransactions = [
         // Duplicate transaction
         TransactionEntity(
@@ -556,6 +564,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'InvalidType',
           category: 'Makan',
           amount: '25000',
@@ -589,6 +598,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: 'invalid-date',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan',
           amount: '25000',
@@ -622,6 +632,7 @@ void main() {
         const ParsedCsvRow(
           rowNumber: 2,
           date: '15/03/2026',
+          time: '14:30',
           type: 'Pengeluaran',
           category: 'Makan',
           amount: 'invalid-amount',

@@ -111,6 +111,7 @@ class CsvExportServiceImpl implements ExportService {
     const headers = [
       'ID',
       'Tanggal',
+      'Waktu',
       'Jenis',
       'Kategori',
       'Jumlah',
@@ -124,6 +125,7 @@ class CsvExportServiceImpl implements ExportService {
       rows.add([
         tx['id'],
         _formatDate(tx['date_time']),
+        _formatTime(tx['date_time']),
         _translateType(tx['type']),
         tx['category_name'] ?? '',
         _formatCurrency(tx['amount']),
@@ -174,6 +176,19 @@ class CsvExportServiceImpl implements ExportService {
       date = DateTime.now();
     }
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// Format time from milliseconds or ISO string to HH:mm format
+  String _formatTime(dynamic dateTime) {
+    DateTime date;
+    if (dateTime is int) {
+      date = DateTime.fromMillisecondsSinceEpoch(dateTime);
+    } else if (dateTime is String) {
+      date = DateTime.parse(dateTime);
+    } else {
+      date = DateTime.now();
+    }
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   /// Translate transaction type to Indonesian

@@ -9,7 +9,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// Implements ImportService for CSV import functionality
 class CsvImportServiceImpl implements ImportService {
   /// Expected CSV header columns
-  static const _expectedHeaders = ['ID', 'Tanggal', 'Jenis', 'Kategori', 'Jumlah', 'Catatan'];
+  static const _expectedHeaders = ['ID', 'Tanggal', 'Waktu', 'Jenis', 'Kategori', 'Jumlah', 'Catatan'];
 
   /// UTF-8 BOM bytes
   static const _utf8Bom = '\ufeff';
@@ -48,11 +48,14 @@ class CsvImportServiceImpl implements ImportService {
       final headers = _parseCsvRow(headerLine);
       if (!_validateHeaders(headers)) {
         return Result.failure(
-          const ImportFailure('Format header CSV tidak sesuai. Kolom: ID,Tanggal,Jenis,Kategori,Jumlah,Catatan'),
+          const ImportFailure('Format header CSV tidak sesuai. Kolom: ID,Tanggal,Waktu,Jenis,Kategori,Jumlah,Catatan atau ID,Tanggal,Jenis,Kategori,Jumlah,Catatan'),
         );
       }
 
       AppLogger.d('CSV header validated successfully');
+
+      // Detect CSV format: check if Waktu column exists
+      final hasWaktuColumn = headers.length >= 7 && headers[2].trim() == 'Waktu';
 
       // Parse data rows
       final parsedRows = <ParsedCsvRow>[];
@@ -63,14 +66,30 @@ class CsvImportServiceImpl implements ImportService {
         final fields = _parseCsvRow(line);
         if (fields.length < 5) continue; // Skip malformed rows (need at least ID,Tanggal,Jenis,Kategori,Jumlah)
 
-        parsedRows.add(ParsedCsvRow(
-          rowNumber: i + 1, // 1-based row number (1 = header)
-          date: fields[1].trim(),
-          type: fields[2].trim(),
-          category: fields[3].trim(),
-          amount: fields[4].trim(),
-          note: fields.length > 5 ? fields[5].trim() : '',
-        ));
+        if (hasWaktuColumn) {
+          // New format with Waktu column
+          if (fields.length < 6) continue; // Need at least ID,Tanggal,Waktu,Jenis,Kategori,Jumlah
+          parsedRows.add(ParsedCsvRow(
+            rowNumber: i + 1, // 1-based row number (1 = header)
+            date: fields[1].trim(),
+            time: fields[2].trim(),
+            type: fields[3].trim(),
+            category: fields[4].trim(),
+            amount: fields[5].trim(),
+            note: fields.length > 6 ? fields[6].trim() : '',
+          ));
+        } else {
+          // Old format without Waktu column
+          parsedRows.add(ParsedCsvRow(
+            rowNumber: i + 1, // 1-based row number (1 = header)
+            date: fields[1].trim(),
+            time: '', // No time in old format
+            type: fields[2].trim(),
+            category: fields[3].trim(),
+            amount: fields[4].trim(),
+            note: fields.length > 5 ? fields[5].trim() : '',
+          ));
+        }
       }
 
       if (parsedRows.isEmpty) {
@@ -86,12 +105,26 @@ class CsvImportServiceImpl implements ImportService {
   }
 
   /// Validate CSV headers match expected format
+  /// Supports both old format (without Waktu) and new format (with Waktu)
   bool _validateHeaders(List<String> headers) {
-    if (headers.length < _expectedHeaders.length) return false;
-    for (int i = 0; i < _expectedHeaders.length; i++) {
-      if (headers[i].trim() != _expectedHeaders[i]) return false;
+    // New format with Waktu column
+    if (headers.length >= _expectedHeaders.length) {
+      for (int i = 0; i < _expectedHeaders.length; i++) {
+        if (headers[i].trim() != _expectedHeaders[i]) return false;
+      }
+      return true;
     }
-    return true;
+
+    // Old format without Waktu column (backward compatibility)
+    const oldHeaders = ['ID', 'Tanggal', 'Jenis', 'Kategori', 'Jumlah', 'Catatan'];
+    if (headers.length >= oldHeaders.length) {
+      for (int i = 0; i < oldHeaders.length; i++) {
+        if (headers[i].trim() != oldHeaders[i]) return false;
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /// Parse a single CSV row handling quoted fields
