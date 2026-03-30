@@ -5,7 +5,7 @@ part 'onboarding_provider.g.dart';
 
 /// Provider for managing onboarding state
 /// Tracks whether user has seen onboarding using SharedPreferences
-@riverpod
+@Riverpod(keepAlive: true)
 class OnboardingNotifier extends _$OnboardingNotifier {
   @override
   Future<bool> build() async {

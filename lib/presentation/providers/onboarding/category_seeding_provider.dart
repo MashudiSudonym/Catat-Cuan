@@ -11,7 +11,7 @@ part 'category_seeding_provider.g.dart';
 ///
 /// State: `true` = categories exist (no seeding needed),
 ///        `false` = categories don't exist (seeding needed)
-@riverpod
+@Riverpod(keepAlive: true)
 class CategorySeedingNotifier extends _$CategorySeedingNotifier {
   @override
   Future<bool> build() async {
