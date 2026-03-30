@@ -62,6 +62,33 @@ class SqliteDataSource implements LocalDataSource {
   }
 
   @override
+  Future<int> batchInsert(
+      String table, List<Map<String, dynamic>> values) async {
+    final db = await _database;
+    final batch = db.batch();
+    for (final value in values) {
+      batch.insert(table, value);
+    }
+    final result = await batch.commit();
+    return result.length;
+  }
+
+  @override
+  Future<int> batchUpdate(
+    String table,
+    List<(Map<String, dynamic> values, String? where, List<Object>? whereArgs)>
+        updates,
+  ) async {
+    final db = await _database;
+    final batch = db.batch();
+    for (final (values, where, whereArgs) in updates) {
+      batch.update(table, values, where: where, whereArgs: whereArgs);
+    }
+    final result = await batch.commit();
+    return result.length;
+  }
+
+  @override
   Future<int> update(
     String table,
     Map<String, dynamic> values, {

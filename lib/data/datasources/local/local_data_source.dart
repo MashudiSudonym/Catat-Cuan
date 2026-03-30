@@ -45,6 +45,27 @@ abstract class LocalDataSource {
   /// Returns the ID of the inserted row.
   Future<int> insert(String table, Map<String, dynamic> values);
 
+  /// Insert multiple rows into the specified table in a single transaction
+  ///
+  /// Uses SQLite batch operation for efficient bulk inserts.
+  /// All inserts succeed or fail together.
+  ///
+  /// Returns the number of rows inserted.
+  Future<int> batchInsert(String table, List<Map<String, dynamic>> values);
+
+  /// Update multiple rows in a single transaction
+  ///
+  /// Uses SQLite batch operation for efficient bulk updates.
+  /// All updates succeed or fail together.
+  ///
+  /// [updates] is a list of tuples containing (values, where, whereArgs).
+  /// Returns the number of rows updated.
+  Future<int> batchUpdate(
+    String table,
+    List<(Map<String, dynamic> values, String? where, List<Object>? whereArgs)>
+        updates,
+  );
+
   /// Update data in the specified table
   ///
   /// Returns the number of rows affected.

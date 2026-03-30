@@ -54,16 +54,13 @@ class CategorySeedingRepositoryImpl implements CategorySeedingRepository {
       final now = DateTime.now();
       final categories = _getDefaultCategories(now);
 
-      // Use transaction for batch operations
-      await _dataSource.transaction(() async {
-        for (final category in categories) {
-          final model = CategoryModel.fromEntity(category);
-          await _dataSource.insert(
-            DatabaseHelper.tableCategories,
-            model.toMap(),
-          );
-        }
-      });
+      // Use batchInsert for efficient bulk insert
+      final categoryMaps =
+          categories.map((c) => CategoryModel.fromEntity(c).toMap()).toList();
+      await _dataSource.batchInsert(
+        DatabaseHelper.tableCategories,
+        categoryMaps,
+      );
 
       AppLogger.i('Seeded ${categories.length} default categories');
       return Result.success(null);

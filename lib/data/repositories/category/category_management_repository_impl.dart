@@ -90,21 +90,22 @@ class CategoryManagementRepositoryImpl
     }
 
     try {
-      // Use transaction for batch operations
-      await _dataSource.transaction(() async {
-        // Batch update sort_order for all categories
-        for (int i = 0; i < categoryIds.length; i++) {
-          await _dataSource.update(
-            DatabaseHelper.tableCategories,
-            {
-              CategoryFields.sortOrder: i + 1,
-              CategoryFields.updatedAt: DateTime.now().toIso8601String(),
-            },
-            where: '${CategoryFields.id} = ?',
-            whereArgs: [categoryIds[i]],
-          );
-        }
-      });
+      // Use batchUpdate for efficient bulk update
+      final updates = <(Map<String, dynamic>, String?, List<Object>?)>[];
+      for (int i = 0; i < categoryIds.length; i++) {
+        updates.add((
+          {
+            CategoryFields.sortOrder: i + 1,
+            CategoryFields.updatedAt: DateTime.now().toIso8601String(),
+          },
+          '${CategoryFields.id} = ?',
+          [categoryIds[i]],
+        ));
+      }
+      await _dataSource.batchUpdate(
+        DatabaseHelper.tableCategories,
+        updates,
+      );
 
       AppLogger.i('Categories reordered successfully');
       return Result.success(null);
