@@ -234,6 +234,10 @@ class SettingsScreen extends ConsumerWidget {
     if (importState.isSuccess) {
       ImportResultDialog.show(context, result: importState.result!);
       ref.read(importProvider.notifier).reset();
+
+      // Invalidate transaction list providers to refresh data after import
+      ref.invalidate(transactionListPaginatedProvider);
+      ref.invalidate(transactionListProvider);
     } else if (importState.isError) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
