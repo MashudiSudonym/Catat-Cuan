@@ -310,7 +310,7 @@ class ImportTransactionsUseCase extends UseCase<ImportResult, ImportTransactions
     errors.add(ImportRowError(
       rowNumber: row.rowNumber,
       rowData: rowDisplay,
-      errorMessage: 'Gagal membuat kategori: "${categoryName}" (${type.displayName})',
+      errorMessage: 'Gagal membuat kategori: "$categoryName" (${type.displayName})',
     ));
     return null;
   }

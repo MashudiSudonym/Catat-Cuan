@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:catat_cuan/domain/entities/import_result_entity.dart';
 import 'package:catat_cuan/domain/usecases/import_transactions_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
