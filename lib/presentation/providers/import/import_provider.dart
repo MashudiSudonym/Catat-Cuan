@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:catat_cuan/domain/entities/import_result_entity.dart';
 import 'package:catat_cuan/domain/usecases/import_transactions_usecase.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
@@ -54,7 +55,7 @@ ImportTransactionsUseCase importTransactionsUseCase(Ref ref) {
 /// Provider untuk import state management
 /// Following SRP: Only manages import state and operations
 /// Following DIP: Depends on UseCase abstraction, not concrete implementation
-@riverpod
+@Riverpod(keepAlive: true)
 class ImportNotifier extends _$ImportNotifier {
   @override
   ImportState build() {
@@ -71,6 +72,8 @@ class ImportNotifier extends _$ImportNotifier {
     try {
       final result = await importUseCase(ImportTransactionsParams(filePath: filePath));
 
+      if (!ref.mounted) return;
+
       if (result.isSuccess) {
         AppLogger.i('Import successful: ${result.data!.imported} rows imported');
         state = ImportState.success(result.data!);
@@ -80,6 +83,7 @@ class ImportNotifier extends _$ImportNotifier {
       }
     } catch (e, stackTrace) {
       AppLogger.e('Import operation failed', e, stackTrace);
+      if (!ref.mounted) return;
       state = ImportState.error(ErrorMessageMapper.getUserMessage(e));
     }
   }
