@@ -190,6 +190,37 @@ flutter test test/domain/usecases/my_test.dart    # Specific test
 flutter test --coverage                            # With coverage
 ```
 
+### Release & Versioning
+```bash
+# Bump version (auto-detects bump type from commits)
+./scripts/bump_version.sh
+
+# Force specific bump type
+./scripts/bump_version.sh --patch    # 1.0.x
+./scripts/bump_version.sh --minor    # 1.x.0
+./scripts/bump_version.sh --major    # x.0.0
+
+# Preview without making changes
+./scripts/bump_version.sh --dry-run
+
+# After bumping, push to trigger release
+git push origin main --tags
+```
+
+**Version Format in `pubspec.yaml`**: `version: 1.0.1` (without build number)
+
+Build numbers are auto-generated from git commit count:
+```bash
+# Local build with version info
+flutter build apk --release --build-name=1.0.1 --build-number=$(git rev-list --count HEAD)
+```
+
+**Conventional Commits → Version Bumps**:
+- `feat!` or `feat:` + `BREAKING CHANGE` → MAJOR (x.0.0)
+- `feat:` → MINOR (1.x.0)
+- `fix:`, `refactor:`, `perf:` → PATCH (1.0.x)
+- `docs:`, `test:`, `ci:`, `chore:`, `style:` → No bump
+
 ---
 
 ## 📚 Documentation (Comprehensive Guides)

@@ -1,7 +1,7 @@
 # Project Status Catat Cuan
 
-**Version**: 1.0 (Complete)
-**Status**: ✅ v1 Complete | ✅ 100% SRP Compliance
+**Version**: 1.0.1
+**Status**: ✅ v1 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
 **Last Updated**: 31 March 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
@@ -232,6 +232,42 @@ Created reusable test utilities:
 |---------|-------------|---------|
 | **1.0** | Initial schema | Categories and transactions tables |
 | **2.0** | Performance optimization | Added index for monthly aggregation queries |
+
+---
+
+## Versioning Strategy
+
+**Automated Versioning** (v1.0.1+)
+
+The project uses Conventional Commits-based automated versioning:
+
+### Version Bump Rules
+| Commit Type | Version Bump | Example |
+|---|---|---|
+| `feat!` or `feat:` + `BREAKING CHANGE` | MAJOR (x.0.0) | Breaking schema changes |
+| `feat:` | MINOR (1.x.0) | New features |
+| `fix:`, `refactor:`, `perf:` | PATCH (1.0.x) | Bug fixes, refactoring |
+| `docs:`, `test:`, `ci:`, `chore:`, `style:` | No bump | Non-user-facing changes |
+
+### Build Number
+- Total git commit count (monotonically increasing)
+- Auto-injected at build time
+- No manual maintenance needed
+
+### Release Workflow
+1. `./scripts/bump_version.sh` - Auto-detects bump type from commits
+2. Script updates `pubspec.yaml` and creates git tag
+3. `git push origin main --tags` - Triggers GitHub Actions
+4. CI/CD builds APK, generates changelog, creates GitHub Release
+
+### CI/CD Workflows
+- **CI** (`.github/workflows/ci.yml`): Runs on every push/PR to main
+  - Runs tests and analyzer
+  - Fast feedback without building releases
+- **Release** (`.github/workflows/release.yml`): Runs on tag push (`v*`)
+  - Builds release APK
+  - Generates grouped changelog by commit type
+  - Creates GitHub Release with SHA256 checksum
 
 ---
 
