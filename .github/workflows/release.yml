@@ -51,8 +51,18 @@ jobs:
           TAG="v$VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Delete local tag if it exists
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag -d "$TAG"
+            echo "Deleted existing local tag: $TAG"
+          fi
+
+          # Create new tag
           git tag -a "$TAG" -m "Release $TAG"
-          git push origin "$TAG"
+
+          # Force push to overwrite remote tag if it exists
+          git push origin "$TAG" --force
           echo "Created and pushed tag: $TAG"
 
       - name: Build release APK
