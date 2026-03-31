@@ -237,37 +237,56 @@ Created reusable test utilities:
 
 ## Versioning Strategy
 
-**Automated Versioning** (v1.0.1+)
+**Fully Automated Versioning** (v1.0.1+)
 
-The project uses Conventional Commits-based automated versioning:
+The project uses Conventional Commits-based fully automated versioning. Just push your commits and the rest happens automatically!
 
-### Version Bump Rules
+### Version Bump Rules (Auto-Applied)
 | Commit Type | Version Bump | Example |
 |---|---|---|
-| `feat!` or `feat:` + `BREAKING CHANGE` | MAJOR (x.0.0) | Breaking schema changes |
 | `feat:` | MINOR (1.x.0) | New features |
-| `fix:`, `refactor:`, `perf:` | PATCH (1.0.x) | Bug fixes, refactoring |
-| `docs:`, `test:`, `ci:`, `chore:`, `style:` | No bump | Non-user-facing changes |
+| `fix:` | PATCH (1.0.x) | Bug fixes |
+| Other types | No bump | Non-user-facing changes |
+
+**Note**: Breaking changes (`feat!`, `BREAKING CHANGE`) require manual bump with `./scripts/bump_version.sh --major`
 
 ### Build Number
 - Total git commit count (monotonically increasing)
 - Auto-injected at build time
 - No manual maintenance needed
 
-### Release Workflow
-1. `./scripts/bump_version.sh` - Auto-detects bump type from commits
-2. Script updates `pubspec.yaml` and creates git tag
-3. `git push origin main --tags` - Triggers GitHub Actions
-4. CI/CD builds APK, generates changelog, creates GitHub Release
+### Fully Automated Release Workflow
+1. **Push commits** to `main` branch
+2. **Auto-bump workflow** (`.github/workflows/auto-bump.yml`):
+   - Triggers on every push to main
+   - Analyzes commits since last tag
+   - Auto-bumps if `feat:` or `fix:` commits found
+   - Creates git tag and pushes it
+3. **Release workflow** (`.github/workflows/release.yml`):
+   - Triggers on new tag
+   - Builds release APK
+   - Generates grouped changelog
+   - Creates GitHub Release with SHA256 checksum
 
 ### CI/CD Workflows
 - **CI** (`.github/workflows/ci.yml`): Runs on every push/PR to main
   - Runs tests and analyzer
   - Fast feedback without building releases
+- **Auto-Bump** (`.github/workflows/auto-bump.yml`): Runs on push to main
+  - Auto-creates version tags for `feat:` and `fix:` commits
 - **Release** (`.github/workflows/release.yml`): Runs on tag push (`v*`)
   - Builds release APK
   - Generates grouped changelog by commit type
   - Creates GitHub Release with SHA256 checksum
+
+### Manual Bump (Optional)
+If you need to force a specific version:
+```bash
+./scripts/bump_version.sh --patch    # 1.0.x
+./scripts/bump_version.sh --minor    # 1.x.0
+./scripts/bump_version.sh --major    # x.0.0
+git push origin main --tags
+```
 
 ---
 

@@ -190,11 +190,24 @@ flutter test test/domain/usecases/my_test.dart    # Specific test
 flutter test --coverage                            # With coverage
 ```
 
-### Release & Versioning
-```bash
-# Bump version (auto-detects bump type from commits)
-./scripts/bump_version.sh
+### Release & Versioning (Automated)
 
+**Fully Automated Versioning** - Just push with conventional commits!
+
+```bash
+# Just push your commits with conventional commit format
+git push origin main
+
+# Auto-bump workflow will:
+# 1. Detect feat: or fix: commits since last tag
+# 2. Bump version automatically (minor for feat:, patch for fix:)
+# 3. Create git tag
+# 4. Trigger release workflow
+# 5. Build APK + create GitHub Release
+```
+
+**Manual Bump (if needed)**:
+```bash
 # Force specific bump type
 ./scripts/bump_version.sh --patch    # 1.0.x
 ./scripts/bump_version.sh --minor    # 1.x.0
@@ -202,9 +215,6 @@ flutter test --coverage                            # With coverage
 
 # Preview without making changes
 ./scripts/bump_version.sh --dry-run
-
-# After bumping, push to trigger release
-git push origin main --tags
 ```
 
 **Version Format in `pubspec.yaml`**: `version: 1.0.1` (without build number)
