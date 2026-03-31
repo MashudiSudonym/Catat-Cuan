@@ -67,6 +67,10 @@ log_info() {
   echo -e "${BLUE}ℹ${NC} $1"
 }
 
+log_info_stderr() {
+  echo -e "${BLUE}ℹ${NC} $1" >&2
+}
+
 log_success() {
   echo -e "${GREEN}✓${NC} $1"
 }
@@ -176,18 +180,18 @@ analyze_commits() {
     bump_type="patch"
   fi
 
-  # Show analysis
-  log_info "Analyzing commits since ${latest_tag:-beginning}..."
-  echo "$commits" | head -20
+  # Show analysis (to stderr to avoid capture)
+  log_info_stderr "Analyzing commits since ${latest_tag:-beginning}..."
+  echo "$commits" | head -20 >&2
   if [ $(echo "$commits" | wc -l) -gt 20 ]; then
-    log_info "... and $(($(echo "$commits" | wc -l) - 20)) more commits"
+    log_info_stderr "... and $(($(echo "$commits" | wc -l) - 20)) more commits"
   fi
-  echo ""
-  log_info "Commit analysis:"
-  [ "$feat_count" -gt 0 ] && echo "  - feat: $feat_count"
-  [ "$fix_count" -gt 0 ] && echo "  - fix/refactor/perf: $fix_count"
-  [ "$breaking_count" -gt 0 ] && echo "  - BREAKING CHANGE: $breaking_count"
-  [ "$feat_bang_count" -gt 0 ] && echo "  - feat!: $feat_bang_count"
+  echo "" >&2
+  log_info_stderr "Commit analysis:"
+  [ "$feat_count" -gt 0 ] && echo "  - feat: $feat_count" >&2
+  [ "$fix_count" -gt 0 ] && echo "  - fix/refactor/perf: $fix_count" >&2
+  [ "$breaking_count" -gt 0 ] && echo "  - BREAKING CHANGE: $breaking_count" >&2
+  [ "$feat_bang_count" -gt 0 ] && echo "  - feat!: $feat_bang_count" >&2
 
   echo "$bump_type"
 }
