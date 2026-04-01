@@ -1,21 +1,22 @@
-name: Release APK
+name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  build-release:
+  ci:
+    name: CI (Test & Analyze)
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -38,13 +39,154 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Extract version from git tag
-        id: extract_version
+      - name: Run analyzer
+        run: flutter analyze
+
+  version-bump:
+    name: Version Bump
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      should_bump: ${{ steps.check.outputs.should_bump }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
         run: |
-          # Remove 'v' prefix from tag
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          echo "Latest tag: $latest_tag"
+
+      - name: Check for version-worthy commits
+        id: check
+        run: |
+          latest_tag="${{ steps.latest_tag.outputs.latest_tag }}"
+
+          if [ -z "$latest_tag" ]; then
+            # No tags yet, check all commits
+            commits=$(git log --pretty=format:"%s")
+          else
+            # Check commits since last tag
+            commits=$(git log ${latest_tag}..HEAD --pretty=format:"%s")
+          fi
+
+          # Exclude the bump commit itself if it exists
+          commits=$(echo "$commits" | grep -v "^chore: bump version to")
+
+          # Count commit types
+          feat_count=$(echo "$commits" | grep -cE "^feat" || true)
+          fix_count=$(echo "$commits" | grep -cE "^(fix|refactor|perf):" || true)
+          breaking_count=$(echo "$commits" | grep -cE "BREAKING CHANGE" || true)
+          feat_bang_count=$(echo "$commits" | grep -cE "^feat!" || true)
+
+          echo "feat_count=$feat_count" >> $GITHUB_OUTPUT
+          echo "fix_count=$fix_count" >> $GITHUB_OUTPUT
+          echo "breaking_count=$breaking_count" >> $GITHUB_OUTPUT
+          echo "feat_bang_count=$feat_bang_count" >> $GITHUB_OUTPUT
+          echo "Found $feat_count feat commits, $fix_count fix/refactor/perf commits, $breaking_count BREAKING CHANGE, $feat_bang_count feat!"
+
+          # Determine if bump is needed
+          if [ "$breaking_count" -gt 0 ] || [ "$feat_bang_count" -gt 0 ] || [ "$feat_count" -gt 0 ] || [ "$fix_count" -gt 0 ]; then
+            echo "should_bump=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_bump=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine bump type
+        id: bump_type
+        if: steps.check.outputs.should_bump == 'true'
+        run: |
+          breaking_count="${{ steps.check.outputs.breaking_count }}"
+          feat_bang_count="${{ steps.check.outputs.feat_bang_count }}"
+          feat_count="${{ steps.check.outputs.feat_count }}"
+          fix_count="${{ steps.check.outputs.fix_count }}"
+
+          if [ "$breaking_count" -gt 0 ] || [ "$feat_bang_count" -gt 0 ]; then
+            echo "bump_type=major" >> $GITHUB_OUTPUT
+            echo "Will bump MAJOR (found BREAKING CHANGE or feat!)"
+          elif [ "$feat_count" -gt 0 ]; then
+            echo "bump_type=minor" >> $GITHUB_OUTPUT
+            echo "Will bump MINOR (found feat: commits)"
+          else
+            echo "bump_type=patch" >> $GITHUB_OUTPUT
+            echo "Will bump PATCH (found fix:/refactor:/perf: commits)"
+          fi
+
+      - name: Run bump_version.sh
+        id: bump
+        if: steps.check.outputs.should_bump == 'true'
+        run: |
+          bump_type="${{ steps.bump_type.outputs.bump_type }}"
+          ./scripts/bump_version.sh --$bump_type
+
+          # Extract new version from git tag
+          new_tag=$(git describe --tags --abbrev=0)
+          new_version="${new_tag#v}"
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "Bumped to version: $new_version"
+
+      - name: Push tag
+        if: steps.check.outputs.should_bump == 'true'
+        run: |
+          # Get the new tag
+          new_tag=$(git describe --tags --abbrev=0)
+          echo "Pushing tag: $new_tag"
+
+          # Push the commit and tag
+          git push origin main
+          git push origin "$new_tag"
+
+      - name: Summary
+        if: steps.check.outputs.should_bump == 'false'
+        run: |
+          echo "No version bump needed (no feat:, fix:, refactor:, perf:, BREAKING CHANGE, or feat! commits found)"
+
+  build-release:
+    name: Build & Release APK
+    runs-on: ubuntu-latest
+    needs: version-bump
+    if: needs.version-bump.outputs.should_bump == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/v${{ needs.version-bump.outputs.new_version }}
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Get build number from git commit count
         id: build_number
@@ -55,7 +197,7 @@ jobs:
 
       - name: Build release APK
         env:
-          VERSION: ${{ steps.extract_version.outputs.VERSION }}
+          VERSION: ${{ needs.version-bump.outputs.new_version }}
           BUILD_NUMBER: ${{ steps.build_number.outputs.BUILD_NUMBER }}
         run: |
           flutter build apk --release --build-name=$VERSION --build-number=$BUILD_NUMBER
@@ -63,7 +205,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          VERSION="${{ steps.extract_version.outputs.VERSION }}"
+          VERSION="${{ needs.version-bump.outputs.new_version }}"
           TAG="v$VERSION"
 
           # Get the previous tag
@@ -182,8 +324,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: v${{ needs.version-bump.outputs.new_version }}
+          name: v${{ needs.version-bump.outputs.new_version }}
           body_path: changelog.txt
           files: |
             build/app/outputs/flutter-apk/app-release.apk
