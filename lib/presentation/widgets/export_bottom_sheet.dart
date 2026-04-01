@@ -272,11 +272,14 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
     String? filePath,
     String? errorMessage,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: AppBorderRadius.mdShape,
-        backgroundColor: AppColors.getGlassSurface(isDark: false),
+        backgroundColor: AppColors.getGlassSurface(isDark: isDark),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -291,9 +294,10 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
             // Title
             Text(
               isSuccess ? 'Ekspor Berhasil!' : 'Ekspor Gagal',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: AppColors.getGlassTextColor(isDark: isDark, isSecondary: false),
               ),
               textAlign: TextAlign.center,
             ),
@@ -308,7 +312,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
                   : (errorMessage ?? 'Terjadi kesalahan saat mengekspor'),
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: AppColors.getGlassTextColor(isDark: isDark, isSecondary: true),
               ),
               textAlign: TextAlign.center,
             ),
@@ -317,7 +321,10 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(
+              'OK',
+              style: TextStyle(color: theme.colorScheme.primary),
+            ),
           ),
         ],
       ),
@@ -346,6 +353,8 @@ class _ExportLoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -354,15 +363,20 @@ class _ExportLoadingDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
+            ),
             const AppSpacingWidget.verticalLG(),
             Text(
               action == ExportAction.saveToDevice
                   ? 'Menyimpan ke Perangkat...'
                   : 'Membagikan File...',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                color: AppColors.getGlassTextColor(isDark: isDark, isSecondary: false),
               ),
             ),
             const AppSpacingWidget.verticalSM(),
@@ -370,7 +384,7 @@ class _ExportLoadingDialog extends StatelessWidget {
               'Mohon tunggu sebentar',
               style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: AppColors.getGlassTextColor(isDark: isDark, isSecondary: true),
               ),
             ),
           ],
