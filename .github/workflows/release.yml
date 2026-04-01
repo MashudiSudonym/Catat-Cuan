@@ -11,10 +11,41 @@ on:
 permissions:
   contents: write
 
+# Skip workflow if triggered by a bump commit (prevents infinite loop)
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  skip-bump-commit:
+    name: Check if bump commit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      should_skip: ${{ steps.check.outputs.should_skip }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check commit message
+        id: check
+        run: |
+          commit_msg=$(git log -1 --pretty=%s)
+          if [[ "$commit_msg" == "chore: bump version to"* ]]; then
+            echo "should_skip=true" >> $GITHUB_OUTPUT
+            echo "Skipping workflow for bump commit: $commit_msg"
+          else
+            echo "should_skip=false" >> $GITHUB_OUTPUT
+            echo "Proceeding with workflow for commit: $commit_msg"
+          fi
+
   ci:
     name: CI (Test & Analyze)
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || needs.skip-bump-commit.outputs.should_skip == 'false'
+    needs: skip-bump-commit
 
     steps:
       - name: Checkout repository
