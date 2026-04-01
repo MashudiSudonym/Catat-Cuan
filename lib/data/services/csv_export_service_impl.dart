@@ -77,30 +77,35 @@ class CsvExportServiceImpl implements ExportService {
   }
 
   /// Get the export directory for saving CSV files
-  /// Uses external storage so files are visible in file managers.
-  /// Creates "CatatCuan/Exports" subdirectory.
-  /// On Android: /storage/emulated/0/Android/data/<package>/files/CatatCuan/Exports/
-  /// On iOS: NSDocumentsDirectory (visible via iTunes file sharing)
+  /// Uses public Download folder on Android so files are easily accessible.
+  /// Creates "CatatCuan" subdirectory in Downloads.
+  /// On Android: /storage/emulated/0/Download/CatatCuan/
+  /// On iOS: Falls back to app documents directory (visible via iTunes file sharing)
   Future<Directory> _getExportDirectory() async {
-    final directory = await getExternalStorageDirectory();
-    if (directory == null) {
-      // Fallback to app documents directory if external storage is unavailable
-      AppLogger.w('External storage unavailable, falling back to app documents directory');
-      final documentsDir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${documentsDir.path}/CatatCuan/Exports');
+    // On Android, use the public Download folder
+    if (Platform.isAndroid) {
+      // Hardcoded path to Download/CatatCuan is more reliable than
+      // getExternalStorageDirectory() or getDownloadsDirectory()
+      // for writing to public folders with MANAGE_EXTERNAL_STORAGE permission
+      const exportPath = '/storage/emulated/0/Download/CatatCuan';
+      final exportDir = Directory(exportPath);
+
+      // Create directory if it doesn't exist
       if (!await exportDir.exists()) {
+        AppLogger.d('Creating export directory: $exportPath');
         await exportDir.create(recursive: true);
       }
+
       return exportDir;
     }
-    final exportDir = Directory('${directory.path}/CatatCuan/Exports');
 
-    // Create directory if it doesn't exist
+    // On iOS and other platforms, fallback to app documents directory
+    AppLogger.w('Non-Android platform, falling back to app documents directory');
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final exportDir = Directory('${documentsDir.path}/CatatCuan/Exports');
     if (!await exportDir.exists()) {
-      AppLogger.d('Creating export directory: ${exportDir.path}');
       await exportDir.create(recursive: true);
     }
-
     return exportDir;
   }
 

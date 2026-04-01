@@ -9,7 +9,7 @@
 library;
 
 enum ExportAction {
-  /// Save CSV file to local device storage (Documents folder)
+  /// Save CSV file to public Downloads folder (Download/CatatCuan)
   saveToDevice,
 
   /// Share CSV file via share_plus (social media, email, cloud storage, etc.)
@@ -42,7 +42,7 @@ extension ExportActionExtension on ExportAction {
   String get description {
     switch (this) {
       case ExportAction.saveToDevice:
-        return 'Simpan file CSV di penyimpanan perangkat';
+        return 'Simpan file CSV di folder Download';
       case ExportAction.share:
         return 'Bagikan file CSV ke aplikasi lain';
     }

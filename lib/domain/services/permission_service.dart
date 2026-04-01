@@ -37,6 +37,23 @@ abstract class PermissionService {
   /// Returns true if permission is granted, false otherwise
   Future<bool> checkStoragePermission();
 
+  /// Requests manage external storage permission from the user
+  ///
+  /// This permission is required for writing to public folders like Downloads
+  /// on Android 11+ (API 30+). This is a special permission that requires
+  /// user manual approval in system settings.
+  ///
+  /// Returns:
+  /// - Result.success(true) if permission is granted
+  /// - Result.success(false) if permission is denied (but not permanently)
+  /// - Result.failure(PermissionFailure) with message to open settings if permanently denied
+  Future<Result<bool>> requestManageExternalStoragePermission();
+
+  /// Checks if manage external storage permission is currently granted
+  ///
+  /// Returns true if permission is granted, false otherwise
+  Future<bool> checkManageExternalStoragePermission();
+
   /// Opens the app settings page
   ///
   /// This is useful when permissions are permanently denied
