@@ -1,0 +1,944 @@
+# Freezed 3.x Guide - {{PROJECT_TITLE}}
+
+**Last Updated**: {{LAST_UPDATED}}
+**Project**: {{PROJECT_TITLE}} ({{PROJECT_DESCRIPTION}})
+**Freezed Version**: {{FREEZED_VERSION}}
+**Freezed Annotation Version**: {{FREEZED_ANNOTATION_VERSION}}
+
+---
+
+## Table of Contents
+1. [Critical Requirement: abstract Keyword](#critical-requirement-abstract-keyword)
+2. [Setup](#setup)
+3. [Code Generation Workflow](#code-generation-workflow)
+4. [Common Patterns](#common-patterns)
+5. [Union Types](#union-types)
+6. [Immutable Classes](#immutable-classes)
+7. [CopyWith Pattern](#copywith-pattern)
+8. [Migration from Freezed 2.x](#migration-from-freezed-2x)
+9. [Best Practices](#best-practices)
+
+---
+
+## Critical Requirement: abstract Keyword
+
+⚠️ **CRITICAL**: Freezed 3.x **requires** the `abstract` keyword before class definitions. This is a breaking change from Freezed 2.x.
+
+### The Error You'll Get Without `abstract`
+
+```dart
+// ❌ WRONG - Missing 'abstract' keyword
+@freezed
+class MyState with _$MyState {
+  const factory MyState.initial() = MyStateInitial;
+}
+
+// Error: The class 'MyState' can't be designated as a '@freezed' class
+// because it doesn't have the 'abstract' keyword.
+```
+
+### The Fix
+
+```dart
+// ✅ CORRECT - Includes 'abstract' keyword
+@freezed
+abstract class MyState with _$MyState {
+  const factory MyState.initial() = MyStateInitial;
+}
+```
+
+### Real Example
+
+```dart
+// lib/presentation/states/{{PRIMARY_ENTITY_LOWER}}_form_state.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part '{{PRIMARY_ENTITY_LOWER}}_form_state.freezed.dart';
+
+@freezed
+abstract class {{PRIMARY_ENTITY}}FormState with _${{PRIMARY_ENTITY}}FormState {
+  const factory {{PRIMARY_ENTITY}}FormState.initial({
+    @Default({{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY_LOWER}}) {{PRIMARY_ENTITY}}Type type,
+    DateTime? date,
+    DateTime? time,
+    @Default(0.0) double nominal,
+    @Default(0) int {{SECONDARY_LOWER}}Id,
+    String? note,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+    @Default({}) Map<String, String> validationErrors,
+  }) = {{PRIMARY_ENTITY}}FormInitial;
+
+  const factory {{PRIMARY_ENTITY}}FormState.loading() = {{PRIMARY_ENTITY}}FormLoading;
+
+  const factory {{PRIMARY_ENTITY}}FormState.success({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) =
+      {{PRIMARY_ENTITY}}FormSuccess;
+
+  const factory {{PRIMARY_ENTITY}}FormState.error(String message) = {{PRIMARY_ENTITY}}FormError;
+}
+```
+
+---
+
+## Setup
+
+### Dependencies
+
+Add to `pubspec.yaml`:
+
+```yaml
+dependencies:
+  freezed_annotation: ^{{FREEZED_ANNOTATION_VERSION}}
+
+dev_dependencies:
+  freezed: ^{{FREEZED_VERSION}}
+  build_runner: ^{{BUILD_RUNNER_VERSION}}
+```
+
+### Import Statements
+
+```dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'my_file.freezed.dart';  // ← Required
+```
+
+---
+
+## Code Generation Workflow
+
+### Step 1: Define Freezed Class
+
+```dart
+// lib/presentation/states/my_state.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'my_state.freezed.dart';
+
+@freezed
+abstract class MyState with _$MyState {
+  const factory MyState.initial() = MyStateInitial;
+  const factory MyState.loading() = MyStateLoading;
+  const factory MyState.data(String data) = MyStateData;
+  const factory MyState.error(String message) = MyStateError;
+}
+```
+
+### Step 2: Run Code Generation
+
+```bash
+# One-time build
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Watch mode (recommended during development)
+flutter pub run build_runner watch
+
+# Clean build (if issues occur)
+flutter pub run build_runner build --delete-conflicting-outputs --delete-conflicting-outputs
+```
+
+### Step 3: Generated File
+
+The generator creates `my_state.freezed.dart`:
+
+```dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'my_state.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// ...
+// Generated implementation
+// ...
+```
+
+### Step 4: Use in Code
+
+```dart
+void main() {
+  // Create instances
+  final initial = MyState.initial();
+  final loading = MyState.loading();
+  final data = MyState.data('Hello');
+  final error = MyState.error('Something went wrong');
+
+  // Pattern matching
+  state.when(
+    initial: () => print('Initial'),
+    loading: () => print('Loading'),
+    data: (value) => print('Data: $value'),
+    error: (message) => print('Error: $message'),
+  );
+}
+```
+
+---
+
+## Common Patterns
+
+### Pattern 1: State Classes for Riverpod
+
+```dart
+@freezed
+abstract class {{PRIMARY_ENTITY}}FormState with _${{PRIMARY_ENTITY}}FormState {
+  const factory {{PRIMARY_ENTITY}}FormState.initial({
+    @Default({{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY_LOWER}}) {{PRIMARY_ENTITY}}Type type,
+    DateTime? date,
+    DateTime? time,
+    @Default(0.0) double nominal,
+    @Default(0) int {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+    @Default({}) Map<String, String> validationErrors,
+  }) = {{PRIMARY_ENTITY}}FormInitial;
+
+  const factory {{PRIMARY_ENTITY}}FormState.loading() = {{PRIMARY_ENTITY}}FormLoading;
+
+  const factory {{PRIMARY_ENTITY}}FormState.success({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) =
+      {{PRIMARY_ENTITY}}FormSuccess;
+
+  const factory {{PRIMARY_ENTITY}}FormState.error(String message) = {{PRIMARY_ENTITY}}FormError;
+}
+
+// Usage in provider
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  Future<void> submit() async {
+    state = const {{PRIMARY_ENTITY}}FormState.loading();
+
+    try {
+      final result = await _submitForm();
+      state = {{PRIMARY_ENTITY}}FormState.success(result);
+    } catch (e) {
+      state = {{PRIMARY_ENTITY}}FormState.error(e.toString());
+    }
+  }
+}
+
+// Usage in UI
+class {{PRIMARY_ENTITY}}FormScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch({{PRIMARY_ENTITY}}FormNotifierProvider);
+
+    return state.when(
+      initial: (form) => _buildForm(form),
+      loading: () => const AppLoadingState(),
+      success: ({{PRIMARY_ENTITY_LOWER}}) => _buildSuccess({{PRIMARY_ENTITY_LOWER}}),
+      error: (message) => _buildError(message),
+    );
+  }
+}
+```
+
+### Pattern 2: Immutable Entities
+
+```dart
+@freezed
+abstract class {{PRIMARY_ENTITY}}Entity with _${{PRIMARY_ENTITY}}Entity {
+  const {{PRIMARY_ENTITY}}Entity._(); // Private constructor for custom methods
+
+  const factory {{PRIMARY_ENTITY}}Entity({
+    int? id,
+    required double amount,
+    required {{PRIMARY_ENTITY}}Type type,
+    required DateTime dateTime,
+    required int {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _{{PRIMARY_ENTITY}}Entity;
+
+  // Computed properties
+  bool get isIncomes => type == {{PRIMARY_ENTITY}}Type.income;
+  bool get is{{SECONDARY_ENTITY}} => type == {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}};
+
+  // Custom methods
+  String get formattedAmount {
+    return CurrencyFormatter.format(amount, type: type);
+  }
+
+  {{PRIMARY_ENTITY}}Entity toCopyWithId(int newId) {
+    return copyWith(id: newId);
+  }
+}
+
+// Usage
+final {{PRIMARY_ENTITY_LOWER}} = {{PRIMARY_ENTITY}}Entity(
+  amount: 100,
+  type: {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+  dateTime: DateTime.now(),
+  {{SECONDARY_ENTITY_LOWER}}Id: 1,
+  createdAt: DateTime.now(),
+);
+
+// Update with copyWith
+final updated = {{PRIMARY_ENTITY_LOWER}}.copyWith(
+  amount: 200,
+  note: 'Updated note',
+);
+
+// Access computed properties
+print({{PRIMARY_ENTITY_LOWER}}.is{{SECONDARY_ENTITY}}); // true
+print({{PRIMARY_ENTITY_LOWER}}.formattedAmount); // "-Rp100"
+```
+
+### Pattern 3: Result Type (Either Alternative)
+
+```dart
+@freezed
+abstract class Result<T> with _$Result<T> {
+  const factory Result.success(T data) = ResultSuccess;
+  const factory Result.failure(String message) = ResultFailure;
+}
+
+// Usage
+Future<Result<{{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity entity) async {
+  try {
+    final id = await _database.insert(entity);
+    final result = entity.copyWith(id: id);
+    return Result.success(result);
+  } catch (e) {
+    return Result.failure(e.toString());
+  }
+}
+
+// Handle result
+final result = await add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}});
+result.when(
+  success: (data) => print('Success: $data'),
+  failure: (message) => print('Error: $message'),
+);
+```
+
+### Pattern 4: Configuration Classes
+
+```dart
+@freezed
+abstract class AppConfig with _$AppConfig {
+  const factory AppConfig({
+    @Default(true) bool enableAnalytics,
+    @Default(false) bool isDebugMode,
+    @Default(30) int sessionTimeoutMinutes,
+    String? apiBaseUrl,
+  }) = AppConfigData;
+
+  // Custom validation
+  static AppConfig? validate(AppConfig config) {
+    if (config.sessionTimeoutMinutes < 1) {
+      return null;
+    }
+    return config;
+  }
+}
+
+// Usage
+final config = AppConfig(
+  enableAnalytics: true,
+  isDebugMode: false,
+  sessionTimeoutMinutes: 30,
+);
+
+final updated = config.copyWith(
+  apiBaseUrl: 'https://api.example.com',
+);
+```
+
+### Pattern 5: API Response Models
+
+```dart
+@freezed
+abstract class ApiResponse<T> with _$ApiResponse<T> {
+  const factory ApiResponse({
+    required bool success,
+    required String message,
+    T? data,
+    String? error,
+  }) = ApiResponseData;
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) =>
+      _$ApiResponseFromJson(json);
+}
+
+// Usage with generics
+final userResponse = ApiResponse<User>(
+  success: true,
+  message: 'User fetched successfully',
+  data: user,
+);
+
+final errorResponse = ApiResponse(
+  success: false,
+  message: 'Failed to fetch user',
+  error: 'User not found',
+);
+```
+
+---
+
+## Union Types
+
+### What Are Union Types?
+
+Union types allow a class to represent different states with different data. Each state is called a "union type" or "variant".
+
+### Example: UI State
+
+```dart
+@freezed
+abstract class UiState<T> with _$UiState<T> {
+  const factory UiState.initial() = UiStateInitial;
+  const factory UiState.loading() = UiStateLoading;
+  const factory UiState.data(T data) = UiStateData;
+  const factory UiState.error(String message) = UiStateError;
+}
+
+// Usage
+UiState<List<{{PRIMARY_ENTITY}}>> state = UiState.initial();
+
+// Pattern matching
+state.when(
+  initial: () => print('Initial state'),
+  loading: () => print('Loading...'),
+  data: ({{PRIMARY_ENTITY_PLURAL}}) => print('Loaded ${{{PRIMARY_ENTITY_PLURAL}}.length} items'),
+  error: (message) => print('Error: $message'),
+);
+
+// Type-safe access
+if (state is UiStateData<List<{{PRIMARY_ENTITY}}>>) {
+  final {{PRIMARY_ENTITY_PLURAL}} = (state as UiStateData<List<{{PRIMARY_ENTITY}}>>).data;
+  print('First {{PRIMARY_ENTITY_LOWER}}: ${{{PRIMARY_ENTITY_PLURAL}}.first}');
+}
+```
+
+### Example: AsyncValue Alternative
+
+```dart
+@freezed
+abstract class AsyncData<T> with _$AsyncData<T> {
+  const factory AsyncData.initial() = AsyncDataInitial;
+  const factory AsyncData.loading() = AsyncDataLoading;
+  const factory AsyncData.data(T value) = AsyncDataData;
+  const factory AsyncData.error(Object error, StackTrace stackTrace) =
+      AsyncDataError;
+}
+
+// Usage
+@riverpod
+class MyNotifier extends _$MyNotifier {
+  @override
+  AsyncData<List<{{PRIMARY_ENTITY}}>> build() {
+    return const AsyncData.initial();
+  }
+
+  Future<void> load() async {
+    state = const AsyncData.loading();
+
+    try {
+      final data = await _loadData();
+      state = AsyncData.data(data);
+    } catch (e, st) {
+      state = AsyncData.error(e, st);
+    }
+  }
+}
+```
+
+---
+
+## Immutable Classes
+
+### What Are Immutable Classes?
+
+Immutable classes cannot be modified after creation. Freezed makes this easy by generating `copyWith` methods.
+
+### Example: Immutable Entity
+
+```dart
+@freezed
+abstract class {{SECONDARY_ENTITY}}Entity with _${{SECONDARY_ENTITY}}Entity {
+  const {{SECONDARY_ENTITY}}Entity._();
+
+  const factory {{SECONDARY_ENTITY}}Entity({
+    int? id,
+    required String name,
+    required {{PRIMARY_ENTITY}}Type type,
+    required String color,
+    String? icon,
+    @Default(0) int sortOrder,
+    @Default(true) bool isActive,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _{{SECONDARY_ENTITY}}Entity;
+
+  // Business logic
+  bool get isIncome => type == {{PRIMARY_ENTITY}}Type.income;
+  bool get is{{SECONDARY_ENTITY}} => type == {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}};
+
+  String get displayName => isActive ? name : '$name (Non-aktif)';
+
+  // Custom method
+  {{SECONDARY_ENTITY}}Entity activate() {
+    return copyWith(isActive: true);
+  }
+
+  {{SECONDARY_ENTITY}}Entity deactivate() {
+    return copyWith(isActive: false);
+  }
+}
+
+// Usage
+final {{SECONDARY_ENTITY_LOWER}} = {{SECONDARY_ENTITY}}Entity(
+  name: 'Makanan',
+  type: {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+  color: '#FF5722',
+  createdAt: DateTime.now(),
+);
+
+// Can't modify directly
+// {{SECONDARY_ENTITY_LOWER}}.name = 'New Name'; // ❌ Compilation error
+
+// Use copyWith to create new instance
+final updated = {{SECONDARY_ENTITY_LOWER}}.copyWith(
+  name: 'Makanan & Minuman',
+); // ✅ Creates new instance
+
+// Use custom methods
+final activated = {{SECONDARY_ENTITY_LOWER}}.activate();
+final deactivated = {{SECONDARY_ENTITY_LOWER}}.deactivate();
+```
+
+---
+
+## CopyWith Pattern
+
+### Basic CopyWith
+
+```dart
+@freezed
+abstract class User with _$User {
+  const factory User({
+    required String name,
+    required int age,
+    String? email,
+  }) = _User;
+}
+
+final user = User(name: 'John', age: 30);
+
+// Copy with changes
+final updated = user.copyWith(
+  age: 31,
+  email: 'john@example.com',
+);
+
+// Original unchanged
+print(user.name); // John
+print(user.age); // 30
+
+// New instance with changes
+print(updated.name); // John
+print(updated.age); // 31
+print(updated.email); // john@example.com
+```
+
+### Nested CopyWith
+
+```dart
+@freezed
+abstract class Address with _$Address {
+  const factory Address({
+    required String street,
+    required String city,
+  }) = _Address;
+}
+
+@freezed
+abstract class Person with _$Person {
+  const factory Person({
+    required String name,
+    required Address address,
+  }) = _Person;
+}
+
+final person = Person(
+  name: 'John',
+  address: Address(street: '123 Main St', city: 'NYC'),
+);
+
+// Update nested property
+final updated = person.copyWith(
+  address: address.copyWith(
+    city: 'Los Angeles',
+  ),
+);
+
+print(person.address.city); // NYC
+print(updated.address.city); // Los Angeles
+```
+
+### Conditional CopyWith
+
+```dart
+@freezed
+abstract class {{PRIMARY_ENTITY}} with _${{PRIMARY_ENTITY}} {
+  const factory {{PRIMARY_ENTITY}}({
+    required double amount,
+    required {{PRIMARY_ENTITY}}Type type,
+    String? note,
+  }) = _{{PRIMARY_ENTITY}};
+}
+
+final {{PRIMARY_ENTITY_LOWER}} = {{PRIMARY_ENTITY}}(
+  amount: 100,
+  type: {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+);
+
+// Conditional update
+final updated = {{PRIMARY_ENTITY_LOWER}}.copyWith(
+  note: {{PRIMARY_ENTITY_LOWER}}.note?.isNotEmpty == true ? {{PRIMARY_ENTITY_LOWER}}.note : 'No note',
+);
+```
+
+---
+
+## Migration from Freezed 2.x
+
+### Key Changes
+
+1. **abstract keyword is now required**
+   ```dart
+   // OLD (2.x)
+   @freezed
+   class MyState with _$MyState {
+     const factory MyState.initial() = MyStateInitial;
+   }
+
+   // NEW (3.x)
+   @freezed
+   abstract class MyState with _$MyState {
+     const factory MyState.initial() = MyStateInitial;
+   }
+   ```
+
+2. **Builder pattern changes**
+   ```dart
+   // OLD (2.x)
+   @FreezedUnionValue('') // No longer needed
+   const factory MyState.initial() = MyStateInitial;
+
+   // NEW (3.x)
+   const factory MyState.initial() = MyStateInitial;
+   ```
+
+3. **JsonSerializable integration**
+   ```dart
+   // OLD (2.x)
+   @freezed
+   abstract class MyModel with _$MyModel {
+     factory MyModel.fromJson(Map<String, dynamic> json) =>
+         _$MyModelFromJson(json);
+   }
+
+   // NEW (3.x)
+   @freezed
+   abstract class MyModel with _$MyModel {
+     const factory MyModel({}) = _MyModel;
+
+     factory MyModel.fromJson(Map<String, dynamic> json) =>
+         _$MyModelFromJson(json);
+   }
+   ```
+
+### Migration Checklist
+
+- [ ] Add `abstract` keyword to all Freezed classes
+- [ ] Remove `@FreezedUnionValue` annotations (if any)
+- [ ] Update constructor syntax (if using custom constructors)
+- [ ] Regenerate code with `build_runner`
+- [ ] Test all union type variants
+- [ ] Verify `copyWith` methods work correctly
+
+---
+
+## Best Practices
+
+### 1. Always Use const Factory Constructors
+
+```dart
+// ✅ GOOD
+const factory MyState.initial() = MyStateInitial;
+const factory MyState.loading() = MyStateLoading;
+
+// ❌ BAD
+factory MyState.initial() = MyStateInitial;
+factory MyState.loading() = MyStateLoading;
+```
+
+### 2. Use Default Values for Optional Parameters
+
+```dart
+// ✅ GOOD
+const factory MyState({
+  @Default(0) int count,
+  @Default([]) List<String> items,
+  String? name,
+}) = _MyState;
+
+// ❌ BAD
+const factory MyState({
+  int count = 0,
+  List<String> items = const [],
+  String? name,
+}) = _MyState;
+```
+
+### 3. Use Private Constructors for Custom Methods
+
+```dart
+@freezed
+abstract class MyEntity with _$MyEntity {
+  const MyEntity._(); // ← Private constructor
+
+  const factory MyEntity({
+    required String name,
+  }) = _MyEntity;
+
+  // Custom method
+  String get displayName => name.toUpperCase();
+}
+```
+
+### 4. Use Union Types for State Management
+
+```dart
+// ✅ GOOD - Union types for UI state
+@freezed
+abstract class UiState with _$UiState {
+  const factory UiState.initial() = UiStateInitial;
+  const factory UiState.loading() = UiStateLoading;
+  const factory UiState.data(Data data) = UiStateData;
+  const factory UiState.error(String message) = UiStateError;
+}
+
+// ❌ BAD - Single class with nullable properties
+class UiState {
+  final bool isLoading;
+  final Data? data;
+  final String? error;
+}
+```
+
+### 5. Document Union Type Variants
+
+```dart
+/// Represents the state of a {{PRIMARY_ENTITY_LOWER}} form
+///
+/// - [{{PRIMARY_ENTITY}}FormInitial]: Initial state with form fields
+/// - [{{PRIMARY_ENTITY}}FormLoading]: Form is being submitted
+/// - [{{PRIMARY_ENTITY}}FormSuccess]: {{PRIMARY_ENTITY}} successfully saved
+/// - [{{PRIMARY_ENTITY}}FormError]: Submission failed with error message
+@freezed
+abstract class {{PRIMARY_ENTITY}}FormState with _${{PRIMARY_ENTITY}}FormState {
+  const factory {{PRIMARY_ENTITY}}FormState.initial({
+    @Default({{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY_LOWER}}) {{PRIMARY_ENTITY}}Type type,
+    @Default(0.0) double nominal,
+    @Default(0) int {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+    @Default({}) Map<String, String> validationErrors,
+  }) = {{PRIMARY_ENTITY}}FormInitial;
+
+  const factory {{PRIMARY_ENTITY}}FormState.loading() = {{PRIMARY_ENTITY}}FormLoading;
+
+  const factory {{PRIMARY_ENTITY}}FormState.success({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) =
+      {{PRIMARY_ENTITY}}FormSuccess;
+
+  const factory {{PRIMARY_ENTITY}}FormState.error(String message) = {{PRIMARY_ENTITY}}FormError;
+}
+```
+
+---
+
+## Common Issues & Solutions
+
+### Issue 1: "The class can't be designated as a '@freezed' class"
+
+**Cause**: Missing `abstract` keyword
+
+**Solution**:
+```dart
+// Add 'abstract' before 'class'
+@freezed
+abstract class MyState with _$MyState { }
+```
+
+### Issue 2: "Type 'X' has no method 'copyWith'"
+
+**Cause**: Code not generated or not imported
+
+**Solution**:
+```bash
+# Run code generation
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Verify import
+import 'package:{{PROJECT_NAME}}/my_state.dart';
+```
+
+### Issue 3: "Invalid constant value"
+
+**Cause**: Using non-const values in const constructor
+
+**Solution**:
+```dart
+// ❌ BAD
+const factory MyState({
+  required DateTime timestamp, // DateTime is not const
+}) = _MyState;
+
+// ✅ GOOD
+const factory MyState({
+  DateTime? timestamp, // Make nullable
+}) = _MyState;
+
+// Or remove const
+factory MyState({
+  required DateTime timestamp,
+}) = _MyState;
+```
+
+### Issue 4: "Default values not supported for positional parameters"
+
+**Cause**: Using @Default with positional parameters
+
+**Solution**:
+```dart
+// ❌ BAD
+const factory MyState(
+  [@Default(0) int count,]
+) = _MyState;
+
+// ✅ GOOD
+const factory MyState({
+  @Default(0) int count,
+}) = _MyState;
+```
+
+---
+
+## Advanced Features
+
+### FromJson/ToJson with JsonSerializable
+
+```dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_serializable/json_serializable.dart';
+
+part '{{PRIMARY_ENTITY_LOWER}}_model.freezed.dart';
+part '{{PRIMARY_ENTITY_LOWER}}_model.g.dart';
+
+@freezed
+abstract class {{PRIMARY_ENTITY}}Model with _${{PRIMARY_ENTITY}}Model {
+  const {{PRIMARY_ENTITY}}Model._();
+
+  const factory {{PRIMARY_ENTITY}}Model({
+    int? id,
+    required double amount,
+    @JsonKey(name: 'type') required String typeStr,
+    @JsonKey(name: 'date_time') required String dateTimeStr,
+    required int {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    @JsonKey(name: 'created_at') required String createdAtStr,
+  }) = _{{PRIMARY_ENTITY}}Model;
+
+  factory {{PRIMARY_ENTITY}}Model.fromJson(Map<String, dynamic> json) =>
+      _${{PRIMARY_ENTITY}}ModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _${{PRIMARY_ENTITY}}ModelToJson(this);
+
+  // Convert to entity
+  {{PRIMARY_ENTITY}}Entity toEntity() {
+    return {{PRIMARY_ENTITY}}Entity(
+      id: id,
+      amount: amount,
+      type: typeStr == 'income' ? {{PRIMARY_ENTITY}}Type.income : {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+      dateTime: DateTime.parse(dateTimeStr),
+      {{SECONDARY_ENTITY_LOWER}}Id: {{SECONDARY_ENTITY_LOWER}}Id,
+      note: note,
+      createdAt: DateTime.parse(createdAtStr),
+    );
+  }
+
+  // Convert from entity
+  factory {{PRIMARY_ENTITY}}Model.fromEntity({{PRIMARY_ENTITY}}Entity entity) {
+    return {{PRIMARY_ENTITY}}Model(
+      id: entity.id,
+      amount: entity.amount,
+      typeStr: entity.type.name,
+      dateTimeStr: entity.dateTime.toIso8601String(),
+      {{SECONDARY_ENTITY_LOWER}}Id: entity.{{SECONDARY_ENTITY_LOWER}}Id,
+      note: entity.note,
+      createdAtStr: entity.createdAt.toIso8601String(),
+    );
+  }
+}
+```
+
+### Union Types with Generics
+
+```dart
+@freezed
+abstract class Result<T> with _$Result<T> {
+  const factory Result.success(T data) = ResultSuccess<T>;
+  const factory Result.failure(Failure failure) = ResultFailure<T>;
+}
+
+// Usage
+Future<Result<{{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity entity) async {
+  try {
+    final id = await _database.insert(entity);
+    final result = entity.copyWith(id: id);
+    return Result.success(result);
+  } catch (e) {
+    return Result.failure(DatabaseFailure(e.toString()));
+  }
+}
+
+// Handle
+final result = await add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}});
+result.when(
+  success: (data) => print('Success: $data'),
+  failure: (failure) => print('Failure: ${failure.message}'),
+);
+```
+
+---
+
+## Related Documentation
+
+- [ARCHITECTURE.md.template](ARCHITECTURE.md.template) - Clean Architecture with Freezed
+- [RIVERPOD_GUIDE.md.template](RIVERPOD_GUIDE.md.template) - Riverpod 3.x patterns with Freezed
+- [CODING_STANDARDS.md.template](CODING_STANDARDS.md.template) - File naming and conventions
+- [AI_ASSISTANT_GUIDE.md.template](../AI_ASSISTANT_GUIDE.md.template) - Quick reference
+
+---
+
+## Additional Resources
+
+- [Freezed Official Documentation](https://pub.dev/packages/freezed)
+- [Freezed Annotation](https://pub.dev/packages/freezed_annotation)
+- [JsonSerializable](https://pub.dev/packages/json_serializable)
+
+---
+
+**Last Updated**: {{LAST_UPDATED}}
+**Freezed Version**: {{FREEZED_VERSION}}
+**Critical Requirement**: `abstract` keyword required

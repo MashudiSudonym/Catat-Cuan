@@ -1,0 +1,1045 @@
+# Clean Architecture Guide - {{PROJECT_TITLE}}
+
+**Last Updated**: {{LAST_UPDATED}}
+**Project**: {{PROJECT_TITLE}} ({{PROJECT_DESCRIPTION}})
+**Architecture**: Clean Architecture with SOLID principles
+
+---
+
+## Table of Contents
+1. [Architecture Overview](#architecture-overview)
+2. [Layer Structure](#layer-structure)
+3. [Dependency Flow](#dependency-flow)
+4. [Repository Segregation Pattern](#repository-segregation-pattern)
+5. [Controller Pattern](#controller-pattern)
+6. [Service Layer Pattern](#service-layer-pattern)
+7. [Domain Layer](#domain-layer)
+8. [Data Layer](#data-layer)
+9. [Presentation Layer](#presentation-layer)
+10. [Dependency Injection Setup](#dependency-injection-setup)
+
+---
+
+## Architecture Overview
+
+{{PROJECT_TITLE}} follows **Uncle Bob's Clean Architecture** with clear separation of concerns. The architecture is designed to achieve:
+
+- **Independence of Frameworks**: Business rules don't depend on Flutter, SQLite, or any external library
+- **Testability**: Business rules can be tested without UI, database, or web server
+- **Independence of UI**: The UI can change easily without changing the rest of the system
+- **Independence of Database**: Business rules are not bound to the database
+- **Independence of External Agencies**: Business rules don't know anything about the outside world
+
+### Visual Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Presentation Layer                       │
+│  (Screens, Widgets, Providers, Controllers, State, Navigation)   │
+│                     ↓ depends on ↓                               │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                     Domain Layer                          │   │
+│  │  (Entities, Use Cases, Repository Interfaces, Services)   │   │
+│  │                   ↑ implemented by ↑                       │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                     ↓                                            │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                      Data Layer                           │   │
+│  │  (Repository Implementations, Data Sources, Models)       │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Principles
+
+1. **Dependency Rule**: Dependencies point inward, never outward
+2. **Single Responsibility**: Each module has one reason to change
+3. **Interface Segregation**: Small, focused interfaces
+4. **Dependency Inversion**: Depend on abstractions, not concretions
+
+---
+
+## Layer Structure
+
+### Directory Structure
+
+```
+lib/
+├── domain/                    # Business logic (no Flutter dependencies)
+│   ├── entities/              # Core business entities
+│   ├── usecases/              # Business logic operations
+│   ├── repositories/          # Repository interfaces (contracts)
+│   ├── services/              # Domain services
+│   ├── parsers/               # Domain-specific parsers
+│   ├── validators/            # Business validators
+│   └── core/                  # Core types (Result, Failure, etc.)
+│
+├── data/                      # Data layer (implementation details)
+│   ├── datasources/           # Data sources (SQLite, API, etc.)
+│   ├── models/                # Data transfer objects
+│   ├── repositories/          # Repository implementations
+│   └── services/              # Platform-specific services
+│
+└── presentation/              # UI and state management
+    ├── providers/             # Riverpod state management
+    ├── screens/               # Full-screen widgets
+    ├── widgets/               # Reusable UI components
+    ├── controllers/           # Business logic controllers
+    ├── states/                # State classes (Freezed)
+    ├── utils/                 # UI utilities
+    └── navigation/            # Navigation configuration
+```
+
+---
+
+## Dependency Flow
+
+### Rule: Dependencies Point Inward
+
+```
+Presentation ──depends on──> Domain ──implemented by──> Data
+```
+
+### Example: {{PRIMARY_ENTITY}} Feature
+
+```dart
+// ========================================
+// 1. DOMAIN LAYER (No dependencies)
+// ========================================
+
+// Entity (Business concept)
+// lib/domain/entities/{{PRIMARY_ENTITY_LOWER}}_entity.dart
+class {{PRIMARY_ENTITY}}Entity {
+  final int? id;
+  final double amount;
+  final {{PRIMARY_ENTITY}}Type type;
+  final DateTime dateTime;
+  final int {{SECONDARY_ENTITY_LOWER}}Id;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+}
+
+// Repository Interface (Contract)
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_write_repository.dart
+abstract class {{PRIMARY_ENTITY}}WriteRepository {
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> update{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+}
+
+// Use Case (Business operation)
+// lib/domain/usecases/{{PRIMARY_ENTITY_LOWER}}/add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart
+class Add{{PRIMARY_ENTITY}}UseCase {
+  final {{PRIMARY_ENTITY}}WriteRepository _repository;
+
+  Add{{PRIMARY_ENTITY}}UseCase(this._repository);
+
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) {
+    // Business logic here
+    if ({{PRIMARY_ENTITY_LOWER}}.amount <= 0) {
+      return Left(ValidationFailure('Amount must be greater than 0'));
+    }
+    return _repository.add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}});
+  }
+}
+
+// ========================================
+// 2. DATA LAYER (Implements domain interfaces)
+// ========================================
+
+// Model (Data transfer)
+// lib/data/models/{{PRIMARY_ENTITY_LOWER}}_model.dart
+class {{PRIMARY_ENTITY}}Model {
+  final int? id;
+  final double amount;
+  final String type;
+  final String dateTime;
+  final int {{SECONDARY_ENTITY_LOWER}}Id;
+  final String? note;
+
+  // Convert to domain entity
+  {{PRIMARY_ENTITY}}Entity toEntity() {
+    return {{PRIMARY_ENTITY}}Entity(
+      id: id,
+      amount: amount,
+      type: type == 'income' ? {{PRIMARY_ENTITY}}Type.income : {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+      dateTime: DateTime.parse(dateTime),
+      {{SECONDARY_ENTITY_LOWER}}Id: {{SECONDARY_ENTITY_LOWER}}Id,
+      note: note,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  // Convert from domain entity
+  factory {{PRIMARY_ENTITY}}Model.fromEntity({{PRIMARY_ENTITY}}Entity entity) {
+    return {{PRIMARY_ENTITY}}Model(
+      id: entity.id,
+      amount: entity.amount,
+      type: entity.type.name,
+      dateTime: entity.dateTime.toIso8601String(),
+      {{SECONDARY_ENTITY_LOWER}}Id: entity.{{SECONDARY_ENTITY_LOWER}}Id,
+      note: entity.note,
+    );
+  }
+}
+
+// Repository Implementation (Following DIP)
+// lib/data/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_write_repository_impl.dart
+class {{PRIMARY_ENTITY}}WriteRepositoryImpl implements {{PRIMARY_ENTITY}}WriteRepository {
+  final LocalDataSource _dataSource;  // ✅ Abstract dependency
+
+  {{PRIMARY_ENTITY}}WriteRepositoryImpl(this._dataSource);
+
+  @override
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) async {
+    try {
+      final model = {{PRIMARY_ENTITY}}Model.fromEntity({{PRIMARY_ENTITY_LOWER}});
+      final id = await _dataSource.insert('{{PRIMARY_ENTITY_PLURAL}}', model.toMap());
+      final result = {{PRIMARY_ENTITY_LOWER}}.copyWith(id: id);
+      return Right(result);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+}
+
+// ========================================
+// 3. PRESENTATION LAYER (Depends on domain)
+// ========================================
+
+// Provider (State management)
+// lib/presentation/providers/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_form_provider.dart
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  Future<void> submit() async {
+    state = const {{PRIMARY_ENTITY}}FormState.loading();
+
+    final useCase = ref.read(add{{PRIMARY_ENTITY}}UseCaseProvider); // Domain use case
+    final entity = _mapStateToEntity(state);
+
+    final result = await useCase.execute(entity);
+
+    result.fold(
+      (failure) => state = {{PRIMARY_ENTITY}}FormState.error(failure.message),
+      (success) => state = {{PRIMARY_ENTITY}}FormState.success(success),
+    );
+  }
+}
+```
+
+---
+
+## Repository Segregation Pattern
+
+**Principle**: Interface Segregation Principle (ISP) - Clients should not depend on interfaces they don't use.
+
+### Traditional Approach (❌ Not Used)
+
+```dart
+// BAD - Fat interface with all operations
+abstract class {{PRIMARY_ENTITY}}Repository {
+  // CRUD
+  Future<List<{{PRIMARY_ENTITY}}>> getAll();
+  Future<{{PRIMARY_ENTITY}}> getById(int id);
+  Future<void> add({{PRIMARY_ENTITY}} {{PRIMARY_ENTITY_LOWER}});
+  Future<void> update({{PRIMARY_ENTITY}} {{PRIMARY_ENTITY_LOWER}});
+  Future<void> delete(int id);
+
+  // Query
+  Future<List<{{PRIMARY_ENTITY}}>> getByDateRange(DateTime start, DateTime end);
+
+  // Search
+  Future<List<{{PRIMARY_ENTITY}}>> search(String query);
+
+  // Analytics
+  Future<double> getTotalByType({{PRIMARY_ENTITY}}Type type);
+  Future<List<{{SECONDARY_ENTITY}}Breakdown>> get{{SECONDARY_ENTITY}}Breakdown(int year, int month);
+
+  // Export
+  Future<String> exportToCsv(List<{{PRIMARY_ENTITY}}> {{PRIMARY_ENTITY_PLURAL}});
+}
+
+// Problem: A simple list screen must depend on analytics/export methods it doesn't use
+```
+
+### Segregated Approach (✅ Used)
+
+```dart
+// GOOD - Small, focused interfaces
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_read_repository.dart
+abstract class {{PRIMARY_ENTITY}}ReadRepository {
+  Future<Either<Failure, List<{{PRIMARY_ENTITY}}Entity>>> get{{PRIMARY_ENTITY}}Plural();
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity?>> get{{PRIMARY_ENTITY}}ById(int id);
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_write_repository.dart
+abstract class {{PRIMARY_ENTITY}}WriteRepository {
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> update{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_query_repository.dart
+abstract class {{PRIMARY_ENTITY}}QueryRepository {
+  Future<Either<Failure, List<{{PRIMARY_ENTITY}}Entity>>> get{{PRIMARY_ENTITY}}PluralByDateRange({
+    required DateTime start,
+    required DateTime end,
+  });
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_search_repository.dart
+abstract class {{PRIMARY_ENTITY}}SearchRepository {
+  Future<Either<Failure, List<{{PRIMARY_ENTITY}}Entity>>> search{{PRIMARY_ENTITY}}Plural(String query);
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_analytics_repository.dart
+abstract class {{PRIMARY_ENTITY}}AnalyticsRepository {
+  Future<Either<Failure, double>> getTotalByType({
+    required {{PRIMARY_ENTITY}}Type type,
+    required int year,
+    required int month,
+  });
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_export_repository.dart
+abstract class {{PRIMARY_ENTITY}}ExportRepository {
+  Future<Either<Failure, String>> export{{PRIMARY_ENTITY}}PluralToCsv(List<{{PRIMARY_ENTITY}}Entity> {{PRIMARY_ENTITY_PLURAL}});
+}
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_import_repository.dart
+abstract class {{PRIMARY_ENTITY}}ImportRepository {
+  Future<Either<Failure, ImportResultEntity>> import{{PRIMARY_ENTITY}}PluralFromCsv(String csvContent);
+}
+```
+
+### Benefits
+
+1. **Single Responsibility**: Each interface has one reason to change
+2. **Flexible Dependencies**: Clients only depend on methods they use
+3. **Easier Testing**: Smaller interfaces are easier to mock
+4. **Clear Intent**: Interface name describes its purpose
+
+### Real Example: {{SECONDARY_ENTITY}} Repositories
+
+```dart
+// lib/domain/repositories/{{SECONDARY_ENTITY_LOWER}}/
+
+// 1. Read operations (for listing, filtering)
+abstract class {{SECONDARY_ENTITY}}ReadRepository {
+  Future<Either<Failure, List<{{SECONDARY_ENTITY}}Entity>>> getActive{{SECONDARY_ENTITY}}Plural({{PRIMARY_ENTITY}}Type type);
+  Future<Either<Failure, {{SECONDARY_ENTITY}}Entity?>> get{{SECONDARY_ENTITY}}ById(int id);
+}
+
+// 2. Write operations (for create, update)
+abstract class {{SECONDARY_ENTITY}}WriteRepository {
+  Future<Either<Failure, {{SECONDARY_ENTITY}}Entity>> add{{SECONDARY_ENTITY}}({{SECONDARY_ENTITY}}Entity {{SECONDARY_ENTITY_LOWER}});
+  Future<Either<Failure, {{SECONDARY_ENTITY}}Entity>> update{{SECONDARY_ENTITY}}({{SECONDARY_ENTITY}}Entity {{SECONDARY_ENTITY_LOWER}});
+}
+
+// 3. Management operations (for deactivate, reorder)
+abstract class {{SECONDARY_ENTITY}}ManagementRepository {
+  Future<Either<Failure, void>> deactivate{{SECONDARY_ENTITY}}(int id);
+  Future<Either<Failure, void>> reorder{{SECONDARY_ENTITY}}Plural(List<int> {{SECONDARY_ENTITY_LOWER}}Ids);
+}
+
+// 4. Seeding operations (for default data)
+abstract class {{SECONDARY_ENTITY}}SeedingRepository {
+  Future<Either<Failure, void>> seedDefault{{SECONDARY_ENTITY}}Plural();
+}
+```
+
+### Usage in Providers
+
+```dart
+// A provider that only needs to read {{SECONDARY_ENTITY_PLURAL}}
+@riverpod
+class {{SECONDARY_ENTITY}}ListNotifier extends _${{SECONDARY_ENTITY}}ListNotifier {
+  @override
+  Future<List<{{SECONDARY_ENTITY}}Entity>> build() async {
+    // Only depends on read repository
+    final readRepo = ref.read({{SECONDARY_ENTITY_LOWER}}ReadRepositoryProvider);
+    final result = await readRepo.getActive{{SECONDARY_ENTITY}}Plural({{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}});
+    return result.fold(
+      (failure) => throw Exception(failure.message),
+      ({{SECONDARY_ENTITY_PLURAL}}) => {{SECONDARY_ENTITY_PLURAL}},
+    );
+  }
+}
+
+// A provider that only needs to manage {{SECONDARY_ENTITY_PLURAL}}
+@riverpod
+class {{SECONDARY_ENTITY}}ManagementNotifier extends _${{SECONDARY_ENTITY}}ManagementNotifier {
+  @override
+  {{SECONDARY_ENTITY}}ManagementState build() {
+    return {{SECONDARY_ENTITY}}ManagementState.initial();
+  }
+
+  Future<void> deactivate{{SECONDARY_ENTITY}}(int id) async {
+    // Only depends on management repository
+    final managementRepo = ref.read({{SECONDARY_ENTITY_LOWER}}ManagementRepositoryProvider);
+    final result = await managementRepo.deactivate{{SECONDARY_ENTITY}}(id);
+    // Handle result...
+  }
+}
+```
+
+---
+
+## Controller Pattern
+
+**Purpose**: Extract business logic from state management (providers) into dedicated controllers.
+
+### Problem: Business Logic in Providers
+
+```dart
+// BAD - Business logic mixed with state management
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  Future<void> submit() async {
+    state = const {{PRIMARY_ENTITY}}FormState.loading();
+
+    // Business logic embedded in provider
+    final isAdd = state.existing{{PRIMARY_ENTITY}} == null;
+    final entity = _mapToEntity(state);
+
+    if (isAdd) {
+      // Validation logic
+      if (entity.amount <= 0) {
+        state = {{PRIMARY_ENTITY}}FormState.error('Invalid amount');
+        return;
+      }
+
+      // Add logic
+      final result = await ref.read(add{{PRIMARY_ENTITY}}UseCaseProvider).execute(entity);
+      result.fold(
+        (failure) => state = {{PRIMARY_ENTITY}}FormState.error(failure.message),
+        (success) {
+          state = {{PRIMARY_ENTITY}}FormState.success(success);
+          ref.invalidate({{PRIMARY_ENTITY}}ListProvider);
+        },
+      );
+    } else {
+      // Update logic
+      final result = await ref.read(update{{PRIMARY_ENTITY}}UseCaseProvider).execute(entity);
+      // Similar handling...
+    }
+  }
+
+  // More business logic...
+  {{PRIMARY_ENTITY}}Entity _mapToEntity({{PRIMARY_ENTITY}}FormState state) { }
+  void _handleSuccess({{PRIMARY_ENTITY}}Entity entity) { }
+  void _handleError(Failure failure) { }
+}
+```
+
+### Solution: Extract to Controller
+
+```dart
+// GOOD - Business logic in controller
+// lib/presentation/controllers/{{PRIMARY_ENTITY_LOWER}}_form_submission_controller.dart
+
+/// Strategy pattern for different submission types
+abstract class SubmissionStrategy {
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute(
+    {{PRIMARY_ENTITY}}FormState formState,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+  );
+}
+
+class Add{{PRIMARY_ENTITY}}Strategy implements SubmissionStrategy {
+  final Add{{PRIMARY_ENTITY}}UseCase _useCase;
+
+  Add{{PRIMARY_ENTITY}}Strategy(this._useCase);
+
+  @override
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute(
+    {{PRIMARY_ENTITY}}FormState formState,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+  ) async {
+    final entity = _mapToEntity(formState);
+    return _useCase.execute(entity);
+  }
+
+  {{PRIMARY_ENTITY}}Entity _mapToEntity({{PRIMARY_ENTITY}}FormState state) {
+    return {{PRIMARY_ENTITY}}Entity(
+      amount: state.nominal,
+      type: state.type,
+      dateTime: DateTime(state.date.year, state.date.month, state.date.day,
+          state.time.hour, state.time.minute),
+      {{SECONDARY_ENTITY_LOWER}}Id: state.{{SECONDARY_ENTITY_LOWER}}Id,
+      note: state.note,
+    );
+  }
+}
+
+class Update{{PRIMARY_ENTITY}}Strategy implements SubmissionStrategy {
+  final Update{{PRIMARY_ENTITY}}UseCase _useCase;
+
+  Update{{PRIMARY_ENTITY}}Strategy(this._useCase);
+
+  @override
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute(
+    {{PRIMARY_ENTITY}}FormState formState,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+  ) async {
+    final entity = _mapToEntity(formState, existing{{PRIMARY_ENTITY}}!);
+    return _useCase.execute(entity);
+  }
+
+  {{PRIMARY_ENTITY}}Entity _mapToEntity({{PRIMARY_ENTITY}}FormState state, {{PRIMARY_ENTITY}}Entity existing) {
+    return existing.copyWith(
+      amount: state.nominal,
+      type: state.type,
+      dateTime: DateTime(state.date.year, state.date.month, state.date.day,
+          state.time.hour, state.time.minute),
+      {{SECONDARY_ENTITY_LOWER}}Id: state.{{SECONDARY_ENTITY_LOWER}}Id,
+      note: state.note,
+    );
+  }
+}
+
+/// Controller for {{PRIMARY_ENTITY_LOWER}} form submission
+/// Following SRP: Only handles submission logic
+class {{PRIMARY_ENTITY}}FormSubmissionController {
+  final SubmissionStrategy addStrategy;
+  final SubmissionStrategy updateStrategy;
+
+  {{PRIMARY_ENTITY}}FormSubmissionController({
+    required this.addStrategy,
+    required this.updateStrategy,
+  });
+
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> submit({
+    required {{PRIMARY_ENTITY}}FormState formState,
+    required {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+  }) {
+    final strategy = existing{{PRIMARY_ENTITY}} == null ? addStrategy : updateStrategy;
+    return strategy.execute(formState, existing{{PRIMARY_ENTITY}});
+  }
+}
+
+// Provider becomes simple - only manages state
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  Future<void> submit() async {
+    state = const {{PRIMARY_ENTITY}}FormState.loading();
+
+    // Delegate to controller
+    final controller = _getSubmissionController();
+    final result = await controller.submit(
+      formState: state,
+      existing{{PRIMARY_ENTITY}}: state.existing{{PRIMARY_ENTITY}},
+    );
+
+    result.fold(
+      (failure) => state = {{PRIMARY_ENTITY}}FormState.error(failure.message),
+      (success) {
+        state = {{PRIMARY_ENTITY}}FormState.success(success);
+        ref.invalidate({{PRIMARY_ENTITY}}ListProvider);
+      },
+    );
+  }
+
+  {{PRIMARY_ENTITY}}FormSubmissionController _getSubmissionController() {
+    return {{PRIMARY_ENTITY}}FormSubmissionController(
+      addStrategy: Add{{PRIMARY_ENTITY}}Strategy(ref.read(add{{PRIMARY_ENTITY}}UseCaseProvider)),
+      updateStrategy: Update{{PRIMARY_ENTITY}}Strategy(ref.read(update{{PRIMARY_ENTITY}}UseCaseProvider)),
+    );
+  }
+}
+```
+
+---
+
+## Service Layer Pattern
+
+### Domain Services vs Application Services
+
+#### Domain Services (in domain layer)
+- Business logic that doesn't naturally fit in entities or value objects
+- No dependencies on external frameworks
+- Examples: `ExportService`, `ImportService`, `InsightService`
+
+```dart
+// lib/domain/services/export_service.dart
+abstract class ExportService {
+  Future<Either<Failure, String>> export{{PRIMARY_ENTITY}}PluralToCsv(List<{{PRIMARY_ENTITY}}Entity> {{PRIMARY_ENTITY_PLURAL}});
+}
+
+// Implementation in data layer
+// lib/data/services/csv_export_service_impl.dart
+class CsvExportServiceImpl implements ExportService {
+  @override
+  Future<Either<Failure, String>> export{{PRIMARY_ENTITY}}PluralToCsv(
+    List<{{PRIMARY_ENTITY}}Entity> {{PRIMARY_ENTITY_PLURAL}},
+  ) async {
+    try {
+      final csv = {{PRIMARY_ENTITY_PLURAL}}.map((t) => t.toCsvRow()).join('\n');
+      return Right(csv);
+    } catch (e) {
+      return Left(ExportFailure(e.toString()));
+    }
+  }
+}
+```
+
+#### Application Services (in data/presentation layer)
+- Platform-specific implementations
+- External library integrations
+- Examples: `ReceiptOcrService`, `ImagePickerService`, `PermissionService`
+
+```dart
+// Domain interface
+// lib/domain/services/ocr_service.dart
+abstract class OcrService {
+  Future<Either<Failure, String>> extractReceiptAmount(String imagePath);
+}
+
+// Data implementation
+// lib/data/services/receipt_ocr_service_impl.dart
+class ReceiptOcrServiceImpl implements OcrService {
+  final TextRecognizer _textRecognizer;
+
+  ReceiptOcrServiceImpl(this._textRecognizer);
+
+  @override
+  Future<Either<Failure, String>> extractReceiptAmount(String imagePath) async {
+    try {
+      final inputImage = InputImage.fromFilePath(imagePath);
+      final recognizedText = await _textRecognizer.processImage(inputImage);
+
+      final amount = ReceiptAmountParser.parse(recognizedText.text);
+      if (amount == null) {
+        return const Left(OcrFailure('No amount found in receipt'));
+      }
+
+      return Right(amount);
+    } catch (e) {
+      return Left(OcrFailure(e.toString()));
+    }
+  }
+}
+```
+
+---
+
+## Domain Layer
+
+### Purpose: Encapsulate business logic without dependencies
+
+#### Entities
+```dart
+// lib/domain/entities/{{PRIMARY_ENTITY_LOWER}}_entity.dart
+class {{PRIMARY_ENTITY}}Entity {
+  final int? id;
+  final double amount;
+  final {{PRIMARY_ENTITY}}Type type;
+  final DateTime dateTime;
+  final int {{SECONDARY_ENTITY_LOWER}}Id;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+
+  const {{PRIMARY_ENTITY}}Entity({
+    this.id,
+    required this.amount,
+    required this.type,
+    required this.dateTime,
+    required this.{{SECONDARY_ENTITY_LOWER}}Id,
+    this.note,
+    required this.createdAt,
+    this.updatedAt,
+  });
+
+  // Business logic methods
+  bool get isIncomes => type == {{PRIMARY_ENTITY}}Type.income;
+  bool get is{{SECONDARY_ENTITY}} => type == {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}};
+
+  {{PRIMARY_ENTITY}}Entity copyWith({
+    int? id,
+    double? amount,
+    {{PRIMARY_ENTITY}}Type? type,
+    DateTime? dateTime,
+    int? {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return {{PRIMARY_ENTITY}}Entity(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      type: type ?? this.type,
+      dateTime: dateTime ?? this.dateTime,
+      {{SECONDARY_ENTITY_LOWER}}Id: {{SECONDARY_ENTITY_LOWER}}Id ?? this.{{SECONDARY_ENTITY_LOWER}}Id,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+}
+```
+
+#### Use Cases
+```dart
+// lib/domain/usecases/{{PRIMARY_ENTITY_LOWER}}/add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart
+class Add{{PRIMARY_ENTITY}}UseCase {
+  final {{PRIMARY_ENTITY}}WriteRepository _repository;
+
+  Add{{PRIMARY_ENTITY}}UseCase(this._repository);
+
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) async {
+    // Business validation
+    if ({{PRIMARY_ENTITY_LOWER}}.amount <= 0) {
+      return const Left(ValidationFailure('Amount must be greater than 0'));
+    }
+
+    return await _repository.add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}});
+  }
+}
+```
+
+#### Repository Interfaces
+```dart
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_write_repository.dart
+abstract class {{PRIMARY_ENTITY}}WriteRepository {
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> update{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}});
+}
+```
+
+---
+
+## Data Layer
+
+### Purpose: Implement domain interfaces and manage data sources
+
+### Data Source Abstraction (SOLID Compliance)
+
+The data layer uses a **LocalDataSource** abstraction to achieve 100% SOLID compliance (OCP, LSP, DIP):
+
+```dart
+// lib/data/datasources/local/local_data_source.dart
+/// Abstract data source for local storage
+///
+/// Following OCP: Can be extended for SQLite, Hive, Isar, etc.
+/// Following DIP: High-level modules depend on this abstraction
+abstract class LocalDataSource {
+  Future<List<Map<String, dynamic>>> query(String table, {...});
+  Future<List<Map<String, dynamic>>> rawQuery(String sql, List<Object?>? arguments);
+  Future<int> insert(String table, Map<String, dynamic> values);
+  Future<int> update(String table, Map<String, dynamic> values, {...});
+  Future<int> delete(String table, {...});
+  Future<void> transaction(Future<void> Function() action);
+  Future<void> close();
+}
+
+// SQLite implementation
+// lib/data/datasources/local/sqlite_data_source.dart
+class SqliteDataSource implements LocalDataSource {
+  final DatabaseHelper _dbHelper;
+
+  SqliteDataSource(this._dbHelper);
+
+  @override
+  Future<List<Map<String, dynamic>>> query(...) async {
+    final db = await _dbHelper.database;
+    return db.query(...);
+  }
+  // ... other methods
+}
+```
+
+#### Repository Implementation (Following DIP)
+
+```dart
+// lib/data/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_write_repository_impl.dart
+class {{PRIMARY_ENTITY}}WriteRepositoryImpl implements {{PRIMARY_ENTITY}}WriteRepository {
+  final LocalDataSource _dataSource;  // ✅ Abstract dependency
+
+  {{PRIMARY_ENTITY}}WriteRepositoryImpl(this._dataSource);
+
+  @override
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}(
+    {{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}},
+  ) async {
+    try {
+      final model = {{PRIMARY_ENTITY}}Model.fromEntity({{PRIMARY_ENTITY_LOWER}});
+      final id = await _dataSource.insert(table{{PRIMARY_ENTITY}}Plural, model.toMap());
+      final result = {{PRIMARY_ENTITY_LOWER}}.copyWith(id: id);
+      return Right(result);
+    } on DatabaseException catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> update{{PRIMARY_ENTITY}}(
+    {{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}},
+  ) async {
+    try {
+      final model = {{PRIMARY_ENTITY}}Model.fromEntity({{PRIMARY_ENTITY_LOWER}});
+      await _dataSource.update(table{{PRIMARY_ENTITY}}Plural, model.toMap(),
+        where: 'id = ?',
+        whereArgs: [{{PRIMARY_ENTITY_LOWER}}.id],
+      );
+      return Right({{PRIMARY_ENTITY_LOWER}});
+    } on DatabaseException catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+}
+```
+
+#### Benefits of Data Source Abstraction
+
+1. **Open/Closed Principle**: New data sources can be added without modifying repositories
+2. **Liskov Substitution**: Any `LocalDataSource` implementation can be substituted
+3. **Dependency Inversion**: High-level modules depend on abstractions, not concretions
+4. **Testability**: Easy to mock data sources for testing
+5. **Flexibility**: Can switch between SQLite, Hive, Isar, or REST API
+
+---
+
+## Presentation Layer
+
+### Purpose: UI and state management
+
+### Provider Organization
+
+```
+lib/presentation/providers/
+├── app_providers.dart                    # Central export
+├── repository_providers.dart             # Repository DI
+├── usecase_providers.dart                # UseCase DI
+├── service_providers.dart                # Service DI
+├── {{PRIMARY_ENTITY_LOWER}}/             # {{PRIMARY_ENTITY}} feature
+│   ├── {{PRIMARY_ENTITY_LOWER}}_list_provider.dart
+│   ├── {{PRIMARY_ENTITY_LOWER}}_form_provider.dart
+│   ├── {{PRIMARY_ENTITY_LOWER}}_filter_provider.dart
+│   └── ...
+├── {{SECONDARY_ENTITY_LOWER}}/           # {{SECONDARY_ENTITY}} feature
+│   ├── {{SECONDARY_ENTITY_LOWER}}_list_provider.dart
+│   ├── {{SECONDARY_ENTITY_LOWER}}_form_provider.dart
+│   └── ...
+└── summary/                              # Summary feature
+    └── monthly_summary_provider.dart
+```
+
+### Provider Pattern with Riverpod 3.x
+
+```dart
+// lib/presentation/providers/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_form_provider.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part '{{PRIMARY_ENTITY_LOWER}}_form_provider.g.dart';
+
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    // Initialize here, NOT in constructor
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  void setNominal(double value) {
+    state = state.copyWith(nominal: value);
+  }
+
+  Future<void> submit() async {
+    state = const {{PRIMARY_ENTITY}}FormState.loading();
+
+    final controller = _getSubmissionController();
+    final result = await controller.submit(
+      formState: state,
+      existing{{PRIMARY_ENTITY}}: state.existing{{PRIMARY_ENTITY}},
+    );
+
+    result.fold(
+      (failure) => state = {{PRIMARY_ENTITY}}FormState.error(failure.message),
+      (success) => state = {{PRIMARY_ENTITY}}FormState.success(success),
+    );
+  }
+}
+```
+
+### State Pattern with Freezed
+
+```dart
+// lib/presentation/states/{{PRIMARY_ENTITY_LOWER}}_form_state.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part '{{PRIMARY_ENTITY_LOWER}}_form_state.freezed.dart';
+
+@freezed
+abstract class {{PRIMARY_ENTITY}}FormState with _${{PRIMARY_ENTITY}}FormState {
+  const factory {{PRIMARY_ENTITY}}FormState.initial({
+    @Default({{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}}) {{PRIMARY_ENTITY}}Type type,
+    DateTime? date,
+    DateTime? time,
+    @Default(0.0) double nominal,
+    @Default(0) int {{SECONDARY_ENTITY_LOWER}}Id,
+    String? note,
+    {{PRIMARY_ENTITY}}Entity? existing{{PRIMARY_ENTITY}},
+    @Default({}) Map<String, String> validationErrors,
+  }) = {{PRIMARY_ENTITY}}FormInitial;
+
+  const factory {{PRIMARY_ENTITY}}FormState.loading() = {{PRIMARY_ENTITY}}FormLoading;
+
+  const factory {{PRIMARY_ENTITY}}FormState.success({{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}}) =
+      {{PRIMARY_ENTITY}}FormSuccess;
+
+  const factory {{PRIMARY_ENTITY}}FormState.error(String message) = {{PRIMARY_ENTITY}}FormError;
+}
+```
+
+---
+
+## Dependency Injection Setup
+
+### Provider Chain
+
+```dart
+// lib/presentation/providers/repository_providers.dart
+
+// 1. Data source provider
+@riverpod
+DatabaseHelper databaseHelper(DatabaseHelperRef ref) {
+  return DatabaseHelper();
+}
+
+// 2. Repository implementation providers
+@riverpod
+{{PRIMARY_ENTITY}}WriteRepository {{PRIMARY_ENTITY}}WriteRepository({{PRIMARY_ENTITY}}WriteRepositoryRef ref) {
+  return {{PRIMARY_ENTITY}}WriteRepositoryImpl(ref.read(databaseHelperProvider));
+}
+
+@riverpod
+{{PRIMARY_ENTITY}}ReadRepository {{PRIMARY_ENTITY}}ReadRepository({{PRIMARY_ENTITY}}ReadRepositoryRef ref) {
+  return {{PRIMARY_ENTITY}}ReadRepositoryImpl(ref.read(databaseHelperProvider));
+}
+
+// lib/presentation/providers/usecase_providers.dart
+
+// 3. Use case providers
+@riverpod
+Add{{PRIMARY_ENTITY}}UseCase add{{PRIMARY_ENTITY}}UseCase(Add{{PRIMARY_ENTITY}}UseCaseRef ref) {
+  return Add{{PRIMARY_ENTITY}}UseCase(ref.read({{PRIMARY_ENTITY}}WriteRepositoryProvider));
+}
+
+// lib/presentation/providers/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_form_provider.dart
+
+// 4. Feature providers
+@riverpod
+class {{PRIMARY_ENTITY}}FormNotifier extends _${{PRIMARY_ENTITY}}FormNotifier {
+  @override
+  {{PRIMARY_ENTITY}}FormState build() {
+    return {{PRIMARY_ENTITY}}FormState.initial();
+  }
+
+  Future<void> submit() async {
+    final useCase = ref.read(add{{PRIMARY_ENTITY}}UseCaseProvider);
+    // Use the use case...
+  }
+}
+```
+
+---
+
+## Best Practices
+
+### 1. Always Depend on Abstractions
+```dart
+// ✅ GOOD
+class MyNotifier {
+  final {{PRIMARY_ENTITY}}ReadRepository _repository;
+  MyNotifier(this._repository);
+}
+
+// ❌ BAD
+class MyNotifier {
+  final {{PRIMARY_ENTITY}}ReadRepositoryImpl _repository;
+  MyNotifier(this._repository);
+}
+```
+
+### 2. Keep Use Cases Atomic
+```dart
+// ✅ GOOD - Single responsibility
+class Add{{PRIMARY_ENTITY}}UseCase { }
+class Update{{PRIMARY_ENTITY}}UseCase { }
+class Delete{{PRIMARY_ENTITY}}UseCase { }
+
+// ❌ BAD - Too many responsibilities
+class {{PRIMARY_ENTITY}}ManagementUseCase {
+  void add() { }
+  void update() { }
+  void delete() { }
+}
+```
+
+### 3. Use Barrel Exports
+```dart
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_repositories.dart
+export '{{PRIMARY_ENTITY_LOWER}}_read_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_write_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_query_repository.dart';
+// etc.
+
+// Usage
+import 'package:{{PROJECT_NAME}}/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_repositories.dart';
+```
+
+### 4. Initialize in build(), Not Constructor
+```dart
+// ✅ GOOD
+@riverpod
+class MyNotifier extends _$MyNotifier {
+  @override
+  Future build() async {
+    final useCase = ref.read(myUseCaseProvider);
+    return await useCase.execute();
+  }
+}
+
+// ❌ BAD
+@riverpod
+class MyNotifier extends _$MyNotifier {
+  MyNotifier() {
+    // Providers not available yet!
+    load();
+  }
+
+  @override
+  Future build() => Future.value();
+}
+```
+
+---
+
+## Related Documentation
+
+- [SOLID.md.template](SOLID.md.template) - SOLID principles with examples
+- [RIVERPOD_GUIDE.md.template](RIVERPOD_GUIDE.md.template) - Riverpod 3.x patterns
+- [FREEZED_GUIDE.md.template](FREEZED_GUIDE.md.template) - Freezed 3.x guide
+- [CODING_STANDARDS.md.template](CODING_STANDARDS.md.template) - File naming and conventions
+- [AI_ASSISTANT_GUIDE.md.template](../AI_ASSISTANT_GUIDE.md.template) - Quick reference for AI assistants
+
+---
+
+**Last Updated**: {{LAST_UPDATED}}
+**Architecture Version**: 2.0 (Clean Architecture with 100% SRP compliance)

@@ -1,0 +1,794 @@
+# Coding Standards - {{PROJECT_TITLE}}
+
+**Last Updated**: {{LAST_UPDATED}}
+**Project**: {{PROJECT_TITLE}} ({{PROJECT_DESCRIPTION}})
+**Language**: Dart {{DART_VERSION}}+
+**Framework**: Flutter {{FLUTTER_VERSION}}+
+
+---
+
+## Table of Contents
+1. [File Naming Conventions](#file-naming-conventions)
+2. [Import Organization](#import-organization)
+3. [Code Formatting](#code-formatting)
+4. [Documentation Standards](#documentation-standards)
+5. [Error Handling Patterns](#error-handling-patterns)
+6. [Testing Standards](#testing-standards)
+7. [Git Commit Conventions](#git-commit-conventions)
+8. [Code Review Checklist](#code-review-checklist)
+
+---
+
+## File Naming Conventions
+
+### Directory Structure
+
+```
+lib/
+├── domain/
+│   ├── entities/              # noun_entity.dart
+│   ├── usecases/              # verb_noun_usecase.dart
+│   ├── repositories/          # noun_repository.dart
+│   └── services/              # noun_service.dart
+├── data/
+│   ├── datasources/           # noun_datasource.dart
+│   ├── models/                # noun_model.dart
+│   ├── repositories/          # noun_repository_impl.dart
+│   └── services/              # noun_service_impl.dart
+└── presentation/
+    ├── providers/             # noun_provider.dart
+    ├── screens/               # noun_screen.dart
+    ├── widgets/               # noun_widget.dart
+    ├── controllers/           # noun_controller.dart
+    ├── states/                # noun_state.dart
+    └── utils/                 # noun_util.dart
+```
+
+### Naming Rules
+
+| Type | Convention | Example |
+|------|------------|---------|
+| **Entities** | `snake_case` + `_entity.dart` | `{{PRIMARY_ENTITY_LOWER}}_entity.dart` |
+| **Use Cases** | `verb_noun` + `_usecase.dart` | `add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart` |
+| **Repository Interfaces** | `noun_repository.dart` | `{{PRIMARY_ENTITY_LOWER}}_read_repository.dart` |
+| **Repository Implementations** | `noun_repository_impl.dart` | `{{PRIMARY_ENTITY_LOWER}}_read_repository_impl.dart` |
+| **Models** | `noun_model.dart` | `{{PRIMARY_ENTITY_LOWER}}_model.dart` |
+| **Providers** | `noun_provider.dart` | `{{PRIMARY_ENTITY_LOWER}}_list_provider.dart` |
+| **Screens** | `noun_screen.dart` | `{{PRIMARY_ENTITY_LOWER}}_form_screen.dart` |
+| **Widgets** | `noun_widget.dart` | `{{PRIMARY_ENTITY_LOWER}}_card_widget.dart` |
+| **Controllers** | `noun_controller.dart` | `{{PRIMARY_ENTITY_LOWER}}_form_controller.dart` |
+| **States** | `noun_state.dart` | `{{PRIMARY_ENTITY_LOWER}}_form_state.dart` |
+| **Services (Domain)** | `noun_service.dart` | `export_service.dart` |
+| **Services (Data)** | `noun_service_impl.dart` | `csv_export_service_impl.dart` |
+
+### Examples
+
+```dart
+// ✅ CORRECT
+// lib/domain/entities/{{PRIMARY_ENTITY_LOWER}}_entity.dart
+class {{PRIMARY_ENTITY}}Entity { }
+
+// lib/domain/usecases/add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart
+class Add{{PRIMARY_ENTITY}}UseCase { }
+
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_read_repository.dart
+abstract class {{PRIMARY_ENTITY}}ReadRepository { }
+
+// lib/data/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_read_repository_impl.dart
+class {{PRIMARY_ENTITY}}ReadRepositoryImpl implements {{PRIMARY_ENTITY}}ReadRepository { }
+
+// lib/presentation/providers/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_list_provider.dart
+@riverpod
+class {{PRIMARY_ENTITY}}ListNotifier extends _${{PRIMARY_ENTITY}}ListNotifier { }
+
+// lib/presentation/screens/{{PRIMARY_ENTITY_LOWER}}_form_screen.dart
+class {{PRIMARY_ENTITY}}FormScreen extends ConsumerStatefulWidget { }
+
+// ❌ WRONG
+// lib/domain/entities/{{PRIMARY_ENTITY}}.dart  // Should be snake_case
+// lib/domain/usecases/Add{{PRIMARY_ENTITY}}.dart  // Missing _usecase suffix
+// lib/domain/repositories/{{PRIMARY_ENTITY}}Repo.dart  // Abbreviations not recommended
+```
+
+---
+
+## Import Organization
+
+### Import Order
+
+Imports should be organized in this order:
+
+1. **Dart SDK** (dart:*)
+2. **Flutter** (flutter:*)
+3. **Packages** (package:)
+4. **Project** (relative imports)
+
+### Example
+
+```dart
+// 1. Dart SDK
+import 'dart:async';
+import 'dart:convert';
+
+// 2. Flutter
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+// 3. Packages
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
+
+// 4. Project
+import 'package:{{PROJECT_NAME}}/domain/entities/{{PRIMARY_ENTITY_LOWER}}_entity.dart';
+import 'package:{{PROJECT_NAME}}/domain/usecases/add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart';
+import 'package:{{PROJECT_NAME}}/presentation/providers/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_form_provider.dart';
+```
+
+### Barrel Exports
+
+Use barrel files (files that only export other files) to simplify imports:
+
+```dart
+// lib/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_repositories.dart
+export '{{PRIMARY_ENTITY_LOWER}}_read_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_write_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_query_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_search_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_analytics_repository.dart';
+export '{{PRIMARY_ENTITY_LOWER}}_export_repository.dart';
+
+// Usage - single import instead of multiple
+import 'package:{{PROJECT_NAME}}/domain/repositories/{{PRIMARY_ENTITY_LOWER}}/{{PRIMARY_ENTITY_LOWER}}_repositories.dart';
+```
+
+### Central Export File
+
+```dart
+// lib/presentation/utils/utils.dart
+// Central export for all utilities
+
+// Spacing
+export 'responsive/app_spacing.dart';
+export 'responsive/app_radius.dart';
+export 'responsive/app_dimensions.dart';
+
+// Formatters
+export 'formatters/app_date_formatter.dart';
+
+// Theme
+export 'app_theme.dart';
+export 'app_colors.dart';
+
+// Usage - import all utilities at once
+import 'package:{{PROJECT_NAME}}/presentation/utils/utils.dart';
+```
+
+---
+
+## Code Formatting
+
+### Line Length
+
+- **Maximum line length**: 80 characters (soft limit), 120 characters (hard limit)
+- **Use trailing commas** for multi-line parameters and arguments
+
+```dart
+// ✅ GOOD - Trailing comma
+final result = await useCase.execute(
+  {{PRIMARY_ENTITY}}Entity(
+    amount: state.nominal,
+    type: state.type,
+    dateTime: DateTime(
+      state.date.year,
+      state.date.month,
+      state.date.day,
+      state.time.hour,
+      state.time.minute,
+    ),
+    {{SECONDARY_ENTITY_LOWER}}Id: state.{{SECONDARY_ENTITY_LOWER}}Id,
+    note: state.note,
+    createdAt: DateTime.now(),
+  ),
+);
+
+// ❌ BAD - Too long, no trailing comma
+final result = await useCase.execute({{PRIMARY_ENTITY}}Entity(amount: state.nominal, type: state.type, dateTime: DateTime(state.date.year, state.date.month, state.date.day, state.time.hour, state.time.minute), {{SECONDARY_ENTITY_LOWER}}Id: state.{{SECONDARY_ENTITY_LOWER}}Id, note: state.note, createdAt: DateTime.now()));
+```
+
+### Indentation
+
+- **2 spaces** for indentation (no tabs)
+- **Cascades** (`..`) for method chaining on same object
+
+```dart
+// ✅ GOOD - Cascades
+final container = AppGlassContainer.glassCard(
+  child: Column(
+    children: [
+      Text('Title'),
+      Text('Subtitle'),
+    ]
+      ..addAll(
+        items.map((item) => Text(item)).toList(),
+      ),
+    ],
+  ),
+);
+
+// ❌ BAD - Repetitive container reference
+final container = AppGlassContainer.glassCard(
+  child: Column(
+    children: [
+      Text('Title'),
+      Text('Subtitle'),
+    ],
+  ),
+);
+container.child = Container(/* ... */);
+```
+
+### Optional Parameters
+
+```dart
+// ✅ GOOD - Required positional parameters first, then optional
+class {{PRIMARY_ENTITY}}Entity {
+  const {{PRIMARY_ENTITY}}Entity({
+    required this.amount,      // Required
+    required this.type,        // Required
+    this.id,                   // Optional
+    this.note,                 // Optional
+  });
+}
+
+// ❌ BAD - Optional parameters before required
+class {{PRIMARY_ENTITY}}Entity {
+  const {{PRIMARY_ENTITY}}Entity({
+    this.id,                   // Optional first
+    required this.amount,      // Required after
+    required this.type,
+  });
+}
+```
+
+---
+
+## Documentation Standards
+
+### JSDoc-Style Comments
+
+Use JSDoc-style comments for public APIs:
+
+```dart
+/// Use case for adding a new {{PRIMARY_ENTITY_LOWER}} to the database.
+///
+/// This use case validates the {{PRIMARY_ENTITY_LOWER}} entity before adding it.
+/// It returns a [Failure] if validation fails or if the database
+/// operation fails.
+///
+/// Example:
+/// ```dart
+/// final useCase = Add{{PRIMARY_ENTITY}}UseCase(repository);
+/// final result = await useCase.execute({{PRIMARY_ENTITY_LOWER}});
+/// result.fold(
+///   (failure) => print('Error: ${failure.message}'),
+///   (success) => print('Added: $success'),
+/// );
+/// ```
+class Add{{PRIMARY_ENTITY}}UseCase {
+  /// Executes the use case with the given [{{PRIMARY_ENTITY_LOWER}}].
+  ///
+  /// Returns [Right] with the added {{PRIMARY_ENTITY_LOWER}} including its ID,
+  /// or [Left] with a [Failure] if the operation fails.
+  Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> execute(
+    {{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}},
+  ) async {
+    // Implementation
+  }
+}
+```
+
+### Class Documentation
+
+```dart
+/// Provider for managing {{PRIMARY_ENTITY_LOWER}} list state.
+///
+/// This provider follows SRP by only managing state and delegating
+/// business logic to use cases. It uses the @riverpod annotation
+/// for code generation and initializes state in the `build()` method.
+///
+/// State transitions:
+/// - `initial` → `loading` → `data` or `error`
+@riverpod
+class {{PRIMARY_ENTITY}}ListNotifier extends _${{PRIMARY_ENTITY}}ListNotifier {
+  // Implementation
+}
+```
+
+### Method Documentation
+
+```dart
+/// Loads {{PRIMARY_ENTITY_PLURAL}} from the database with optional pagination.
+///
+/// Parameters:
+/// - [limit]: Maximum number of {{PRIMARY_ENTITY_PLURAL}} to return (default: 20)
+/// - [offset]: Number of {{PRIMARY_ENTITY_PLURAL}} to skip (default: 0)
+/// - [filter]: Optional filter criteria
+///
+/// Returns a paginated result containing the {{PRIMARY_ENTITY_PLURAL}} and
+/// whether more data is available.
+///
+/// Throws [DatabaseException] if the query fails.
+Future<PaginatedResult<{{PRIMARY_ENTITY}}Entity>> load{{PRIMARY_ENTITY}}Plural({
+  int limit = 20,
+  int offset = 0,
+  {{PRIMARY_ENTITY}}Filter? filter,
+}) async {
+  // Implementation
+}
+```
+
+### Inline Comments
+
+Use inline comments sparingly, only for complex logic:
+
+```dart
+// Calculate the monthly aggregation by grouping {{PRIMARY_ENTITY_PLURAL}} by month
+// and summing amounts per {{SECONDARY_ENTITY_LOWER}}
+final monthlyData = {{PRIMARY_ENTITY_PLURAL}}
+    .where((t) => t.dateTime.year == year && t.dateTime.month == month)
+    .fold<double>(
+      0,
+      (sum, t) => sum + (t.type == {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}} ? t.amount : 0),
+    );
+```
+
+### TODO Comments
+
+```dart
+// TODO(username): Implement pagination when backend API is ready
+// https://github.com/org/repo/issues/123
+
+// FIXME: This is a temporary workaround for the animation bug
+// TODO(john): Replace with proper animation controller
+```
+
+---
+
+## Error Handling Patterns
+
+### Result Type (Either Pattern)
+
+```dart
+// Use Either from dartz package or custom Result type
+import 'package:{{PROJECT_NAME}}/domain/core/result.dart';
+
+// ✅ GOOD - Return Result type
+Future<Either<Failure, {{PRIMARY_ENTITY}}Entity>> add{{PRIMARY_ENTITY}}(
+  {{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}},
+) async {
+  try {
+    final id = await _database.insert({{PRIMARY_ENTITY_LOWER}});
+    final result = {{PRIMARY_ENTITY_LOWER}}.copyWith(id: id);
+    return Right(result);
+  } on DatabaseException catch (e) {
+    return Left(DatabaseFailure(e.message));
+  }
+}
+
+// ❌ BAD - Throw exceptions
+Future<{{PRIMARY_ENTITY}}Entity> add{{PRIMARY_ENTITY}}(
+  {{PRIMARY_ENTITY}}Entity {{PRIMARY_ENTITY_LOWER}},
+) async {
+  try {
+    final id = await _database.insert({{PRIMARY_ENTITY_LOWER}});
+    return {{PRIMARY_ENTITY_LOWER}}.copyWith(id: id);
+  } catch (e) {
+    throw Exception('Failed to add {{PRIMARY_ENTITY_LOWER}}'); // Don't throw!
+  }
+}
+```
+
+### Failure Types
+
+```dart
+/// Base failure class
+abstract class Failure {
+  final String message;
+  const Failure(this.message);
+
+  @override
+  String toString() => message;
+}
+
+/// Specific failure types
+class DatabaseFailure extends Failure {
+  const DatabaseFailure(super.message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(super.message);
+}
+
+class NetworkFailure extends Failure {
+  const NetworkFailure(super.message);
+}
+
+class OcrFailure extends Failure {
+  const OcrFailure(super.message);
+}
+
+class PermissionFailure extends Failure {
+  const PermissionFailure(super.message);
+}
+```
+
+### Handling Errors in UI
+
+```dart
+// ✅ GOOD - Handle errors gracefully
+final state = ref.watch({{PRIMARY_ENTITY}}ListProvider);
+
+return state.when(
+  loading: () => const AppLoadingState(),
+  error: (error, stackTrace) {
+    final message = ErrorMessageMapper.map(error);
+    return AppErrorState(
+      error: message,
+      onRetry: () => ref.invalidate({{PRIMARY_ENTITY}}ListProvider),
+    );
+  },
+  data: ({{PRIMARY_ENTITY_PLURAL}}) => {{PRIMARY_ENTITY}}List({{PRIMARY_ENTITY_PLURAL}}: {{PRIMARY_ENTITY_PLURAL}}),
+);
+
+// ❌ BAD - Let errors crash the app
+final state = ref.watch({{PRIMARY_ENTITY}}ListProvider);
+return {{PRIMARY_ENTITY}}List({{PRIMARY_ENTITY_PLURAL}}: state.value!); // Crashes if error!
+```
+
+### AsyncValue.guard
+
+```dart
+// ✅ GOOD - Use AsyncValue.guard for automatic error handling
+Future<void> submit() async {
+  state = const AsyncValue.loading();
+  state = await AsyncValue.guard(() async {
+    return await _performSubmission();
+  });
+}
+
+// ❌ BAD - Manual try-catch
+Future<void> submit() async {
+  state = const AsyncValue.loading();
+  try {
+    final result = await _performSubmission();
+    state = AsyncValue.data(result);
+  } catch (e, st) {
+    state = AsyncValue.error(e, st);
+  }
+}
+```
+
+---
+
+## Testing Standards
+
+### Test File Naming
+
+```
+test/
+├── unit/                      # Unit tests (domain layer)
+│   ├── domain/
+│   │   ├── usecases/
+│   │   │   └── add_{{PRIMARY_ENTITY_LOWER}}_usecase_test.dart
+│   │   └── entities/
+│   │       └── {{PRIMARY_ENTITY_LOWER}}_entity_test.dart
+├── widget/                    # Widget tests (presentation layer)
+│   └── presentation/
+│       └── screens/
+│           └── {{PRIMARY_ENTITY_LOWER}}_form_screen_test.dart
+└── integration/               # Integration tests
+    └── features/
+        └── {{PRIMARY_ENTITY_LOWER}}_flow_test.dart
+```
+
+### Unit Test Structure
+
+```dart
+// test/domain/usecases/add_{{PRIMARY_ENTITY_LOWER}}_usecase_test.dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:{{PROJECT_NAME}}/domain/usecases/add_{{PRIMARY_ENTITY_LOWER}}_usecase.dart';
+
+void main() {
+  late Add{{PRIMARY_ENTITY}}UseCase useCase;
+  late Mock{{PRIMARY_ENTITY}}WriteRepository mockRepository;
+
+  setUp(() {
+    mockRepository = Mock{{PRIMARY_ENTITY}}WriteRepository();
+    useCase = Add{{PRIMARY_ENTITY}}UseCase(mockRepository);
+  });
+
+  group('Add{{PRIMARY_ENTITY}}UseCase', () {
+    test('should return validation failure when amount is zero', () async {
+      // Arrange
+      final {{PRIMARY_ENTITY_LOWER}} = {{PRIMARY_ENTITY}}Entity(
+        amount: 0,
+        type: {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+        dateTime: DateTime.now(),
+        {{SECONDARY_ENTITY_LOWER}}Id: 1,
+        createdAt: DateTime.now(),
+      );
+
+      // Act
+      final result = await useCase.execute({{PRIMARY_ENTITY_LOWER}});
+
+      // Assert
+      expect(result.isLeft(), true);
+      expect(result.fold((l) => l, (r) => null), isA<ValidationFailure>());
+    });
+
+    test('should add {{PRIMARY_ENTITY_LOWER}} successfully', () async {
+      // Arrange
+      final {{PRIMARY_ENTITY_LOWER}} = {{PRIMARY_ENTITY}}Entity(
+        amount: 100,
+        type: {{PRIMARY_ENTITY}}Type.{{SECONDARY_ENTITY}},
+        dateTime: DateTime.now(),
+        {{SECONDARY_ENTITY_LOWER}}Id: 1,
+        createdAt: DateTime.now(),
+      );
+      final expected = {{PRIMARY_ENTITY_LOWER}}.copyWith(id: 1);
+
+      when(mockRepository.add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}}))
+          .thenAnswer((_) async => Right(expected));
+
+      // Act
+      final result = await useCase.execute({{PRIMARY_ENTITY_LOWER}});
+
+      // Assert
+      expect(result.isRight(), true);
+      result.fold(
+        (l) => fail('Should return Right'),
+        (r) {
+          expect(r.id, 1);
+          expect(r.amount, 100);
+        },
+      );
+      verify(mockRepository.add{{PRIMARY_ENTITY}}({{PRIMARY_ENTITY_LOWER}})).called(1);
+    });
+  });
+}
+```
+
+### Widget Test Structure
+
+```dart
+// test/presentation/screens/{{PRIMARY_ENTITY_LOWER}}_form_screen_test.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void main() {
+  testWidgets('should display all form fields', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          {{PRIMARY_ENTITY}}FormNotifierProvider
+              .overrideWith({{PRIMARY_ENTITY}}FormNotifier.new),
+        ],
+        child: const MaterialApp(home: {{PRIMARY_ENTITY}}FormScreen()),
+      ),
+    );
+
+    expect(find.text('Nominal'), findsOneWidget);
+    expect(find.text('{{SECONDARY_ENTITY}}'), findsOneWidget);
+    expect(find.text('Catatan'), findsOneWidget);
+  });
+
+  testWidgets('should show validation error when nominal is empty',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          {{PRIMARY_ENTITY}}FormNotifierProvider
+              .overrideWith({{PRIMARY_ENTITY}}FormNotifier.new),
+        ],
+        child: const MaterialApp(home: {{PRIMARY_ENTITY}}FormScreen()),
+      ),
+    );
+
+    // Tap submit button
+    await tester.tap(find.text('Simpan'));
+    await tester.pump();
+
+    // Verify error message
+    expect(find.text('Nominal wajib diisi'), findsOneWidget);
+  });
+}
+```
+
+### Test Coverage Goals
+
+- **Domain layer**: 90%+ coverage (business logic is critical)
+- **Data layer**: 80%+ coverage
+- **Presentation layer**: 60%+ coverage (UI is harder to test)
+
+```bash
+# Run tests with coverage
+flutter test --coverage
+
+# View coverage report
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
+---
+
+## Git Commit Conventions
+
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `feat` | New feature | `feat({{PRIMARY_ENTITY_LOWER}}): add pagination support` |
+| `fix` | Bug fix | `fix(form): prevent submit with invalid data` |
+| `refactor` | Code refactoring | `refactor(repositories): segregate read/write operations` |
+| `style` | Code style changes | `style(screens): format code with dart format` |
+| `docs` | Documentation | `docs(guides): add architecture documentation` |
+| `test` | Test changes | `test(usecases): add tests for add {{PRIMARY_ENTITY_LOWER}}` |
+| `chore` | Build/tooling | `chore(deps): upgrade riverpod to 3.3.1` |
+
+### Examples
+
+```bash
+# Feature
+git commit -m "feat({{PRIMARY_ENTITY_LOWER}}): add infinite scroll pagination
+
+- Add paginated provider
+- Implement load more functionality
+- Update UI to show loading indicator
+
+Closes #123"
+
+# Bug fix
+git commit -m "fix(validation): prevent negative nominal input
+
+- Add validator for negative amounts
+- Show error message for invalid input
+
+Fixes #456"
+
+# Refactor
+git commit -m "refactor(repositories): segregate {{SECONDARY_ENTITY_LOWER}} repositories
+
+- Split {{SECONDARY_ENTITY_LOWER}} repository into 4 focused interfaces:
+  - {{SECONDARY_ENTITY}}ReadRepository
+  - {{SECONDARY_ENTITY}}WriteRepository
+  - {{SECONDARY_ENTITY}}ManagementRepository
+  - {{SECONDARY_ENTITY}}SeedingRepository
+- Create adapter for backward compatibility
+
+Follows SRP and ISP principles"
+```
+
+---
+
+## Code Review Checklist
+
+### Functionality
+- [ ] Does the code implement the requirements?
+- [ ] Are edge cases handled (null, empty, zero)?
+- [ ] Is error handling appropriate?
+- [ ] Are validations in place?
+
+### Architecture
+- [ ] Does it follow Clean Architecture?
+- [ ] Are dependencies inverted (depend on abstractions)?
+- [ ] Are interfaces segregated (small, focused)?
+- [ ] Is SRP followed (single responsibility)?
+
+### Code Quality
+- [ ] Is code readable and self-documenting?
+- [ ] Are magic numbers/strings replaced with constants?
+- [ ] Is DRY principle followed (no duplication)?
+- [ ] Are naming conventions followed?
+
+### Testing
+- [ ] Are unit tests included for business logic?
+- [ ] Are widget tests included for UI?
+- [ ] Is test coverage adequate?
+
+### Documentation
+- [ ] Are public APIs documented?
+- [ ] Are complex algorithms explained?
+- [ ] Are TODOs commented with issue links?
+
+### Performance
+- [ ] Are expensive operations optimized?
+- [ ] Are builds and const constructors used?
+- [ ] Are unnecessary rebuilds avoided?
+
+---
+
+## Linting and Analysis
+
+### Analysis Options
+
+```yaml
+# analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
+    missing_required_param: error
+    missing_return: error
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+
+linter:
+  rules:
+    # Error rules
+    - avoid_dynamic_calls
+    - avoid_empty_else
+    - avoid_relative_lib_imports
+    - avoid_slow_async_io
+    - avoid_type_to_string
+    - avoid_types_as_parameter_names
+    - cancel_subscriptions
+    - close_sinks
+    - comment_references
+    - literal_only_boolean_expressions
+    - no_adjacent_strings_in_list
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_brace_in_string_interps
+    - unnecessary_getters_setters
+    - unnecessary_statements
+    - unrelated_type_equality_checks
+    - unsafe_html
+    - valid_regexps
+```
+
+### Running Analysis
+
+```bash
+# Analyze code
+flutter analyze
+
+# Fix issues automatically
+dart fix --apply
+
+# Format code
+dart format .
+```
+
+---
+
+## Related Documentation
+
+- [ARCHITECTURE.md.template](ARCHITECTURE.md.template) - Clean Architecture patterns
+- [RIVERPOD_GUIDE.md.template](RIVERPOD_GUIDE.md.template) - Riverpod 3.x patterns
+- [FREEZED_GUIDE.md.template](FREEZED_GUIDE.md.template) - Freezed 3.x guide
+- [SOLID.md.template](SOLID.md.template) - SOLID principles
+- [AI_ASSISTANT_GUIDE.md.template](../AI_ASSISTANT_GUIDE.md.template) - Quick reference
+
+---
+
+**Last Updated**: {{LAST_UPDATED}}
+**Dart Version**: {{DART_VERSION}}+
+**Flutter Version**: {{FLUTTER_VERSION}}+
