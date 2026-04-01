@@ -255,7 +255,7 @@ void main() {
           .thenAnswer((_) async => Result.success(softDeletedCategory));
 
       when(mockCategoryManagementRepository.reactivateCategory(5))
-          .thenAnswer((_) async => Result.success(null as dynamic));
+          .thenAnswer((_) => Future.value(Result.success(null)));
 
       when(mockTransactionWriteRepository.addTransaction(any))
           .thenAnswer((_) async {

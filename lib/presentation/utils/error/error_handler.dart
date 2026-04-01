@@ -5,7 +5,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 /// Helper class for consistent error handling across the app
 ///
 /// This class provides utility methods to:
-/// - Unwrap Result<T> objects and throw on failure
+/// - Unwrap Result&lt;T&gt; objects and throw on failure
 /// - Convert errors to user-friendly messages with logging
 ///
 /// Usage:
@@ -21,7 +21,7 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 class ErrorHandler {
   ErrorHandler._();
 
-  /// Handle Result<T> and throw user-friendly exception if failed
+  /// Handle Result&lt;T&gt; and throw user-friendly exception if failed
   ///
   /// This is useful when you need to unwrap a Result and convert
   /// failures to exceptions for try-catch handling.

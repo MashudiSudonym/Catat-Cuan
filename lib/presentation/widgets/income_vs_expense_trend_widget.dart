@@ -176,8 +176,8 @@ class IncomeVsExpenseTrendWidget extends ConsumerWidget {
                   borderData: FlBorderData(show: false),
                   barGroups: _buildBarGroups(),
                 ),
-                swapAnimationDuration: const Duration(milliseconds: 800),
-                swapAnimationCurve: Curves.easeInOutCubic,
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeInOutCubic,
               ),
             ),
 

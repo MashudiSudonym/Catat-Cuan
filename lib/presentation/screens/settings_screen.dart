@@ -201,6 +201,8 @@ class SettingsScreen extends ConsumerWidget {
     final filePath = result.files.single.path;
     if (filePath == null) return;
 
+    if (!context.mounted) return;
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
