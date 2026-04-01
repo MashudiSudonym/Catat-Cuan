@@ -1,13 +1,20 @@
 package com.tigasatudesember.catat_cuan
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
-import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 
 class MainActivity : FlutterActivity() {
+    companion object {
+        private const val SAVE_FILE_REQUEST_CODE = 1001
+    }
+
     /// Method channel for file save operations
     private var fileSaveMethodChannel: MethodChannel? = null
 
@@ -19,12 +26,6 @@ class MainActivity : FlutterActivity() {
     private var pendingSaveContent: ByteArray? = null
     private var pendingSaveMimeType: String? = null
 
-    /// Activity result launcher for file picker
-    private val saveFileLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument()) { uri: Uri? ->
-            handleSaveFileResult(uri)
-        }
-
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
@@ -35,7 +36,45 @@ class MainActivity : FlutterActivity() {
         )
         fileSaveMethodChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
-                "saveFile" -> handleSaveFile(call, result)
+                "saveFile" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val args = call.arguments as? Map<String, Any>
+                    val contentBytes = args?.get("content") as? ByteArray
+                    val fileName = args?.get("fileName") as? String
+                    val mimeType = args?.get("mimeType") as? String
+
+                    if (contentBytes == null || fileName == null || mimeType == null) {
+                        result.error(
+                            "INVALID_ARGUMENTS",
+                            "Missing required arguments: content, fileName, or mimeType",
+                            null
+                        )
+                        return@setMethodCallHandler
+                    }
+
+                    // Store pending data
+                    pendingSaveContent = contentBytes
+                    pendingSaveMimeType = mimeType
+
+                    // Create intent for saving file
+                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = mimeType
+                        putExtra(Intent.EXTRA_TITLE, fileName)
+                    }
+
+                    // Launch file picker
+                    try {
+                        startActivityForResult(intent, SAVE_FILE_REQUEST_CODE)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error(
+                            "SAVE_ERROR",
+                            "Failed to launch file picker: ${e.message}",
+                            null
+                        )
+                    }
+                }
                 else -> result.notImplemented()
             }
         }
@@ -56,52 +95,36 @@ class MainActivity : FlutterActivity() {
         })
     }
 
-    /// Handle save file method call from Flutter
-    private fun handleSaveFile(call: MethodCall, result: MethodChannel.Result) {
-        try {
-            // Extract arguments
-            val contentBytes = call.argument<ByteArray>("content")
-            val fileName = call.argument<String>("fileName")
-            val mimeType = call.argument<String>("mimeType")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-            if (contentBytes == null || fileName == null || mimeType == null) {
-                result.error(
-                    "INVALID_ARGUMENTS",
-                    "Missing required arguments: content, fileName, or mimeType",
-                    null
-                )
+        if (requestCode == SAVE_FILE_REQUEST_CODE) {
+            if (resultCode == RESULT_CANCELED) {
+                // User cancelled the picker
+                eventSink?.success(mapOf(
+                    "event" to "onCancelled",
+                    "data" to null
+                ))
                 return
             }
 
-            // Store pending data
-            pendingSaveContent = contentBytes
-            pendingSaveMimeType = mimeType
-
-            // Launch file picker with suggested filename
-            saveFileLauncher.launch(fileName)
-
-            // Result will be handled asynchronously via event channel
-            result.success(null)
-        } catch (e: Exception) {
-            result.error(
-                "SAVE_ERROR",
-                "Failed to launch file picker: ${e.message}",
-                null
-            )
+            if (resultCode == RESULT_OK && data != null) {
+                val uri: Uri? = data.data
+                if (uri != null) {
+                    handleSaveFileResult(uri)
+                } else {
+                    eventSink?.error(
+                        "SAVE_ERROR",
+                        "No URI returned from file picker",
+                        null
+                    )
+                }
+            }
         }
     }
 
     /// Handle file picker result
-    private fun handleSaveFileResult(uri: Uri?) {
-        if (uri == null) {
-            // User cancelled the picker
-            eventSink?.success(mapOf(
-                "event" to "onCancelled",
-                "data" to null
-            ))
-            return
-        }
-
+    private fun handleSaveFileResult(uri: Uri) {
         try {
             // Write content to the selected URI
             val content = pendingSaveContent
