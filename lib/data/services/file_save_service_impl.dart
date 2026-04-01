@@ -33,60 +33,97 @@ class FileSaveServiceImpl implements FileSaveService {
 
   /// Setup event channel to listen for native callbacks
   void _setupEventChannel() {
-    _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-      (event) {
-        _handleEvent(event);
-      },
-      onError: (error) {
-        AppLogger.e('File save event channel error', error, null);
-        _completeWithError(UnknownFailure('Gagal menyimpan file'));
-      },
-    );
+    // Only setup once
+    if (_eventSubscription != null) return;
+
+    AppLogger.d('Setting up file save event channel');
+
+    try {
+      final eventStream = _eventChannel.receiveBroadcastStream();
+      _eventSubscription = eventStream.listen(
+        (event) {
+          AppLogger.d('Received file save event: $event');
+          _handleEvent(event);
+        },
+        onError: (error) {
+          AppLogger.e('File save event channel error', error, null);
+          _completeWithError(UnknownFailure('Gagal menyimpan file'));
+        },
+        onDone: () {
+          AppLogger.d('File save event channel done');
+        },
+      );
+    } catch (e, stackTrace) {
+      AppLogger.e('Error setting up event channel', e, stackTrace);
+    }
   }
 
   /// Handle events from native code
   void _handleEvent(dynamic event) {
-    if (_saveCompleter == null) return;
+    AppLogger.d('Handling event: $event, type: ${event.runtimeType}');
 
-    if (event is Map<String, dynamic>) {
-      final eventType = event['event'];
-      final data = event['data'];
+    if (_saveCompleter == null) {
+      AppLogger.w('No active save operation, ignoring event');
+      return;
+    }
 
-      switch (eventType) {
-        case 'onSuccess':
-          final path = data?['path'] as String?;
-          if (path != null) {
-            _completeWithSuccess(path);
-          } else {
-            _completeWithError(UnknownFailure('Path tidak ditemukan'));
-          }
-          break;
+    try {
+      // Handle different event formats
+      if (event is Map) {
+        final eventType = event['event'];
+        final data = event['data'];
 
-        case 'onCancelled':
-          _completeWithError(const UserCancelledFailure('User cancelled'));
-          break;
+        AppLogger.d('Event type: $eventType, data: $data');
 
-        case 'onError':
-          final errorMessage = data?['error'] as String?;
-          _completeWithError(UnknownFailure(errorMessage ?? 'Terjadi kesalahan'));
-          break;
+        switch (eventType) {
+          case 'onSuccess':
+            final path = data?['path']?.toString();
+            if (path != null && path.isNotEmpty) {
+              AppLogger.i('File save success: $path');
+              _completeWithSuccess(path);
+            } else {
+              AppLogger.w('Success event but no path');
+              _completeWithError(UnknownFailure('Path tidak ditemukan'));
+            }
+            break;
 
-        default:
-          AppLogger.w('Unknown event type: $eventType');
+          case 'onCancelled':
+            AppLogger.i('User cancelled file save');
+            _completeWithError(const UserCancelledFailure('User cancelled'));
+            break;
+
+          case 'onError':
+            final errorMessage = data?['error']?.toString();
+            AppLogger.e('File save error: $errorMessage', null, null);
+            _completeWithError(UnknownFailure(errorMessage ?? 'Terjadi kesalahan'));
+            break;
+
+          default:
+            AppLogger.w('Unknown event type: $eventType');
+        }
+      } else {
+        AppLogger.w('Event is not a Map: ${event.runtimeType}');
       }
+    } catch (e, stackTrace) {
+      AppLogger.e('Error handling event', e, stackTrace);
+      _completeWithError(UnknownFailure('Gagal memproses respon'));
     }
   }
 
   /// Complete current operation with success
   void _completeWithSuccess(String path) {
-    _saveCompleter?.complete(Result.success(path));
-    _saveCompleter = null;
+    if (_saveCompleter != null && !_saveCompleter!.isCompleted) {
+      _saveCompleter!.complete(Result.success(path));
+      _saveCompleter = null;
+    }
   }
 
   /// Complete current operation with error
   void _completeWithError(Failure failure) {
-    _saveCompleter?.complete(Result.failure(failure));
-    _saveCompleter = null;
+    if (_saveCompleter != null && !_saveCompleter!.isCompleted) {
+      _saveCompleter!.complete(Result.failure(failure));
+      _saveCompleter = null;
+    }
   }
 
   /// Saves a file using Storage Access Framework
@@ -124,6 +161,8 @@ class FileSaveServiceImpl implements FileSaveService {
       // Create completer for this operation
       _saveCompleter = Completer<Result<String>>();
 
+      AppLogger.d('Invoking native saveFile method');
+
       // Invoke native method to show file picker
       await _channel.invokeMethod(
         _methodSaveFile,
@@ -134,10 +173,22 @@ class FileSaveServiceImpl implements FileSaveService {
         },
       );
 
+      AppLogger.d('Native method invoked, waiting for event channel callback');
+
       // Wait for the operation to complete via event channel
-      return await _saveCompleter!.future;
+      // Add timeout to prevent infinite waiting
+      final result = await _saveCompleter!.future.timeout(
+        const Duration(minutes: 5),
+        onTimeout: () {
+          AppLogger.e('File save operation timed out');
+          _saveCompleter = null;
+          return Result.failure(const UnknownFailure('Operasi timeout'));
+        },
+      );
+
+      return result;
     } catch (e, stackTrace) {
-      AppLogger.e('Error invoking saveFile method', e, stackTrace);
+      AppLogger.e('Error during file save operation', e, stackTrace);
       _saveCompleter = null;
       return Result.failure(
         UnknownFailure('Terjadi kesalahan saat menyimpan file'),
@@ -147,6 +198,8 @@ class FileSaveServiceImpl implements FileSaveService {
 
   /// Dispose the service and clean up resources
   void dispose() {
+    AppLogger.d('Disposing file save service');
     _eventSubscription?.cancel();
+    _eventSubscription = null;
   }
 }
