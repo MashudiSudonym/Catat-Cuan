@@ -1,8 +1,8 @@
 # Project Status Catat Cuan
 
-**Version**: 1.0.1
+**Version**: 1.2.0
 **Status**: ✅ v1 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
-**Last Updated**: 31 March 2026
+**Last Updated**: 2 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
 
@@ -23,7 +23,7 @@
 | [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
 | [PRD](../product/00-PRD.md) | Indonesian | Product Requirements Document |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
-| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (263 tests) |
+| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (283 tests) |
 
 ---
 
@@ -46,15 +46,15 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 272/272 tests passing, 0 analyzer errors
+- **Code Quality**: 283/283 tests passing, 0 analyzer errors
 
 ---
 
 # Status Proyek Catat Cuan
 
-**Versi**: 1.0 (Selesai)
+**Versi**: 1.2.0 (Selesai)
 **Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP
-**Terakhir Diperbarui**: 28 Maret 2026
+**Terakhir Diperbarui**: 2 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Lokal**: Indonesia (id_ID)
 
@@ -93,7 +93,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 |-------|-----------|
 | Pagination (infinite scroll) | 20 item per halaman |
 | Pencarian full-text | Cari di catatan dan nama kategori |
-| Ekspor CSV & share | Format Indonesia, share langsung |
+| Ekspor CSV & share | Format Indonesia, SAF Download folder, share langsung |
 | Impor CSV | Impor transaksi dari file CSV dengan deduplikasi |
 | Drag-drop reorder kategori | Urutan kategori kustom |
 | Hapus multi-select | Hapus beberapa transaksi sekaligus |
@@ -124,7 +124,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **263/263 tests passing** ✅ → **272/272 tests passing** ✅
+- **263/263 tests passing** ✅ → **283/283 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
@@ -215,7 +215,7 @@ Following the Testing Pyramid principle:
 - ⏳ Remaining category use cases (4 files)
 - ⏳ Transaction use cases (16 files)
 
-**Current Test Count**: 272/272 passing ✅
+**Current Test Count**: 283/283 passing ✅
 
 ### Test Infrastructure
 
@@ -257,27 +257,14 @@ The project uses Conventional Commits-based fully automated versioning. Just pus
 
 ### Fully Automated Release Workflow
 1. **Push commits** to `main` branch
-2. **Auto-bump workflow** (`.github/workflows/auto-bump.yml`):
+2. **Unified release workflow** (`.github/workflows/release.yml`):
    - Triggers on every push to main
-   - Analyzes commits since last tag
-   - Auto-bumps if `feat:` or `fix:` commits found
+   - Detects `feat:` or `fix:` commits since last tag
+   - Auto-bumps version (minor for `feat:`, patch for `fix:`)
    - Creates git tag and pushes it
-3. **Release workflow** (`.github/workflows/release.yml`):
-   - Triggers on new tag
    - Builds release APK
    - Generates grouped changelog
    - Creates GitHub Release with SHA256 checksum
-
-### CI/CD Workflows
-- **CI** (`.github/workflows/ci.yml`): Runs on every push/PR to main
-  - Runs tests and analyzer
-  - Fast feedback without building releases
-- **Auto-Bump** (`.github/workflows/auto-bump.yml`): Runs on push to main
-  - Auto-creates version tags for `feat:` and `fix:` commits
-- **Release** (`.github/workflows/release.yml`): Runs on tag push (`v*`)
-  - Builds release APK
-  - Generates grouped changelog by commit type
-  - Creates GitHub Release with SHA256 checksum
 
 ### Manual Bump (Optional)
 If you need to force a specific version:

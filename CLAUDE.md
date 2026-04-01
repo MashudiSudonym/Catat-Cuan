@@ -2,7 +2,7 @@
 
 **Catat Cuan** - Aplikasi pelacakan pengeluaran pribadi Flutter dengan OCR struk.
 
-**Status**: ✅ Production Ready | 100% SRP Compliance | 272/272 Tests Passing
+**Status**: ✅ Production Ready | 100% SRP Compliance | 283/283 Tests Passing
 
 ---
 
@@ -198,7 +198,7 @@ flutter test --coverage                            # With coverage
 # Just push your commits with conventional commit format
 git push origin main
 
-# Auto-bump workflow will:
+# Unified release workflow will:
 # 1. Detect feat: or fix: commits since last tag
 # 2. Bump version automatically (minor for feat:, patch for fix:)
 # 3. Create git tag
@@ -217,12 +217,12 @@ git push origin main
 ./scripts/bump_version.sh --dry-run
 ```
 
-**Version Format in `pubspec.yaml`**: `version: 1.0.1` (without build number)
+**Version Format in `pubspec.yaml`**: `version: 1.2.0` (without build number)
 
 Build numbers are auto-generated from git commit count:
 ```bash
 # Local build with version info
-flutter build apk --release --build-name=1.0.1 --build-number=$(git rev-list --count HEAD)
+flutter build apk --release --build-name=1.2.0 --build-number=$(git rev-list --count HEAD)
 ```
 
 **Conventional Commits → Version Bumps**:
@@ -302,12 +302,12 @@ AppDateFormatter.formatDayMonthYearDate(date)
 - **Architecture**: Clean Architecture with 100% SRP compliance
 - **State Management**: Riverpod 3.3.1 with @riverpod annotation
 - **Database**: SQLite with SchemaManager version 2
-- **Tests**: 272/272 passing ✅
+- **Tests**: 283/283 passing ✅
 - **Analyzer**: 0 errors ✅
-- **Documentation**: 21 files, fully bilingual (EN/ID)
+- **Documentation**: 24 files, fully bilingual (EN/ID)
 
 ---
 
-**Last Updated**: 2026-03-28
-**Documentation**: 21 comprehensive guides available in `docs/`
+**Last Updated**: 2026-04-02
+**Documentation**: 24 comprehensive guides available in `docs/`
 **Quick Help**: See [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md) for critical rules

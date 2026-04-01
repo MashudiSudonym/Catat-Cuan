@@ -1,8 +1,8 @@
 # Test Coverage Documentation / Dokumentasi Cakupan Tes
 
-**Version**: 1.0
-**Last Updated**: 28 March 2026
-**Status**: 263/263 Tests Passing ✅
+**Version**: 1.2.0
+**Last Updated**: 2 April 2026
+**Status**: 283/283 Tests Passing ✅
 
 ---
 
@@ -10,9 +10,9 @@
 
 | Metric | Value | Nilai |
 |--------|-------|-------|
-| **Total Tests** | 263/263 passing | ✅ 100% pass rate |
-| **Unit Tests** | 254 | 96.6% |
-| **Widget Tests** | 9 | 3.4% |
+| **Total Tests** | 283/283 passing | ✅ 100% pass rate |
+| **Unit Tests** | 274 | 96.8% |
+| **Widget Tests** | 9 | 3.2% |
 | **Analyzer Errors** | 0 | ✅ Clean |
 | **Test Files** | 12 | Organized by layer |
 
@@ -27,7 +27,7 @@ Catat Cuan implements a comprehensive testing strategy following the **Testing P
 
 ### Key Achievements
 
-- ✅ **263 passing tests** with 100% pass rate
+- ✅ **283 passing tests** with 100% pass rate
 - ✅ **0 analyzer errors** - Clean codebase
 - ✅ **Test infrastructure** with reusable fixtures and helpers
 - ✅ **Coverage across layers**: Entities, Parsers, Validators, Models, Use Cases, Services
@@ -52,7 +52,7 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 
 ### Pencapaian Utama
 
-- ✅ **263 tes lulus** dengan tingkat kelulusan 100%
+- ✅ **283 tes lulus** dengan tingkat kelulusan 100%
 - ✅ **0 error analyzer** - Codebase bersih
 - ✅ **Infrastruktur tes** dengan fixture dan helper yang dapat digunakan kembali
 - ✅ **Cakupan lintas layer**: Entity, Parser, Validator, Model, Use Case, Service
@@ -74,22 +74,22 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 
 | Category | Count | Percentage |
 |----------|-------|------------|
-| **Total Tests** | 263 | 100% |
-| **Passing** | 263 | 100% |
+| **Total Tests** | 283 | 100% |
+| **Passing** | 283 | 100% |
 | **Failing** | 0 | 0% |
-| **Unit Tests** | 254 | 96.6% |
-| **Widget Tests** | 9 | 3.4% |
+| **Unit Tests** | 274 | 96.8% |
+| **Widget Tests** | 9 | 3.2% |
 
 ### Coverage by Layer
 
 | Layer | Test Files | Tests | Coverage % | Status |
 |-------|-----------|-------|------------|--------|
 | **Domain (Entities)** | 2 | 63 | 100% | ✅ Complete |
-| **Domain (Use Cases)** | 2 | 13 | 48% | 🚧 In Progress |
+| **Domain (Use Cases)** | 3 | 20 | 54% | 🚧 In Progress |
 | **Unit (Parsers)** | 2 | 68 | 100% | ✅ Complete |
 | **Unit (Validators)** | 1 | 48 | 100% | ✅ Complete |
 | **Unit (Models)** | 2 | 43 | 50% | 🔄 Partial |
-| **Unit (Services)** | 1 | 20 | 25% | 🔄 Partial |
+| **Unit (Services)** | 2 | 31 | 38% | 🔄 Partial |
 | **Presentation (Managers)** | 1 | 7 | 10% | 🔄 Partial |
 | **Widget Tests** | 1 | 1 | 5% | 🔄 Partial |
 
@@ -116,6 +116,7 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 | `test/unit/models/category_model_test.dart` | 24 | CategoryModel to/from JSON, to/from entity, immutability |
 | `test/unit/models/transaction_model_test.dart` | 19 | TransactionModel to/from JSON, to/from entity, immutability |
 | `test/unit/domain/services/insight_rule_engine_test.dart` | 20 | Insight rule engine for spending analysis, recommendations |
+| `test/unit/data/services/csv_export_service_test.dart` | 11 | CSV export service with SAF Download folder support |
 | `test/unit/presentation/managers/transaction_grouper_test.dart` | 7 | Transaction grouper for date-based grouping |
 
 ### Widget Tests
@@ -128,7 +129,7 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 
 ## Coverage by Layer Details
 
-### Domain Layer (76 tests)
+### Domain Layer (83 tests)
 
 #### Entities (63 tests) - 100% Coverage ✅
 
@@ -153,7 +154,7 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 - Equality comparison
 - Edge cases
 
-#### Use Cases (13 tests) - 48% Coverage 🚧
+#### Use Cases (20 tests) - 54% Coverage 🚧
 
 **GetCategoriesUseCase** (5 tests):
 - Returns all categories when repository has data
@@ -171,6 +172,15 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 - Handles large ID values
 - Extends UseCase with correct types
 - Accepts int as parameter type
+
+**ImportTransactionsUseCase** (7 tests):
+- Imports valid transactions from CSV
+- Creates categories from CSV if they don't exist
+- Skips duplicate transactions based on amount+datetime
+- Handles invalid CSV format
+- Handles missing required columns
+- Returns ImportResultEntity with counts
+- Extends UseCase with correct types
 
 ### Unit Tests (177 tests)
 
@@ -223,9 +233,27 @@ Catat Cuan menerapkan strategi pengujian yang komprehensif mengikuti prinsip **T
 - DateTime ISO format handling
 - Type conversion (income/expense)
 
-#### Services (20 tests) - 25% Coverage 🔄
+#### Services (31 tests) - 38% Coverage 🔄
 
 **InsightRuleEngine** (20 tests):
+- Spending pattern analysis
+- Budget threshold detection
+- Category-based recommendations
+- Monthly trend analysis
+- Health score calculation
+
+**CsvExportService** (11 tests):
+- Generates CSV with Indonesian format
+- Includes time column in output
+- Handles empty transaction list
+- Escapes special characters in notes
+- Uses semicolon delimiter
+- Includes UTF-8 BOM
+- Handles category names with commas
+- Sorts by date descending
+- Formats amount with thousand separators
+- Formats date as DD/MM/YYYY
+- Formats time as HH:mm
 - Spending pattern analysis
 - Budget threshold detection
 - Category-based recommendations
@@ -388,8 +416,8 @@ Following the Testing Pyramid principle:
 
 | Phase | Description | Status | Tests | Coverage |
 |-------|-------------|--------|-------|----------|
-| **Phase 1** | Test Infrastructure & Foundation | ✅ Complete | 254 | - |
-| **Phase 2** | Domain Use Cases | 🚧 In Progress | 13/27 | 48% |
+| **Phase 1** | Test Infrastructure & Foundation | ✅ Complete | 265 | - |
+| **Phase 2** | Domain Use Cases | 🚧 In Progress | 20/27 | 74% |
 | **Phase 3** | Data Layer Repositories | ⏳ Pending | 0/60 | 0% |
 | **Phase 4** | Integration Tests | ⏳ Pending | 0/60 | 0% |
 | **Phase 5** | E2E Tests | ⏳ Pending | 9/30 | 30% |
@@ -414,6 +442,8 @@ Following the Testing Pyramid principle:
 - ✅ Category use cases (13 tests)
   - GetCategoriesUseCase (5 tests)
   - GetCategoryByIdUseCase (8 tests)
+- ✅ Import use case (7 tests)
+  - ImportTransactionsUseCase (7 tests)
 
 **Pending** (14 tests):
 - ⏳ AddCategoryUseCase
@@ -653,7 +683,7 @@ when(() => mockRepository.getById(1))
 ## Verification Checklist
 
 - [x] Document exists at `docs/v1/project/TEST_COVERAGE.md`
-- [x] All 263 tests are documented
+- [x] All 283 tests are documented
 - [x] Coverage percentages are accurate
 - [x] Bilingual content (English/Indonesian)
 - [x] Test infrastructure documented
@@ -673,6 +703,6 @@ when(() => mockRepository.getById(1))
 
 ---
 
-**Last Updated**: 28 March 2026
-**Total Tests**: 263/263 Passing ✅
+**Last Updated**: 2 April 2026
+**Total Tests**: 283/283 Passing ✅
 **Next Review**: After Phase 2 completion (Use Case tests)

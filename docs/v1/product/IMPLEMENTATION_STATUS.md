@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last Updated**: 2026-03-28
+**Last Updated**: 2026-04-02
 **Project**: Catat Cuan (Flutter Expense Tracking App)
 **Purpose**: Tracks implementation status of all requirements from PRD and SPEC documents
 
@@ -117,7 +117,7 @@ This document provides a comprehensive dashboard of implementation status for al
 |---------|-------------|--------|---------------------|---------------|
 | Pagination | Infinite scroll (20 items/page) | ✅ | Test execution | 2026-03-27 |
 | Full-text search | Search in notes and categories | ✅ | Manual testing | 2026-03-27 |
-| CSV export | Manual CSV with Indonesian format | ✅ | Test execution | 2026-03-27 |
+| CSV export | Manual CSV with Indonesian format, SAF Download folder | ✅ | Test execution | 2026-03-27 |
 | CSV import | Import from CSV with dedup & validation | ✅ | Manual testing | 2026-03-28 |
 | Multi-select delete | Bulk delete with confirmation | ✅ | Manual testing | 2026-03-27 |
 | Glassmorphism design | Complete visual consistency | ✅ | Code review | 2026-03-27 |
@@ -166,8 +166,8 @@ This document provides a comprehensive dashboard of implementation status for al
 
 ### Code Quality Metrics
 
-- **Total Tests**: 263
-- **Tests Passing**: 263 (100%)
+- **Total Tests**: 283
+- **Tests Passing**: 283 (100%)
 - **Analyzer Errors**: 0
 - **Analyzer Warnings**: 0
 - **Code Coverage**: 85%+ (domain layer)
@@ -283,11 +283,11 @@ This document provides a comprehensive dashboard of implementation status for al
 
 ## Conclusion
 
-Catat Cuan v1.0 is **100% complete** with all requirements from the PRD and SPEC documents fully implemented and verified. The application follows Clean Architecture principles with 100% SRP compliance, uses modern Flutter patterns (Riverpod 3.3.1, Freezed 3.x, GoRouter 17.1.0), and maintains high code quality (263/263 tests passing, 0 analyzer errors).
+Catat Cuan v1.0 is **100% complete** with all requirements from the PRD and SPEC documents fully implemented and verified. The application follows Clean Architecture principles with 100% SRP compliance, uses modern Flutter patterns (Riverpod 3.3.1, Freezed 3.x, GoRouter 17.1.0), and maintains high code quality (283/283 tests passing, 0 analyzer errors).
 
 **Status**: ✅ **Production Ready**
 
 ---
 
-**Last Updated**: 2026-03-28
-**Next Verification**: 2026-04-28
+**Last Updated**: 2026-04-02
+**Next Verification**: 2026-05-02

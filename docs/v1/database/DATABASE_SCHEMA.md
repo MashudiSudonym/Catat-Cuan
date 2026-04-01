@@ -260,6 +260,6 @@ DELETE FROM categories WHERE id = ?;
 
 ---
 
-**Last Updated**: 2026-03-27
+**Last Updated**: 2026-04-02
 **Schema Version**: 2
 **Maintained By**: Data Layer Team
