@@ -98,53 +98,6 @@ class PermissionServiceImpl implements PermissionService {
     return isGranted;
   }
 
-  /// Requests manage external storage permission from the user
-  ///
-  /// This permission is required for writing to public folders like Downloads
-  /// on Android 11+ (API 30+). This is a special permission that requires
-  /// user manual approval in system settings.
-  ///
-  /// Returns success with true if permission is granted.
-  /// Returns success with false if permission is denied (not permanently).
-  /// Returns failure if permission is permanently denied.
-  @override
-  Future<Result<bool>> requestManageExternalStoragePermission() async {
-    AppLogger.d('Requesting manage external storage permission');
-
-    try {
-      final status = await Permission.manageExternalStorage.request();
-      AppLogger.d('Manage external storage permission status: ${status.name}');
-
-      if (status.isGranted) {
-        AppLogger.i('Manage external storage permission granted');
-        return Result.success(true);
-      } else if (status.isPermanentlyDenied) {
-        AppLogger.w('Manage external storage permission permanently denied');
-        return Result.failure(
-          const PermissionFailure(
-            'Izin penyimpanan penuh diperlukan. Silakan aktifkan di Pengaturan.',
-          ),
-        );
-      } else {
-        AppLogger.i('Manage external storage permission denied (not permanent)');
-        return Result.success(false);
-      }
-    } catch (e, stackTrace) {
-      AppLogger.e('Failed to request manage external storage permission', e, stackTrace);
-      return Result.failure(
-        UnknownFailure('Gagal meminta izin penyimpanan penuh'),
-      );
-    }
-  }
-
-  /// Checks if manage external storage permission is currently granted
-  @override
-  Future<bool> checkManageExternalStoragePermission() async {
-    final isGranted = await Permission.manageExternalStorage.status.isGranted;
-    AppLogger.d('Manage external storage permission check: $isGranted');
-    return isGranted;
-  }
-
   /// Opens the app settings page
   ///
   /// Useful when permissions are permanently denied and the user

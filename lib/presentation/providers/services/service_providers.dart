@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/data/services/image_picker_service_impl.dart';
 import 'package:catat_cuan/data/services/permission_service_impl.dart';
 import 'package:catat_cuan/data/services/receipt_ocr_service_impl.dart';
+import 'package:catat_cuan/data/services/file_save_service_impl.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
 import 'package:catat_cuan/domain/services/image_picker_service.dart';
 import 'package:catat_cuan/domain/services/permission_service.dart';
+import 'package:catat_cuan/domain/services/file_save_service.dart';
 import 'package:catat_cuan/domain/usecases/scan_receipt.dart';
 import 'package:catat_cuan/domain/services/insight_service.dart';
 
@@ -33,6 +35,18 @@ final imagePickerServiceProvider = Provider<ImagePickerService>((ref) {
 /// implementation (PermissionServiceImpl).
 final permissionServiceProvider = Provider<PermissionService>((ref) {
   return PermissionServiceImpl();
+});
+
+/// Provider for FileSaveService (abstract type - DIP)
+///
+/// Following the Dependency Inversion Principle, this provider
+/// exposes the abstraction (FileSaveService) rather than the concrete
+/// implementation (FileSaveServiceImpl).
+///
+/// This service uses Storage Access Framework (SAF) to save files,
+/// allowing users to choose the save location through system file picker.
+final fileSaveServiceProvider = Provider<FileSaveService>((ref) {
+  return FileSaveServiceImpl();
 });
 
 /// Provider for ScanReceiptUseCase

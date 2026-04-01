@@ -4,6 +4,7 @@ import 'package:catat_cuan/domain/entities/export_action_entity.dart';
 import 'package:catat_cuan/domain/usecases/export_transactions_usecase.dart';
 import 'package:catat_cuan/domain/services/file_naming_service.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
+import 'package:catat_cuan/presentation/providers/services/service_providers.dart';
 import 'package:catat_cuan/data/services/csv_export_service_impl.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
@@ -38,7 +39,8 @@ class ExportState {
 /// Provider untuk export service
 @riverpod
 CsvExportServiceImpl exportService(Ref ref) {
-  return CsvExportServiceImpl();
+  final fileSaveService = ref.watch(fileSaveServiceProvider);
+  return CsvExportServiceImpl(fileSaveService: fileSaveService);
 }
 
 /// Provider untuk ExportTransactionsUseCase

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/export_action_entity.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/presentation/providers/export/export_provider.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/presentation/providers/transaction/transaction_filter_provider.dart';
-import 'package:catat_cuan/presentation/providers/services/service_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/export_action_dialog.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_router.dart';
@@ -195,38 +195,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
       final exportService = ref.read(exportServiceProvider);
 
       if (action == ExportAction.saveToDevice) {
-        // Check MANAGE_EXTERNAL_STORAGE permission before saving
-        final permissionService = ref.read(permissionServiceProvider);
-        final hasPermission = await permissionService.checkManageExternalStoragePermission();
-
-        if (!hasPermission) {
-          // Dismiss loading dialog before showing permission dialog
-          if (rootNavigatorKey.currentContext == null) return;
-          Navigator.of(rootNavigatorKey.currentContext!, rootNavigator: true).pop();
-
-          // Show permission dialog and guide user to settings
-          if (rootNavigatorKey.currentContext == null) return;
-          final permissionGranted = await _showPermissionDialog(rootNavigatorKey.currentContext!, ref);
-
-          if (!permissionGranted) {
-            // User denied or cancelled
-            _showResultDialog(
-              rootNavigatorKey.currentContext!,
-              isSuccess: false,
-              errorMessage: 'Izin penyimpanan diperlukan untuk menyimpan file CSV.',
-            );
-            return;
-          }
-
-          // Re-show loading dialog after permission is granted
-          if (rootNavigatorKey.currentContext == null) return;
-          showDialog(
-            context: rootNavigatorKey.currentContext!,
-            barrierDismissible: false,
-            builder: (dialogContext) => _ExportLoadingDialog(action: action),
-          );
-        }
-
         final result = await exportService.saveTransactionsToCsv(
           transactions: transactions,
           fileName: fileName,
@@ -244,6 +212,12 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
             filePath: result.data,
           );
         } else {
+          // Handle user cancellation silently (don't show error dialog)
+          if (result.failure is UserCancelledFailure) {
+            AppLogger.i('User cancelled file save operation');
+            return;
+          }
+
           _showResultDialog(
             rootNavigatorKey.currentContext!,
             isSuccess: false,
@@ -329,7 +303,7 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
             Text(
               isSuccess
                   ? (action == ExportAction.saveToDevice
-                      ? 'File CSV berhasil disimpan di:\n\n$filePath\n\nBuka folder Download > CatatCuan di File Manager Anda.'
+                      ? 'File CSV berhasil disimpan!\n\nAnda dapat membukanya melalui File Manager atau aplikasi spreadsheet.'
                       : 'File CSV berhasil dibagikan')
                   : (errorMessage ?? 'Terjadi kesalahan saat mengekspor'),
               style: TextStyle(
@@ -348,102 +322,6 @@ class ExportOptionsBottomSheet extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  /// Show permission dialog and guide user to settings
-  ///
-  /// Returns true if permission was granted after returning from settings,
-  /// false if user denied or cancelled.
-  Future<bool> _showPermissionDialog(BuildContext context, WidgetRef ref) async {
-    final permissionService = ref.read(permissionServiceProvider);
-
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        shape: AppBorderRadius.mdShape,
-        backgroundColor: AppColors.getGlassSurface(isDark: false),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon
-            const Icon(
-              Icons.folder_outlined,
-              color: AppColors.primary,
-              size: 48,
-            ),
-            const AppSpacingWidget.verticalLG(),
-
-            // Title
-            const Text(
-              'Izin Penyimpanan Diperlukan',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const AppSpacingWidget.verticalMD(),
-
-            // Message
-            const Text(
-              'Untuk menyimpan file CSV di folder Download, '
-              'aplikasi memerlukan akses penyimpanan penuh.\n\n'
-              'Silakan aktifkan izin "Semua akses file media" di Pengaturan.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              // Open app settings
-              final openResult = await permissionService.openSettings();
-
-              if (openResult.isSuccess && dialogContext.mounted) {
-                // Close dialog first
-                Navigator.pop(dialogContext);
-
-                // Wait for user to return from settings
-                // Check permission after user returns
-                await Future.delayed(const Duration(seconds: 1));
-
-                // Check if permission is now granted
-                final hasPermission = await permissionService.checkManageExternalStoragePermission();
-
-                // Return result to caller
-                if (context.mounted) {
-                  Navigator.of(context).pop(hasPermission);
-                }
-              } else if (openResult.isFailure && dialogContext.mounted) {
-                // Failed to open settings
-                Navigator.pop(dialogContext, false);
-
-                // Show error
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(ErrorMessageMapper.getUserMessage(openResult.failure)),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Buka Pengaturan'),
-          ),
-        ],
-      ),
-    ).then((value) => value ?? false);
   }
 
   /// Generate file name based on export option

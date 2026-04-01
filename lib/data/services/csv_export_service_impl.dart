@@ -1,14 +1,25 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/services/export_service.dart';
+import 'package:catat_cuan/domain/services/file_save_service.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// CSV Export service implementation
 /// Implements ExportService for CSV export functionality
 class CsvExportServiceImpl implements ExportService {
+  final FileSaveService? _fileSaveService;
+
+  /// Constructor with optional FileSaveService
+  ///
+  /// If [fileSaveService] is provided, saveToDevice will use Storage Access Framework.
+  /// Otherwise, it will fall back to direct file system access (legacy behavior).
+  CsvExportServiceImpl({FileSaveService? fileSaveService})
+      : _fileSaveService = fileSaveService;
+
   @override
   Future<Result<String>> saveTransactionsToCsv({
     required List<Map<String, dynamic>> transactions,
@@ -16,7 +27,49 @@ class CsvExportServiceImpl implements ExportService {
   }) async {
     AppLogger.d('Starting CSV export save: $fileName (${transactions.length} transactions)');
 
+    // Use FileSaveService if available (Storage Access Framework)
+    if (_fileSaveService != null) {
+      return _saveWithSaf(transactions, fileName);
+    }
+
+    // Fallback to legacy direct file system access
+    return _saveToFileSystem(transactions, fileName);
+  }
+
+  /// Save using Storage Access Framework (system file picker)
+  Future<Result<String>> _saveWithSaf(
+    List<Map<String, dynamic>> transactions,
+    String fileName,
+  ) async {
     try {
+      AppLogger.d('Using SAF for file save');
+
+      // Generate CSV content
+      final csvString = generateCsvString(transactions);
+      final csvBytes = utf8.encode(csvString);
+
+      // Use FileSaveService to show system file picker
+      final result = await _fileSaveService!.saveFile(
+        content: csvBytes,
+        fileName: fileName,
+        mimeType: 'text/csv',
+      );
+
+      return result;
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to save CSV via SAF', e, stackTrace);
+      return Result.failure(ExportFailure('Gagal menyimpan file'));
+    }
+  }
+
+  /// Save using direct file system access (legacy)
+  Future<Result<String>> _saveToFileSystem(
+    List<Map<String, dynamic>> transactions,
+    String fileName,
+  ) async {
+    try {
+      AppLogger.d('Using direct file system access');
+
       // Get export directory
       final exportDir = await _getExportDirectory();
       AppLogger.d('Export directory: ${exportDir.path}');
