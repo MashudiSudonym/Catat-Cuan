@@ -1,4 +1,5 @@
 import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
@@ -135,13 +136,15 @@ void main() {
       when(mockReadRepository.getTransactionCount(1))
           .thenAnswer((_) async => Result.success(0)); // 0 count
 
+      when(mockWriteRepository.deleteCategory(1))
+          .thenAnswer((_) async => Result.success(null));
+
       // Act
       final result = await useCase(1);
 
       // Assert
-      expect(result.isFailure, isTrue);
-      expect(result.failure, isA<ValidationFailure>());
-      // Should treat null as 0 and allow deletion
+      expect(result.isSuccess, isTrue);
+      // Should treat 0 as allowing deletion
       verify(mockWriteRepository.deleteCategory(1)).called(1);
     });
 

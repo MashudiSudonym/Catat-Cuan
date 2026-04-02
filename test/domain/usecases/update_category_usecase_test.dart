@@ -54,7 +54,16 @@ void main() {
 
     test('should return validation failure when id is null', () async {
       // Arrange
-      final category = TestFixtures.categoryFood(id: null);
+      final category = CategoryEntity(
+        id: null, // Explicitly null to test validation
+        name: 'Makan',
+        type: CategoryType.expense,
+        color: '#FF64748B',
+        sortOrder: 1,
+        isActive: true,
+        createdAt: TestFixtures.march18_2026,
+        updatedAt: TestFixtures.march18_2026,
+      );
 
       // Act
       final result = await useCase(category);

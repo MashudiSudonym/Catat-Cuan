@@ -17,44 +17,50 @@ class DeactivateCategoryUseCase extends UseCase<void, int> {
 
   @override
   Future<Result<void>> call(int categoryId) async {
-    // Cek apakah kategori ada
-    final categoryResult = await _readRepository.getCategoryById(categoryId);
-
-    if (categoryResult.isFailure || categoryResult.data == null) {
-      return Result.failure(
-        const NotFoundFailure('Kategori tidak ditemukan'),
-      );
-    }
-
-    final category = categoryResult.data!;
-
-    // Cek apakah kategori sudah tidak aktif
-    if (!category.isActive) {
-      return Result.failure(
-        const ValidationFailure('Kategori sudah tidak aktif'),
-      );
-    }
-
-    // Cek apakah kategori masih digunakan oleh transaksi
-    final transactionCountResult =
-        await _readRepository.getTransactionCount(categoryId);
-
-    final transactionCount = transactionCountResult.data ?? 0;
-
-    if (transactionCount > 0) {
-      return Result.failure(
-        ValidationFailure(
-          'Kategori ini tidak dapat dinonaktifkan karena masih digunakan '
-          'oleh $transactionCount transaksi. '
-          'Gunakan kategori lain untuk transaksi tersebut terlebih dahulu.',
-        ),
-      );
-    }
-
-    // Nonaktifkan kategori
     try {
-      final result = await _writeRepository.deleteCategory(categoryId);
-      return result;
+      // Cek apakah kategori ada
+      final categoryResult = await _readRepository.getCategoryById(categoryId);
+
+      if (categoryResult.isFailure || categoryResult.data == null) {
+        return Result.failure(
+          const NotFoundFailure('Kategori tidak ditemukan'),
+        );
+      }
+
+      final category = categoryResult.data!;
+
+      // Cek apakah kategori sudah tidak aktif
+      if (!category.isActive) {
+        return Result.failure(
+          const ValidationFailure('Kategori sudah tidak aktif'),
+        );
+      }
+
+      // Cek apakah kategori masih digunakan oleh transaksi
+      final transactionCountResult =
+          await _readRepository.getTransactionCount(categoryId);
+
+      final transactionCount = transactionCountResult.data ?? 0;
+
+      if (transactionCount > 0) {
+        return Result.failure(
+          ValidationFailure(
+            'Kategori ini tidak dapat dinonaktifkan karena masih digunakan '
+            'oleh $transactionCount transaksi. '
+            'Gunakan kategori lain untuk transaksi tersebut terlebih dahulu.',
+          ),
+        );
+      }
+
+      // Nonaktifkan kategori
+      try {
+        final result = await _writeRepository.deleteCategory(categoryId);
+        return result;
+      } catch (e) {
+        return Result.failure(
+          DatabaseFailure('Gagal menonaktifkan kategori: $e'),
+        );
+      }
     } catch (e) {
       return Result.failure(
         DatabaseFailure('Gagal menonaktifkan kategori: $e'),

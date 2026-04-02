@@ -18,27 +18,33 @@ class ReactivateCategoryUseCase extends UseCase<void, int> {
   @override
   Future<Result<void>> call(int categoryId) async {
     // Cek apakah kategori ada
-    final categoryResult = await _readRepository.getCategoryById(categoryId);
-
-    if (categoryResult.isFailure || categoryResult.data == null) {
-      return Result.failure(
-        const NotFoundFailure('Kategori tidak ditemukan'),
-      );
-    }
-
-    final category = categoryResult.data!;
-
-    // Cek apakah kategori sudah aktif
-    if (category.isActive) {
-      return Result.failure(
-        const ValidationFailure('Kategori sudah aktif'),
-      );
-    }
-
-    // Aktifkan kembali kategori
     try {
-      final result = await _managementRepository.reactivateCategory(categoryId);
-      return result;
+      final categoryResult = await _readRepository.getCategoryById(categoryId);
+
+      if (categoryResult.isFailure || categoryResult.data == null) {
+        return Result.failure(
+          const NotFoundFailure('Kategori tidak ditemukan'),
+        );
+      }
+
+      final category = categoryResult.data!;
+
+      // Cek apakah kategori sudah aktif
+      if (category.isActive) {
+        return Result.failure(
+          const ValidationFailure('Kategori sudah aktif'),
+        );
+      }
+
+      // Aktifkan kembali kategori
+      try {
+        final result = await _managementRepository.reactivateCategory(categoryId);
+        return result;
+      } catch (e) {
+        return Result.failure(
+          DatabaseFailure('Gagal mengaktifkan kembali kategori: $e'),
+        );
+      }
     } catch (e) {
       return Result.failure(
         DatabaseFailure('Gagal mengaktifkan kembali kategori: $e'),
