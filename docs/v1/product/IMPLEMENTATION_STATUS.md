@@ -166,8 +166,8 @@ This document provides a comprehensive dashboard of implementation status for al
 
 ### Code Quality Metrics
 
-- **Total Tests**: 283
-- **Tests Passing**: 283 (100%)
+- **Total Tests**: 363
+- **Tests Passing**: 363 (100%)
 - **Analyzer Errors**: 0
 - **Analyzer Warnings**: 0
 - **Code Coverage**: 85%+ (domain layer)
@@ -283,7 +283,7 @@ This document provides a comprehensive dashboard of implementation status for al
 
 ## Conclusion
 
-Catat Cuan v1.2.0 is **100% complete** with all requirements from the PRD and SPEC documents fully implemented and verified. The application follows Clean Architecture principles with 100% SRP compliance, uses modern Flutter patterns (Riverpod 3.3.1, Freezed 3.x, GoRouter 17.1.0), and maintains high code quality (283/283 tests passing, 0 analyzer errors).
+Catat Cuan v1.2.1 is **100% complete** with all requirements from the PRD and SPEC documents fully implemented and verified. The application follows Clean Architecture principles with 100% SRP compliance, uses modern Flutter patterns (Riverpod 3.3.1, Freezed 3.x, GoRouter 17.1.0), and maintains high code quality (363/363 tests passing, 0 analyzer errors).
 
 **Status**: ✅ **Production Ready**
 

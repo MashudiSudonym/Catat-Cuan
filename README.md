@@ -13,7 +13,7 @@
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
-  [![Tests](https://img.shields.io/badge/Tests-283%2F283%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
+  [![Tests](https://img.shields.io/badge/Tests-363%2F363%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
 
   [English](#english) | [Indonesia](#indonesia)
 
@@ -119,7 +119,7 @@ flutter run
 
 ### 🧪 Testing & Quality
 
-- **Tests**: 283/283 passing ✅
+- **Tests**: 363/363 passing ✅
 - **SRP Compliance**: 100% (16/16 violations addressed)
 - **Analyzer Errors**: 0 ✅
 
@@ -161,7 +161,7 @@ flutter test --coverage
 
 ### 🎯 Roadmap
 
-#### v1.2.0 (Saat Ini) ✅
+#### v1.2.1 (Saat Ini) ✅
 - [x] Pencatatan transaksi manual
 - [x] 🤖 AI Smart Scan dengan Google ML Kit
 - [x] Dashboard ringkasan bulanan
@@ -169,13 +169,16 @@ flutter test --coverage
 - [x] Manajemen kategori lengkap
 - [x] Glassmorphism design system
 - [x] Export CSV
+- [x] Import CSV
 - [x] Multi-select delete
 - [x] Onboarding system
 - [x] Currency settings (IDR/USD)
 - [x] GoRouter navigation
+- [x] Dark mode / Theme switching
+- [x] Pagination (infinite scroll)
+- [x] Full-text search
 
-#### v1.1 (Rencana)
-- [ ] Dark mode
+#### v1.3 (Rencana)
 - [ ] Widget home screen
 - [ ] Enhanced AI model untuk struk Indonesia
 
@@ -291,5 +294,5 @@ Contributions welcome! Please follow [CODING_STANDARDS.md](./docs/guides/CODING_
 **Built with ❤️ using Flutter**
 
 <div align="center">
-  <sub>Production Ready | 100% SRP Compliance | 283/283 Tests Passing</sub>
+  <sub>Production Ready | 100% SRP Compliance | 363/363 Tests Passing</sub>
 </div>

@@ -1,6 +1,6 @@
 # Project Status Catat Cuan
 
-**Version**: 1.2.0
+**Version**: 1.2.1
 **Status**: ✅ v1 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
 **Last Updated**: 2 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
@@ -23,7 +23,7 @@
 | [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
 | [PRD](../product/00-PRD.md) | Indonesian | Product Requirements Document |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
-| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (283 tests) |
+| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (363 tests) |
 
 ---
 
@@ -46,13 +46,13 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 283/283 tests passing, 0 analyzer errors
+- **Code Quality**: 363/363 tests passing, 0 analyzer errors
 
 ---
 
 # Status Proyek Catat Cuan
 
-**Versi**: 1.2.0 (Selesai)
+**Versi**: 1.2.1 (Selesai)
 **Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP
 **Terakhir Diperbarui**: 2 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
@@ -124,7 +124,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **263/263 tests passing** ✅ → **283/283 tests passing** ✅
+- **263/263 tests passing** ✅ → **363/363 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
@@ -215,7 +215,7 @@ Following the Testing Pyramid principle:
 - ⏳ Remaining category use cases (4 files)
 - ⏳ Transaction use cases (16 files)
 
-**Current Test Count**: 283/283 passing ✅
+**Current Test Count**: 363/363 passing ✅
 
 ### Test Infrastructure
 
@@ -335,7 +335,7 @@ git push origin main --tags
 
 ### Project (English)
 - [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) - Complete SOLID refactoring journey
-- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (283 tests)
+- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (363 tests)
 - [IMPLEMENTATION_STATUS.md](../product/IMPLEMENTATION_STATUS.md) - Verification dashboard for all SPEC checklists
 - [CHECKLIST_VERIFICATION.md](../product/CHECKLIST_VERIFICATION.md) - Verification methodology
 

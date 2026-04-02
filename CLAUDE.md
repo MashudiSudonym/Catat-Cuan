@@ -2,7 +2,7 @@
 
 **Catat Cuan** - Aplikasi pelacakan pengeluaran pribadi Flutter dengan OCR struk.
 
-**Status**: ✅ Production Ready | 100% SRP Compliance | 283/283 Tests Passing
+**Status**: ✅ Production Ready | 100% SRP Compliance | 363/363 Tests Passing
 
 ---
 
@@ -302,7 +302,7 @@ AppDateFormatter.formatDayMonthYearDate(date)
 - **Architecture**: Clean Architecture with 100% SRP compliance
 - **State Management**: Riverpod 3.3.1 with @riverpod annotation
 - **Database**: SQLite with SchemaManager version 2
-- **Tests**: 283/283 passing ✅
+- **Tests**: 363/363 passing ✅
 - **Analyzer**: 0 errors ✅
 - **Documentation**: 23 files, fully bilingual (EN/ID)
 
