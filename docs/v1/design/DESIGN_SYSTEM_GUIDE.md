@@ -522,7 +522,7 @@ class SummaryScreen extends ConsumerWidget {
 - **100% design system coverage** in refactored screens
 - **0 hardcoded spacing/sizing values**
 - **Consistent glassmorphism design** throughout app
-- **97/97 tests passing** ✅
+- **283/283 tests passing** ✅
 - **0 analyzer errors** ✅
 
 ## Next Steps (Future Enhancements)

@@ -14,7 +14,7 @@
 | **Unit Tests** | 274 | 96.8% |
 | **Widget Tests** | 9 | 3.2% |
 | **Analyzer Errors** | 0 | ✅ Clean |
-| **Test Files** | 12 | Organized by layer |
+| **Test Files** | 24 | Organized by layer |
 
 ---
 

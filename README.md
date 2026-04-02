@@ -161,7 +161,7 @@ flutter test --coverage
 
 ### 🎯 Roadmap
 
-#### v1.0 (Saat Ini) ✅
+#### v1.2.0 (Saat Ini) ✅
 - [x] Pencatatan transaksi manual
 - [x] 🤖 AI Smart Scan dengan Google ML Kit
 - [x] Dashboard ringkasan bulanan

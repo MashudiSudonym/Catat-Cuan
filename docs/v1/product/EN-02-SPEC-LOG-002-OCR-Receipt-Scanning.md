@@ -8,13 +8,13 @@
 The system allows users to capture receipt images for OCR processing.
 
 #### AC-LOG-001.1: Image Source Selection
-- [ ] System provides option to capture from camera
-- [ ] System provides option to select from gallery
-- [ ] System handles camera permissions gracefully
+- [x] System provides option to capture from camera
+- [x] System provides option to select from gallery
+- [x] System handles camera permissions gracefully
 
 #### AC-LOG-001.2: Image Quality Guidelines
-- [ ] System displays guidelines for capturing clear receipt images
-- [ ] System supports image preview before processing
+- [x] System displays guidelines for capturing clear receipt images
+- [x] System supports image preview before processing
 
 ---
 
@@ -22,14 +22,14 @@ The system allows users to capture receipt images for OCR processing.
 The system extracts text from receipt images using on-device OCR.
 
 #### AC-LOG-002.1: Text Recognition
-- [ ] System uses Google ML Kit for text recognition
-- [ ] System processes images on-device (no network required)
-- [ ] System handles various receipt formats and orientations
+- [x] System uses Google ML Kit for text recognition
+- [x] System processes images on-device (no network required)
+- [x] System handles various receipt formats and orientations
 
 #### AC-LOG-002.2: Amount Extraction
-- [ ] System identifies and extracts total amount from receipt
-- [ ] System handles various amount formats (Rp 100.000, 100000, etc.)
-- [ ] System displays confidence score for extracted amount
+- [x] System identifies and extracts total amount from receipt
+- [x] System handles various amount formats (Rp 100.000, 100000, etc.)
+- [x] System displays confidence score for extracted amount
 
 ---
 
@@ -37,9 +37,9 @@ The system extracts text from receipt images using on-device OCR.
 The system allows users to manually correct OCR results.
 
 #### AC-LOG-003.1: Edit Extracted Data
-- [ ] System displays extracted amount for confirmation
-- [ ] User can manually edit extracted amount
-- [ ] User can manually input amount if OCR fails
+- [x] System displays extracted amount for confirmation
+- [x] User can manually edit extracted amount
+- [x] User can manually input amount if OCR fails
 
 ---
 
@@ -47,25 +47,25 @@ The system allows users to manually correct OCR results.
 The system creates transaction from scanned receipt data.
 
 #### AC-LOG-004.1: Pre-fill Form
-- [ ] System pre-fills transaction form with extracted amount
-- [ ] System allows user to complete remaining fields (category, note, etc.)
-- [ ] System follows same validation as manual entry
+- [x] System pre-fills transaction form with extracted amount
+- [x] System allows user to complete remaining fields (category, note, etc.)
+- [x] System follows same validation as manual entry
 
 ---
 
 ## Non-Functional Requirements (NFR)
 
 ### NFR-LOG-001: OCR Performance
-- [ ] OCR processing must complete within ≤ 10 seconds
-- [ ] Image capture must be responsive (< 500ms)
+- [x] OCR processing must complete within ≤ 10 seconds
+- [x] Image capture must be responsive (< 500ms)
 
 ### NFR-LOG-002: Accuracy
-- [ ] OCR must achieve ≥ 80% accuracy for standard receipt formats
-- [ ] System must handle low-light conditions
+- [x] OCR must achieve ≥ 80% accuracy for standard receipt formats
+- [x] System must handle low-light conditions
 
 ### NFR-LOG-003: Privacy
-- [ ] All image processing must be on-device
-- [ ] No receipt images uploaded to external servers
+- [x] All image processing must be on-device
+- [x] No receipt images uploaded to external servers
 
 ---
 

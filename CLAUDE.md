@@ -304,10 +304,10 @@ AppDateFormatter.formatDayMonthYearDate(date)
 - **Database**: SQLite with SchemaManager version 2
 - **Tests**: 283/283 passing ✅
 - **Analyzer**: 0 errors ✅
-- **Documentation**: 24 files, fully bilingual (EN/ID)
+- **Documentation**: 23 files, fully bilingual (EN/ID)
 
 ---
 
 **Last Updated**: 2026-04-02
-**Documentation**: 24 comprehensive guides available in `docs/`
+**Documentation**: 23 comprehensive guides available in `docs/`
 **Quick Help**: See [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md) for critical rules

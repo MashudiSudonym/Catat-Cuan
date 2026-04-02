@@ -173,7 +173,7 @@ Following the Testing Pyramid principle:
 
 | Phase | Description | Status | Tests |
 |-------|-------------|--------|-------|
-| **Phase 1** | Test Infrastructure & Parsers | 🚧 In Progress | 42/42 passing |
+| **Phase 1** | Test Infrastructure & Parsers | ✅ Completed | 42/42 passing |
 | **Phase 2** | Entity & Validator Tests | ⏳ Pending | 0/16 planned |
 | **Phase 3** | Use Case Tests | ⏳ Pending | 0/27 planned |
 | **Phase 4** | Data Layer Tests | ⏳ Pending | 0/20 planned |
@@ -335,7 +335,7 @@ git push origin main --tags
 
 ### Project (English)
 - [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) - Complete SOLID refactoring journey
-- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (272 tests)
+- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (283 tests)
 - [IMPLEMENTATION_STATUS.md](../product/IMPLEMENTATION_STATUS.md) - Verification dashboard for all SPEC checklists
 - [CHECKLIST_VERIFICATION.md](../product/CHECKLIST_VERIFICATION.md) - Verification methodology
 
@@ -536,7 +536,7 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
 - [PROJECT_STATUS.md](./PROJECT_STATUS.md) - Status proyek terkini (termasuk ringkasan refactoring SRP)
 
 ### Panduan Pengembangan
-- [SOLID.md](../../../guides/SOLID.md) - Panduan prinsip SOLID
+- [SOLID.md](../../guides/SOLID.md) - Panduan prinsip SOLID
 - [CLAUDE.md](../../../CLAUDE.md) - Panduan pengembangan untuk Claude Code
 
 ---
