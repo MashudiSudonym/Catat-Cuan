@@ -330,6 +330,26 @@ you should use @riverpod annotation with build() method..."
 - `freezed` - /rrousselGit/freezed
 - `sqflite` - /tekartik/sqflite
 
+### 8. Pre-Commit Quality Check - `flutter analyze` ⚠️
+
+**⚠️ CRITICAL**: Before committing any code changes, AI MUST run `flutter analyze` to ensure the code passes static analysis.
+
+**Why**: The CI workflow runs `flutter analyze` and will fail if issues are found. Running locally catches issues early, reducing CI failures and iteration time.
+
+**Workflow**:
+```bash
+# Before committing - always run analyze
+flutter analyze
+
+# If analyze passes, then commit
+git add .
+git commit -m "type: description of changes
+
+Co-Authored-By: Claude (glm-4.7) <noreply@anthropic.com>"
+```
+
+**If analyze fails**: Fix all reported issues before committing. Do not skip this step even for "minor" changes.
+
 ---
 
 ## Reference Locations

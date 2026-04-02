@@ -1,6 +1,5 @@
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/core/usecase.dart';
-import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';

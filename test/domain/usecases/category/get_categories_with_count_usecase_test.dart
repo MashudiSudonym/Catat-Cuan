@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:catat_cuan/domain/usecases/category/get_categories_with_count_usecase.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
-import 'package:catat_cuan/domain/entities/category_with_count_entity.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/core/usecase.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';

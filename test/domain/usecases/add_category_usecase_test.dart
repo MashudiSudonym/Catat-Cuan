@@ -123,7 +123,6 @@ void main() {
 
     test('should allow same name for different category types', () async {
       // Arrange
-      final expenseCategory = TestFixtures.categoryFood(name: 'Makan', type: CategoryType.expense);
       final incomeCategory = TestFixtures.categorySalary(name: 'Makan', type: CategoryType.income);
 
       when(mockReadRepository.getCategoryByName('Makan', CategoryType.income))
