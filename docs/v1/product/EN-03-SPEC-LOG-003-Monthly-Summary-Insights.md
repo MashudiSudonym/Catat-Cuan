@@ -8,15 +8,15 @@
 The system displays a monthly summary of transactions.
 
 #### AC-LOG-001.1: Summary Metrics
-- [ ] Total income for selected month
-- [ ] Total expense for selected month
-- [ ] Net balance (income - expense)
-- [ ] Transaction count by type
+- [x] Total income for selected month
+- [x] Total expense for selected month
+- [x] Net balance (income - expense)
+- [x] Transaction count by type
 
 #### AC-LOG-001.2: Period Selection
-- [ ] User can select month and year
-- [ ] System defaults to current month
-- [ ] System provides quick navigation (previous/next month)
+- [x] User can select month and year
+- [x] System defaults to current month
+- [x] System provides quick navigation (previous/next month)
 
 ---
 
@@ -24,13 +24,13 @@ The system displays a monthly summary of transactions.
 The system displays spending breakdown by category.
 
 #### AC-LOG-002.1: Visual Representation
-- [ ] Pie chart showing expense distribution by category
-- [ ] Bar chart comparing income vs expense
-- [ ] Category list with amounts and percentages
+- [x] Pie chart showing expense distribution by category
+- [x] Bar chart comparing income vs expense
+- [x] Category list with amounts and percentages
 
 #### AC-LOG-002.2: Interactive Elements
-- [ ] User can tap category for details
-- [ ] System filters transaction list by selected category
+- [x] User can tap category for details
+- [x] System filters transaction list by selected category
 
 ---
 
@@ -38,25 +38,25 @@ The system displays spending breakdown by category.
 The system provides personalized spending insights.
 
 #### AC-LOG-003.1: Insight Generation
-- [ ] System analyzes spending patterns
-- [ ] System identifies top spending categories
-- [ ] System provides actionable recommendations
+- [x] System analyzes spending patterns
+- [x] System identifies top spending categories
+- [x] System provides actionable recommendations
 
 #### AC-LOG-003.2: New User Support
-- [ ] System displays motivational messages for new users
-- [ ] System provides guidance for first transactions
+- [x] System displays motivational messages for new users
+- [x] System provides guidance for first transactions
 
 ---
 
 ## Non-Functional Requirements (NFR)
 
 ### NFR-LOG-001: Performance
-- [ ] Summary calculation must complete within ≤ 1 second
-- [ ] Chart rendering must be smooth (60fps)
+- [x] Summary calculation must complete within ≤ 1 second
+- [x] Chart rendering must be smooth (60fps)
 
 ### NFR-LOG-002: Data Visualization
-- [ ] Charts must be readable on all screen sizes
-- [ ] Colors must be accessible (color-blind friendly)
+- [x] Charts must be readable on all screen sizes
+- [x] Colors must be accessible (color-blind friendly)
 
 ---
 

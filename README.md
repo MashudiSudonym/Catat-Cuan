@@ -13,7 +13,7 @@
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
-  [![Tests](https://img.shields.io/badge/Tests-97%2F97%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
+  [![Tests](https://img.shields.io/badge/Tests-283%2F283%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
 
   [English](#english) | [Indonesia](#indonesia)
 
@@ -119,10 +119,9 @@ flutter run
 
 ### 🧪 Testing & Quality
 
-- **Tests**: 97/97 passing ✅
+- **Tests**: 283/283 passing ✅
 - **SRP Compliance**: 100% (16/16 violations addressed)
 - **Analyzer Errors**: 0 ✅
-- **Code Coverage**: 85%+ (domain layer)
 
 ```bash
 flutter test
@@ -292,5 +291,5 @@ Contributions welcome! Please follow [CODING_STANDARDS.md](./docs/guides/CODING_
 **Built with ❤️ using Flutter**
 
 <div align="center">
-  <sub>Production Ready | 100% SRP Compliance | 97/97 Tests Passing</sub>
+  <sub>Production Ready | 100% SRP Compliance | 283/283 Tests Passing</sub>
 </div>
