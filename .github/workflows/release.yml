@@ -122,7 +122,7 @@ jobs:
 
           # Count commit types
           feat_count=$(echo "$commits" | grep -cE "^feat" || true)
-          fix_count=$(echo "$commits" | grep -cE "^(fix|refactor|perf):" || true)
+          fix_count=$(echo "$commits" | grep -cE "^fix:" || true)
           breaking_count=$(echo "$commits" | grep -cE "BREAKING CHANGE" || true)
           feat_bang_count=$(echo "$commits" | grep -cE "^feat!" || true)
 
@@ -130,7 +130,7 @@ jobs:
           echo "fix_count=$fix_count" >> $GITHUB_OUTPUT
           echo "breaking_count=$breaking_count" >> $GITHUB_OUTPUT
           echo "feat_bang_count=$feat_bang_count" >> $GITHUB_OUTPUT
-          echo "Found $feat_count feat commits, $fix_count fix/refactor/perf commits, $breaking_count BREAKING CHANGE, $feat_bang_count feat!"
+          echo "Found $feat_count feat commits, $fix_count fix commits, $breaking_count BREAKING CHANGE, $feat_bang_count feat!"
 
           # Determine if bump is needed
           if [ "$breaking_count" -gt 0 ] || [ "$feat_bang_count" -gt 0 ] || [ "$feat_count" -gt 0 ] || [ "$fix_count" -gt 0 ]; then
@@ -156,7 +156,7 @@ jobs:
             echo "Will bump MINOR (found feat: commits)"
           else
             echo "bump_type=patch" >> $GITHUB_OUTPUT
-            echo "Will bump PATCH (found fix:/refactor:/perf: commits)"
+            echo "Will bump PATCH (found fix: commits)"
           fi
 
       - name: Run bump_version.sh
@@ -186,7 +186,7 @@ jobs:
       - name: Summary
         if: steps.check.outputs.should_bump == 'false'
         run: |
-          echo "No version bump needed (no feat:, fix:, refactor:, perf:, BREAKING CHANGE, or feat! commits found)"
+          echo "No version bump needed (no feat:, fix:, BREAKING CHANGE, or feat! commits found)"
 
   build-release:
     name: Build & Release APK
