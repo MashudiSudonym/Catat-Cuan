@@ -15,7 +15,7 @@
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
   [![Tests](https://img.shields.io/badge/Tests-791%2F791%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
 
-  [English](#english) | [Indonesia](#indonesia)
+  [Bahasa Indonesia](#indonesia) | [English](#english)
 
 </div>
 
@@ -65,36 +65,17 @@ Catat Cuan hadir untuk memberikan **kendali sadar** atas keuangan pribadimu. Buk
 
 ---
 
-### 🚀 Teknologi & Arsitektur
+### 🚀 Teknologi
 
-#### Tech Stack (Updated)
 | Komponen | Teknologi | Versi |
 |----------|-----------|-------|
 | **Framework** | Flutter | 3.5+ |
 | **Bahasa** | Dart | 3.5+ |
-| **State Management** | Riverpod | 3.3.1 (with @riverpod) |
-| **Immutable Data** | Freezed | 3.2.5 |
-| **Navigation** | GoRouter | 17.1.0 |
+| **State Management** | Riverpod | 3.3.1 |
 | **Database** | SQLite | SchemaManager v2 |
 | **🤖 AI/ML** | Google ML Kit | 0.15.1 (On-Device) |
 
-#### Clean Architecture dengan 100% SRP Compliance
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    PRESENTATION LAYER                       │
-│  (Providers, Screens, Widgets, Controllers, Utils)         │
-│                     ↓ depends on ↓                          │
-│                    DOMAIN LAYER                            │
-│  (Entities, UseCases, Repository Interfaces) ← ABSTRACTIONS │
-│                     ↑ implemented by ↑                      │
-│                    DATA LAYER                              │
-│  (Repository Implementations, DataSources) ← CONCRETE      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Repository Segregation Pattern:**
-- **Category**: 4 interfaces (Read, Write, Management, Seeding)
-- **Transaction**: 6+ interfaces (Read, Write, Query, Search, Analytics, Export)
+**Arsitektur**: Clean Architecture dengan 100% SRP Compliance
 
 ---
 
@@ -117,45 +98,27 @@ flutter run
 
 ---
 
-### 🧪 Testing & Quality
+### 🧪 Kualitas Terjamin
 
 - **Tests**: 791/791 passing ✅
 - **SRP Compliance**: 100% (16/16 violations addressed)
 - **Analyzer Errors**: 0 ✅
 
-```bash
-flutter test
-flutter test --coverage
-```
-
 ---
 
-### 📚 Documentation (Comprehensive)
+### 📚 Dokumentasi
 
-**⭐ START HERE:** [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md)
+**⭐ Mulai di sini:** [AI_ASSISTANT_GUIDE.md](./docs/AI_ASSISTANT_GUIDE.md)
 
-#### Technical Guides (English)
-- [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md) - Clean Architecture dengan real examples
+#### Panduan Teknis (English)
+- [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md) - Clean Architecture dengan contoh nyata
 - [RIVERPOD_GUIDE.md](./docs/guides/RIVERPOD_GUIDE.md) - Riverpod 3.3.1 patterns
-- [FREEZED_GUIDE.md](./docs/guides/FREEZED_GUIDE.md) - Freezed 3.x (⚠️ abstract keyword required)
 - [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md) - File naming & conventions
-- [SOLID.md](./docs/guides/SOLID.md) - SOLID principles dengan codebase examples
+- [SOLID.md](./docs/guides/SOLID.md) - SOLID principles dengan contoh codebase
 
-#### Product Documentation
-- [00-PRD.md](./docs/v1/product/00-PRD.md) - Product Requirements (Indonesian)
-- [SPEC Documents](./docs/v1/product/) - Fitur spesifikasi dengan verified checklists
-- [IMPLEMENTATION_STATUS.md](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Status implementasi
-
-#### Design System
-- [DESIGN_SYSTEM_GUIDE.md](./docs/v1/design/DESIGN_SYSTEM_GUIDE.md) - Glassmorphism + Riverpod 3.x
-
-#### Database
-- [DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md) - Dokumentasi skema database lengkap
-- [DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md) - Database schema documentation (English)
-
-#### Project Status
-- [PROJECT_STATUS.md](./docs/project/PROJECT_STATUS.md) - Status proyek (EN/ID)
-- [REFACTORING_HISTORY.md](./docs/project/REFACTORING_HISTORY.md) - Perjalanan SOLID refactoring
+#### Status Proyek
+- [PROJECT_STATUS.md](./docs/project/PROJECT_STATUS.md) - Status proyek lengkap (EN/ID)
+- [IMPLEMENTATION_STATUS.md](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Status implementasi fitur
 
 ---
 
@@ -168,8 +131,7 @@ flutter test --coverage
 - [x] AI Analytics & recommendations
 - [x] Manajemen kategori lengkap
 - [x] Glassmorphism design system
-- [x] Export CSV
-- [x] Import CSV
+- [x] Export/Import CSV
 - [x] Multi-select delete
 - [x] Onboarding system
 - [x] Currency settings (IDR/USD)
@@ -198,12 +160,6 @@ Kontribusi sangat welcome!
 2. Buat branch fitur
 3. Commit perubahan
 4. Push & buat Pull Request
-
-**Guidelines:**
-- Ikuti [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md)
-- Gunakan design system utilities
-- Tulis test untuk fitur baru
-- Ikuti prinsip SOLID
 
 ---
 
@@ -270,18 +226,12 @@ Catat Cuan gives you **conscious control** over your personal finances. Understa
 **Technical Guides:**
 - [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md)
 - [RIVERPOD_GUIDE.md](./docs/guides/RIVERPOD_GUIDE.md)
-- [FREEZED_GUIDE.md](./docs/guides/FREEZED_GUIDE.md)
 - [CODING_STANDARDS.md](./docs/guides/CODING_STANDARDS.md)
 - [SOLID.md](./docs/guides/SOLID.md)
 
-**Product Docs:**
-- [PRD](./docs/v1/product/00-PRD.md) - Product Requirements
-- [SPECs](./docs/v1/product/) - Feature specifications
-- [Status](./docs/v1/product/IMPLEMENTATION_STATUS.md) - Implementation dashboard
-
-**Database:**
-- [DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md) - Complete database schema documentation
-- [DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md) - Dokumentasi skema database (Indonesian)
+**Project Status:**
+- [PROJECT_STATUS.md](./docs/project/PROJECT_STATUS.md)
+- [IMPLEMENTATION_STATUS.md](./docs/v1/product/IMPLEMENTATION_STATUS.md)
 
 ---
 
