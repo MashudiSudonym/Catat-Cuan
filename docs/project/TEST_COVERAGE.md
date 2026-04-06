@@ -805,7 +805,7 @@ setUp(() async {
 
 ## Verification Checklist
 
-- [x] Document exists at `docs/v1/project/TEST_COVERAGE.md`
+- [x] Document exists at `docs/project/TEST_COVERAGE.md`
 - [x] All 614 tests are documented
 - [x] Coverage percentages are accurate
 - [x] Bilingual content (English/Indonesian)

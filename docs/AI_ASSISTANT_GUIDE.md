@@ -258,7 +258,7 @@ flutter pub run build_runner build --delete-conflicting-outputs --delete-conflic
 
 **⚠️ CRITICAL**: After making any code changes, AI MUST:
 1. Commit the changes with proper git commit message
-2. Update `docs/v1/project/PROJECT_STATUS.md` if applicable
+2. Update `docs/project/PROJECT_STATUS.md` if applicable
 
 **Why**: Ensures changes are tracked in git history and project documentation stays synchronized with implementation.
 

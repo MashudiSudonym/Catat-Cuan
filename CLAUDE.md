@@ -102,7 +102,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ### 6. Post-Change Workflow - Commit & Update Documentation ⚠️
 **⚠️ CRITICAL**: After making any code changes, AI MUST:
 1. Commit the changes with proper git commit message
-2. Update `docs/v1/project/PROJECT_STATUS.md` if applicable
+2. Update `docs/project/PROJECT_STATUS.md` if applicable
 
 **Why**: Ensures changes are tracked in git history and project documentation stays synchronized with implementation.
 
@@ -276,8 +276,8 @@ flutter build apk --release --build-name=1.2.0 --build-number=$(git rev-list --c
 - **[DATABASE_SCHEMA_ID.md](./docs/v1/database/DATABASE_SCHEMA_ID.md)** - Dokumentasi skema database (Indonesian)
 
 ### Project Status
-- **[docs/v1/project/PROJECT_STATUS.md](./docs/v1/project/PROJECT_STATUS.md)** - Project status (EN/ID)
-- **[docs/v1/project/REFACTORING_HISTORY.md](./docs/v1/project/REFACTORING_HISTORY.md)** - SOLID refactoring journey
+- **[docs/project/PROJECT_STATUS.md](./docs/project/PROJECT_STATUS.md)** - Project status (EN/ID)
+- **[docs/project/REFACTORING_HISTORY.md](./docs/project/REFACTORING_HISTORY.md)** - SOLID refactoring journey
 
 ---
 

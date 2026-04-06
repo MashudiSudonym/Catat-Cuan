@@ -154,8 +154,8 @@ flutter test --coverage
 - [DATABASE_SCHEMA.md](./docs/v1/database/DATABASE_SCHEMA.md) - Database schema documentation (English)
 
 #### Project Status
-- [PROJECT_STATUS.md](./docs/v1/project/PROJECT_STATUS.md) - Status proyek (EN/ID)
-- [REFACTORING_HISTORY.md](./docs/v1/project/REFACTORING_HISTORY.md) - Perjalanan SOLID refactoring
+- [PROJECT_STATUS.md](./docs/project/PROJECT_STATUS.md) - Status proyek (EN/ID)
+- [REFACTORING_HISTORY.md](./docs/project/REFACTORING_HISTORY.md) - Perjalanan SOLID refactoring
 
 ---
 
