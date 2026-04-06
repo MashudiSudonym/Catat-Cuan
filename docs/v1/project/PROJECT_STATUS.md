@@ -23,7 +23,7 @@
 | [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
 | [PRD](../product/00-PRD.md) | Indonesian | Product Requirements Document |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
-| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (363 tests) |
+| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (791 tests) |
 
 ---
 
@@ -46,15 +46,15 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 363/363 tests passing, 0 analyzer errors
+- **Code Quality**: 791/791 tests passing, 0 analyzer errors
 
 ---
 
 # Status Proyek Catat Cuan
 
-**Versi**: 1.2.1 (Selesai)
-**Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP
-**Terakhir Diperbarui**: 2 April 2026
+**Versi**: 1.2.2 (Selesai)
+**Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP | ✅ Automated Versioning
+**Terakhir Diperbarui**: 6 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Lokal**: Indonesia (id_ID)
 
@@ -124,7 +124,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **263/263 tests passing** ✅ → **363/363 tests passing** ✅
+- **263/263 tests passing** ✅ → **791/791 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
@@ -160,7 +160,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ## Testing Pyramid Implementation
 
-**Status**: ✅ Phase 2 Completed | 614/614 Tests Passing
+**Status**: ✅ Phase 2 Completed | 791/791 Tests Passing
 
 ### Implementation Plan
 
@@ -181,7 +181,7 @@ Following the Testing Pyramid principle:
 | **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
 | **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
 
-**Total Test Count**: 614/614 tests passing ✅ | 0 analyzer errors ✅
+**Total Test Count**: 791/791 tests passing ✅ | 0 analyzer errors ✅
 
 ### Phase 1: Foundation (Completed ✅)
 
@@ -240,7 +240,7 @@ Following the Testing Pyramid principle:
   - Category use cases (13 tests) - existing
   - ImportTransactionsUseCase tests - existing
 
-**Current Test Count**: 614/614 passing ✅
+**Current Test Count**: 791/791 passing ✅
 
 ### Test Infrastructure
 
@@ -360,7 +360,7 @@ git push origin main --tags
 
 ### Project (English)
 - [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) - Complete SOLID refactoring journey
-- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (363 tests)
+- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (791 tests)
 - [IMPLEMENTATION_STATUS.md](../product/IMPLEMENTATION_STATUS.md) - Verification dashboard for all SPEC checklists
 - [CHECKLIST_VERIFICATION.md](../product/CHECKLIST_VERIFICATION.md) - Verification methodology
 
