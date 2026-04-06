@@ -1,8 +1,8 @@
 # Project Status Catat Cuan
 
-**Version**: 1.2.1
+**Version**: 1.2.2
 **Status**: ✅ v1 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
-**Last Updated**: 2 April 2026
+**Last Updated**: 6 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
 
@@ -160,7 +160,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ## Testing Pyramid Implementation
 
-**Status**: 🚧 In Progress (Phase 1 - Foundation)
+**Status**: ✅ Phase 2 Completed | 614/614 Tests Passing
 
 ### Implementation Plan
 
@@ -174,12 +174,14 @@ Following the Testing Pyramid principle:
 | Phase | Description | Status | Tests |
 |-------|-------------|--------|-------|
 | **Phase 1** | Test Infrastructure & Parsers | ✅ Completed | 42/42 passing |
-| **Phase 2** | Entity & Validator Tests | ⏳ Pending | 0/16 planned |
-| **Phase 3** | Use Case Tests | ⏳ Pending | 0/27 planned |
+| **Phase 2** | Entity, Validator & Analyzer Tests | ✅ Completed | 248/248 passing |
+| **Phase 3** | Use Case Tests | ✅ Completed | 186/186 passing |
 | **Phase 4** | Data Layer Tests | ⏳ Pending | 0/20 planned |
 | **Phase 5** | Presentation Tests | ⏳ Pending | 0/11 planned |
 | **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
 | **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
+
+**Total Test Count**: 614/614 tests passing ✅ | 0 analyzer errors ✅
 
 ### Phase 1: Foundation (Completed ✅)
 
@@ -204,18 +206,41 @@ Following the Testing Pyramid principle:
   - TransactionType enum (10 tests) - fromString, displayName, value
   - CategoryType enum (8 tests) - fromString, displayName, value
 
-### Phase 2: Use Case Tests (In Progress 🚧)
+### Phase 2: Entity, Analyzer & Transaction Use Case Tests (Completed ✅)
 
 **Completed**:
-- ✅ Category use case tests (13 tests)
-  - GetCategoriesUseCase (6 tests)
-  - GetCategoryByIdUseCase (7 tests)
+- ✅ Analyzer service tests (24 tests)
+  - FinancialHealthAnalyzer (12 tests)
+  - CategoryAnalyzer (12 tests)
+- ✅ Entity tests (206 tests)
+  - MonthlySummaryEntity (15 tests) - with delegated analyzer properties
+  - CategoryBreakdownEntity (15 tests) - with delegated analyzer properties
+  - PaginatedResultEntity (12 tests) - factory constructors and computed properties
+  - PaginationParamsEntity (10 tests) - navigation methods
+  - RecommendationEntity + enums (20 tests) - RecommendationType, RecommendationPriority
+  - ImportResult + nested entities (12 tests) - ImportRowError, ParsedCsvRow
+  - ExportAction + extension (6 tests)
+  - CategoryWithCountEntity (6 tests)
+  - ReceiptDataEntity (6 tests)
+  - CategoryEntity (63 tests) - existing
+  - TransactionEntity (28 tests) - existing
+  - TransactionType enum (10 tests) - existing
+  - CategoryType enum (8 tests) - existing
+- ✅ Transaction use case tests (186 tests)
+  - AddTransactionUseCase (8 tests)
+  - UpdateTransactionUseCase (9 tests)
+  - DeleteTransactionUseCase (5 tests)
+  - DeleteMultipleTransactionsUseCase (6 tests)
+  - DeleteAllTransactionsUseCase (3 tests)
+  - SearchTransactionsUseCase (8 tests)
+  - ExportTransactionsUseCase (6 tests)
+  - ScanReceiptUseCase (7 tests)
+  - GetTransactionsUseCase (5 tests)
+  - GetTransactionsPaginatedUseCase (7 tests)
+  - Category use cases (13 tests) - existing
+  - ImportTransactionsUseCase tests - existing
 
-**Pending**:
-- ⏳ Remaining category use cases (4 files)
-- ⏳ Transaction use cases (16 files)
-
-**Current Test Count**: 363/363 passing ✅
+**Current Test Count**: 614/614 passing ✅
 
 ### Test Infrastructure
 
