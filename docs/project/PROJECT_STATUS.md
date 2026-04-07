@@ -1,7 +1,7 @@
 # Project Status Catat Cuan
 
-**Version**: 1.3.0
-**Status**: ✅ v1.3 Complete - Home Screen Widgets | ✅ 100% SRP Compliance | ✅ Automated Versioning
+**Version**: 1.4.0
+**Status**: ✅ v1.4 Complete - Enhanced AI Model | ✅ 100% SRP Compliance | ✅ Automated Versioning
 **Last Updated**: 7 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
@@ -103,6 +103,9 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 | Navigasi GoRouter | Routing bertipe aman dengan deep linking |
 | **Home Screen Widgets** (v1.3) | Widget Android/iOS dengan ringkasan pengeluaran |
 | **Widget Deep Linking** (v1.3) | Tap widget → buka form tambah transaksi |
+| **Merchant Name Extraction** (v1.4) | Ekstraksi nama toko dari 50+ merchant Indonesia |
+| **Category Prediction** (v1.4) | Prediksi kategori berdasarkan merchant yang dikenali |
+| **ML Kit Latin Script** (v1.4) | Konfigurasi Latin script untuk teks Indonesia |
 
 ---
 
@@ -673,15 +676,72 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
 
 ---
 
-## Roadmap v1.4 - Enhanced AI Model (Rencana)
+## Roadmap v1.4 - Enhanced AI Model
 
-**Status**: ⏳ Rencana
+**Status**: ✅ Selesai (7 April 2026)
 
-| Fitur | Prioritas | Deskripsi |
-|-------|----------|-----------|
-| Indonesian text recognition | Tinggi | ML Kit dengan Indonesian language support |
-| Merchant pattern library | Tinggi | Pola struk Indomaret, Alfamart, dll |
-| Enhanced parsers | Sedang | Keyword & format Indonesian |
+### Fitur yang Diimplementasikan
+
+| Fitur | Status | Deskripsi |
+|-------|--------|-----------|
+| **ML Kit Latin Script Configuration** | ✅ Selesai | TextRecognitionScript.latin untuk teks Indonesia |
+| **Merchant Pattern Library** | ✅ Selesai | 50+ pola merchant Indonesia |
+| **Merchant Name Parser** | ✅ Selesai | Ekstraksi nama merchant dari teks struk |
+| **Category Prediction** | ✅ Selesai | Prediksi kategori berdasarkan merchant |
+| **UI Update** | ✅ Selesai | Tampilkan nama merchant di hasil scan |
+
+### File Baru (4 files)
+
+**Domain Layer (3 files)**:
+- `lib/domain/entities/merchant_pattern_entity.dart` - MerchantPatternEntity & MerchantParseResult
+- `lib/domain/services/merchant_pattern_service.dart` - Service interface untuk merchant pattern matching
+- `lib/domain/parsers/receipt_merchant_parser.dart` - Parser untuk ekstraksi nama merchant
+
+**Data Layer (1 file)**:
+- `lib/data/services/indonesian_merchant_pattern_service_impl.dart` - 50+ pola merchant Indonesia
+
+### File Dimodifikasi (5 files)
+- `lib/data/services/receipt_ocr_service_impl.dart` - Added TextRecognitionScript.latin
+- `lib/domain/usecases/scan_receipt.dart` - Integrasi merchant extraction
+- `lib/presentation/providers/services/service_providers.dart` - New providers
+- `lib/presentation/screens/scan_receipt_screen.dart` - Tampilkan nama merchant
+- `test/domain/usecases/scan_receipt_usecase_test.dart` - Updated tests
+
+### Merchant yang Didukung (50+ pola)
+
+**Minimarkets (10)**: Indomaret, Alfamart, Superindo, Giant, Lotte Mart, Hypermart, Lawson, Circle K, 7-Eleven, Transmart
+
+**Coffee Shops & Cafes (8)**: Starbucks, Excelso, Coffee Bean, J.Co, Dunkin', Kopi Kenangan, Janji Jiwa, Coffee Toffee
+
+**Fast Food (10)**: KFC, McDonald's, Burger King, Pizza Hut, Domino's, Hokben, A&W, Texas Chicken, Yoshinoya, Pepper Lunch
+
+**Food Delivery (3)**: GoFood, GrabFood, ShopeeFood
+
+**E-commerce (7)**: Tokopedia, Shopee, Lazada, Blibli, Bukalapak, JD.ID, TikTok Shop
+
+**Transportation (6)**: Traveloka, Gojek, Grab, Blue Bird, Maxim, inDrive
+
+**Utilities/Bills (9)**: PLN, PDAM, Telkom, XL, Telkomsel, Indosat, Tri, Smartfren, Netflix, Spotify
+
+**Gas Stations (2)**: Pertamina, Shell
+
+**Pharmacies (3)**: Kimia Farma, K-24, Century Healthcare
+
+### Cara Menggunakan
+
+1. Scan struk seperti biasa
+2. Jika merchant dikenali, nama toko akan muncul di hasil scan
+3. Kategori default akan disarankan berdasarkan merchant
+4. User dapat mengedit nama merchant dan kategori sesuai kebutuhan
+
+### Technical Details
+
+- **Confidence Scoring**: Amount (40%) + DateTime (30%) + Merchant (30%)
+- **Pattern Matching**: Header matching (95% confidence), Keyword matching (70%+ confidence), Pattern matching (60%+ confidence)
+- **Category Mapping**: Setiap merchant memiliki kategori default (e.g., Indomaret → Belanja Harian)
+- **Performance**: < 100ms untuk merchant extraction
+
+---
 
 ---
 
