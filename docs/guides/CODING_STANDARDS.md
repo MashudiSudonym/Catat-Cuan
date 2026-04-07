@@ -255,6 +255,28 @@ class TransactionEntity {
 
 ## Documentation Standards
 
+### Language Requirements
+
+**⚠️ CRITICAL**: All code comments MUST be written in English.
+
+```dart
+// ❌ WRONG - Comments in Indonesian/Bahasa Indonesia
+/// Entity untuk merepresentasikan transaksi
+/// Primary key dari database (nullable untuk transaksi baru)
+
+// ✅ CORRECT - Comments in English
+/// Entity representing a transaction
+/// Primary key from database (nullable for new transactions)
+```
+
+**Why**: English is the universal language of software development. It ensures:
+- Codebase accessibility to international contributors
+- Consistency between code documentation and standard terminology
+- Better collaboration in open-source environments
+- Alignment with Flutter/Dart ecosystem conventions
+
+**Exception**: User-facing strings (UI text) should remain in Indonesian as per product requirements.
+
 ### JSDoc-Style Comments
 
 Use JSDoc-style comments for public APIs:
@@ -709,6 +731,7 @@ Follows SRP and ISP principles"
 - [ ] Is test coverage adequate?
 
 ### Documentation
+- [ ] Are all code comments written in English?
 - [ ] Are public APIs documented?
 - [ ] Are complex algorithms explained?
 - [ ] Are TODOs commented with issue links?

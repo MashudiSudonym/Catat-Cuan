@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Helper untuk konversi warna
+/// Helper for color conversion
 class ColorHelper {
-  /// Convert Color ke hex string
+  /// Convert Color to hex string
   static String colorToHex(Color color) {
     final red = (color.r * 255).round().toRadixString(16).padLeft(2, '0');
     final green = (color.g * 255).round().toRadixString(16).padLeft(2, '0');
@@ -10,12 +10,12 @@ class ColorHelper {
     return '#$red$green$blue'.toUpperCase();
   }
 
-  /// Convert hex string ke Color
+  /// Convert hex string to Color
   static Color hexToColor(String hex) {
-    // Remove # jika ada
+    // Remove # if present
     final hexCode = hex.replaceAll('#', '');
 
-    // Tambah prefix 0xFF jika belum ada
+    // Add 0xFF prefix if not present
     final prefixedHex = hexCode.length == 6
         ? '0xFF$hexCode'
         : hexCode.startsWith('0xFF') || hexCode.startsWith('0xff')
@@ -25,7 +25,7 @@ class ColorHelper {
     return Color(int.parse(prefixedHex));
   }
 
-  /// Get color dari hex string dengan fallback
+  /// Get color from hex string with fallback
   static Color hexToColorWithFallback(String hex, {Color fallback = Colors.grey}) {
     try {
       return hexToColor(hex);
@@ -34,7 +34,7 @@ class ColorHelper {
     }
   }
 
-  /// Check apakah string adalah valid hex color
+  /// Check if string is valid hex color
   static bool isValidHex(String hex) {
     try {
       hexToColor(hex);
@@ -44,7 +44,7 @@ class ColorHelper {
     }
   }
 
-  /// Darken color oleh percentage (0.0 - 1.0)
+  /// Darken color by percentage (0.0 - 1.0)
   static Color darkenColor(Color color, double percentage) {
     assert(percentage >= 0 && percentage <= 1);
 
@@ -53,7 +53,7 @@ class ColorHelper {
         .toColor();
   }
 
-  /// Lighten color oleh percentage (0.0 - 1.0)
+  /// Lighten color by percentage (0.0 - 1.0)
   static Color lightenColor(Color color, double percentage) {
     assert(percentage >= 0 && percentage <= 1);
 
@@ -62,21 +62,21 @@ class ColorHelper {
         .toColor();
   }
 
-  /// Get contrast color (hitam atau putih) berdasarkan background color
+  /// Get contrast color (black or white) based on background color
   static Color getContrastColor(Color color) {
     // Calculate luminance using the newer API
     final luminance = (0.299 * color.r + 0.587 * color.g + 0.114 * color.b);
 
-    // Return black untuk bright colors, white untuk dark colors
+    // Return black for bright colors, white for dark colors
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
-  /// Get text color yang readable di atas background color
+  /// Get text color that is readable on background color
   static Color getTextColor(Color backgroundColor) {
     return getContrastColor(backgroundColor);
   }
 
-  /// Parse color dari berbagai format
+  /// Parse color from various formats
   static Color? parseColor(dynamic color) {
     if (color == null) return null;
 
@@ -96,9 +96,9 @@ class ColorHelper {
   }
 }
 
-/// Extension untuk Color class
+/// Extension for Color class
 extension ColorExtension on Color {
-  /// Convert Color ke hex string
+  /// Convert Color to hex string
   String toHex() {
     return ColorHelper.colorToHex(this);
   }
@@ -118,12 +118,12 @@ extension ColorExtension on Color {
     return ColorHelper.getContrastColor(this);
   }
 
-  /// Check apakah color adalah light color
+  /// Check if color is light color
   bool get isLight {
     final luminance = (0.299 * r + 0.587 * g + 0.114 * b);
     return luminance > 0.5;
   }
 
-  /// Check apakah color adalah dark color
+  /// Check if color is dark color
   bool get isDark => !isLight;
 }

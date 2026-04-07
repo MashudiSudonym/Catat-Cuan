@@ -2,42 +2,42 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'category_entity.freezed.dart';
 
-/// Entity untuk merepresentasikan kategori transaksi
+/// Entity representing a transaction category
 @freezed
 abstract class CategoryEntity with _$CategoryEntity {
   const CategoryEntity._();
 
   const factory CategoryEntity({
-    /// Primary key dari database (nullable untuk kategori baru)
+    /// Primary key from database (nullable for new category)
     int? id,
 
-    /// Nama kategori
+    /// Category name
     required String name,
 
-    /// Tipe kategori (income/expense)
+    /// Category type (income/expense)
     required CategoryType type,
 
-    /// Warna kategori (hex code)
+    /// Category color (hex code)
     required String color,
 
-    /// Icon kategori (optional)
+    /// Category icon (optional)
     String? icon,
 
-    /// Urutan pengurutan
+    /// Sort order
     @Default(0) int sortOrder,
 
-    /// Status aktif/non-aktif
+    /// Active/inactive status
     @Default(true) bool isActive,
 
-    /// Waktu pembuatan record
+    /// Record creation timestamp
     required DateTime createdAt,
 
-    /// Waktu terakhir update
+    /// Last update timestamp
     required DateTime updatedAt,
   }) = _CategoryEntity;
 }
 
-/// Enum untuk tipe kategori
+/// Enum for category type
 enum CategoryType {
   income('income'),
   expense('expense');
@@ -46,7 +46,7 @@ enum CategoryType {
 
   final String value;
 
-  /// Get enum dari string value
+  /// Get enum from string value
   static CategoryType fromString(String value) {
     return CategoryType.values.firstWhere(
       (type) => type.value == value,
@@ -54,7 +54,7 @@ enum CategoryType {
     );
   }
 
-  /// Get display name dalam Bahasa Indonesia
+  /// Get display name in Indonesian
   String get displayName {
     switch (this) {
       case CategoryType.income:

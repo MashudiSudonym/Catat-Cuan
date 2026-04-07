@@ -2,29 +2,29 @@ import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/merchant_pattern_entity.dart';
 import 'package:catat_cuan/domain/services/merchant_pattern_service.dart';
 
-/// Parser untuk mengekstrak nama merchant dari teks struk
+/// Parser for extracting merchant names from receipt text
 ///
-/// Parser ini menggunakan berbagai strategi untuk mengenali merchant:
-/// 1. Header matching (baris pertama struk) - prioritas tertinggi
-/// 2. Keyword matching (seluruh teks) - prioritas sedang
-/// 3. Pattern matching (baris per baris) - prioritas rendah
+/// This parser uses various strategies to recognize merchants:
+/// 1. Header matching (first line of receipt) - highest priority
+/// 2. Keyword matching (entire text) - medium priority
+/// 3. Pattern matching (line by line) - low priority
 class ReceiptMerchantParser {
   final MerchantPatternService _patternService;
 
-  /// Threshold keyakinan minimum untuk menganggap merchant ditemukan
+  /// Minimum confidence threshold to consider merchant found
   static const double _confidenceThreshold = 0.6;
 
   ReceiptMerchantParser(this._patternService);
 
-  /// Parse merchant name dari teks struk
+  /// Parse merchant name from receipt text
   ///
   /// Parameters:
-  /// - [receiptText]: Teks penuh dari hasil OCR struk
+  /// - [receiptText]: Full text from OCR receipt scan
   ///
-  /// Returns Result dengan MerchantParseResult berisi:
-  /// - merchantName: Nama merchant yang dikenali (null jika tidak ditemukan)
-  /// - confidence: Skor keyakinan 0.0 - 1.0
-  /// - matchedPattern: Pola merchant yang cocok (null jika tidak ditemukan)
+  /// Returns Result with MerchantParseResult containing:
+  /// - merchantName: Recognized merchant name (null if not found)
+  /// - confidence: Confidence score 0.0 - 1.0
+  /// - matchedPattern: Matched merchant pattern (null if not found)
   Result<MerchantParseResult> parseMerchant(String receiptText) {
     if (receiptText.trim().isEmpty) {
       return Result.success(const MerchantParseResult(
@@ -36,25 +36,25 @@ class ReceiptMerchantParser {
 
     final lines = receiptText.split('\n');
 
-    // Strategi 1: Header matching (5 baris pertama) - keyakinan tertinggi
+    // Strategy 1: Header matching (first 5 lines) - highest confidence
     final headerMatch = _matchInHeader(lines.take(7).toList());
     if (headerMatch != null && headerMatch.confidence >= 0.9) {
       return Result.success(headerMatch);
     }
 
-    // Strategi 2: Full text keyword matching - keyakinan sedang
+    // Strategy 2: Full text keyword matching - medium confidence
     final keywordMatch = _matchByKeywords(receiptText);
     if (keywordMatch != null && keywordMatch.confidence >= 0.7) {
       return Result.success(keywordMatch);
     }
 
-    // Strategi 3: Pattern-based matching baris per baris - keyakinan rendah
+    // Strategy 3: Pattern-based matching line by line - low confidence
     final patternMatch = _matchByPattern(lines);
     if (patternMatch != null && patternMatch.confidence >= _confidenceThreshold) {
       return Result.success(patternMatch);
     }
 
-    // Tidak ada merchant yang ditemukan
+    // No merchant found
     return Result.success(const MerchantParseResult(
       merchantName: null,
       confidence: 0.0,
@@ -62,46 +62,46 @@ class ReceiptMerchantParser {
     ));
   }
 
-  /// Mencocokkan merchant di header struk (baris pertama)
+  /// Match merchant in receipt header (first line)
   ///
-  /// Baris pertama struk biasanya berisi nama merchant paling jelas.
-  /// Metode ini memberikan keyakinan tertinggi (0.95+).
+  /// First line of receipt usually contains clearest merchant name.
+  /// This method gives highest confidence (0.95+).
   MerchantParseResult? _matchInHeader(List<String> headerLines) {
     if (headerLines.isEmpty) return null;
 
     final headerText = headerLines.join('\n').toUpperCase();
 
-    // Cari semua pola yang cocok di header
+    // Find all matching patterns in header
     final matches = <MerchantPatternEntity>[];
     for (final pattern in _patternService.getPatterns()) {
       for (final namePattern in pattern.namePatterns) {
         if (headerText.contains(namePattern)) {
           matches.add(pattern);
-          break; // Sudah dapat pattern ini, lanjut ke pattern lain
+          break; // Already got this pattern, continue to next pattern
         }
       }
     }
 
     if (matches.isEmpty) return null;
 
-    // Sort berdasarkan priority tertinggi
+    // Sort by highest priority
     matches.sort((a, b) => b.priority.compareTo(a.priority));
     final bestMatch = matches.first;
 
     return MerchantParseResult(
       merchantName: bestMatch.merchantName,
-      confidence: 0.95, // Header match adalah keyakinan tertinggi
+      confidence: 0.95, // Header match is highest confidence
       matchedPattern: bestMatch,
     );
   }
 
-  /// Mencocokkan merchant menggunakan keyword di seluruh teks
+  /// Match merchant using keywords in entire text
   ///
-  /// Metode ini memberikan skor berdasarkan jumlah keyword yang cocok:
-  /// - Nama pattern: 0.5 poin
-  /// - Header pattern: 0.2 poin
-  /// - Address pattern: 0.1 poin
-  /// Total minimum 0.6 untuk dianggap cocok.
+  /// This method gives score based on number of matching keywords:
+  /// - Name pattern: 0.5 points
+  /// - Header pattern: 0.2 points
+  /// - Address pattern: 0.1 points
+  /// Minimum total 0.6 to be considered a match.
   MerchantParseResult? _matchByKeywords(String fullText) {
     final upperText = fullText.toUpperCase();
     MerchantPatternEntity? bestMatch;
@@ -110,31 +110,31 @@ class ReceiptMerchantParser {
     for (final pattern in _patternService.getPatterns()) {
       double score = 0.0;
 
-      // Cek nama pattern (bobot tertinggi)
+      // Check name pattern (highest weight)
       for (final namePattern in pattern.namePatterns) {
         if (upperText.contains(namePattern)) {
           score += 0.5;
-          break; // Cukup satu nama pattern yang cocok
+          break; // One matching name pattern is enough
         }
       }
 
-      // Cek header pattern (bobot sedang)
+      // Check header pattern (medium weight)
       for (final headerPattern in pattern.headerPatterns) {
         if (upperText.contains(headerPattern)) {
           score += 0.2;
-          // Tidak break karena bisa ada multiple header patterns
+          // Don't break as there can be multiple header patterns
         }
       }
 
-      // Cek address pattern (bobot rendah)
+      // Check address pattern (low weight)
       for (final addressPattern in pattern.addressPatterns) {
         if (upperText.contains(addressPattern)) {
           score += 0.1;
-          // Tidak break karena bisa ada multiple address patterns
+          // Don't break as there can be multiple address patterns
         }
       }
 
-      // Update best match jika score lebih tinggi
+      // Update best match if score is higher
       if (score > bestScore && score >= _confidenceThreshold) {
         bestScore = score;
         bestMatch = pattern;
@@ -143,7 +143,7 @@ class ReceiptMerchantParser {
 
     if (bestMatch == null) return null;
 
-    // Normalize score ke 0.0 - 1.0 range
+    // Normalize score to 0.0 - 1.0 range
     final normalizedScore = (bestScore * 1.5).clamp(0.0, 1.0);
 
     return MerchantParseResult(
@@ -153,29 +153,29 @@ class ReceiptMerchantParser {
     );
   }
 
-  /// Mencocokkan merchant baris per baris
+  /// Match merchant line by line
   ///
-  /// Metode ini memeriksa setiap baris dan mencari pola merchant.
-  /// Memberikan keyakinan rendah (0.6) cocok untuk fallback.
+  /// This method checks each line and looks for merchant patterns.
+  /// Gives low confidence (0.6) suitable for fallback.
   MerchantParseResult? _matchByPattern(List<String> lines) {
     for (final line in lines) {
       final trimmedLine = line.trim();
 
-      // Skip baris kosong atau baris yang terlihat seperti amount
+      // Skip empty lines or lines that look like amounts
       if (trimmedLine.isEmpty || _isAmountLine(trimmedLine)) {
         continue;
       }
 
       final upperLine = trimmedLine.toUpperCase();
 
-      // Cek semua merchant patterns
+      // Check all merchant patterns
       for (final pattern in _patternService.getPatterns()) {
         for (final namePattern in pattern.namePatterns) {
-          // Gunakan contains match tapi pasti itu kata lengkap
+          // Use contains match but ensure it's a whole word
           if (_containsWholeWord(upperLine, namePattern)) {
             return MerchantParseResult(
               merchantName: pattern.merchantName,
-              confidence: 0.6, // Pattern matching keyakinan rendah
+              confidence: 0.6, // Pattern matching low confidence
               matchedPattern: pattern,
             );
           }
@@ -186,41 +186,41 @@ class ReceiptMerchantParser {
     return null;
   }
 
-  /// Cek apakah baris terlihat seperti baris amount
+  /// Check if line looks like an amount line
   ///
-  /// Baris amount biasanya memiliki banyak digit (minimal 4 digit)
-  /// untuk menunjukkan nominal uang.
+  /// Amount lines usually have many digits (minimum 4 digits)
+  /// to indicate monetary value.
   bool _isAmountLine(String line) {
-    // Hapus semua non-digit
+    // Remove all non-digits
     final digitCount = line.replaceAll(RegExp(r'[^\d]'), '').length;
     return digitCount >= 4;
   }
 
-  /// Cek apakah teks mengandung kata lengkap (bukan substring)
+  /// Check if text contains a whole word (not substring)
   ///
-  /// Contoh:
-  /// - "ALFAMART" mengandung "ALFA" → true (kata lengkap "ALFA")
-  /// - "KUALIFIKASI" mengandung "ALFA" → false (hanya substring)
+  /// Examples:
+  /// - "ALFAMART" contains "ALFA" → true (whole word "ALFA")
+  /// - "KUALIFIKASI" contains "ALFA" → false (only substring)
   bool _containsWholeWord(String text, String word) {
-    // Jika word mengandung spasi, gunakan contains langsung
+    // If word contains space, use contains directly
     if (word.contains(' ')) {
       return text.contains(word);
     }
 
-    // Gunakan word boundary regex
+    // Use word boundary regex
     final pattern = RegExp(r'\b' + RegExp.escape(word) + r'\b');
     return pattern.hasMatch(text);
   }
 
-  /// Parse merchant name dan kategori default dari receipt text
+  /// Parse merchant name and default category from receipt text
   ///
-  /// Metode helper untuk mendapatkan nama merchant dan kategori default
-  /// dalam satu pemanggilan.
+  /// Helper method to get merchant name and default category
+  /// in a single call.
   ///
-  /// Returns Map dengan:
-  /// - 'merchantName': String? nama merchant
-  /// - 'categoryName': String? nama kategori default
-  /// - 'confidence': double skor keyakinan
+  /// Returns Map with:
+  /// - 'merchantName': String? merchant name
+  /// - 'categoryName': String? default category name
+  /// - 'confidence': double confidence score
   Map<String, dynamic> parseMerchantWithCategory(String receiptText) {
     final result = parseMerchant(receiptText);
 

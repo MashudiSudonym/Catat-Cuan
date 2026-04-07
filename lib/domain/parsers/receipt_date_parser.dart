@@ -1,11 +1,11 @@
 import 'package:intl/intl.dart';
 
-/// Parser untuk mengekstrak tanggal dari teks struk
+/// Parser for extracting dates from receipt text
 ///
-/// Focused hanya pada parsing tanggal, bukan waktu.
-/// Untuk parsing datetime lengkap, gunakan [ReceiptDateTimeComposer].
+/// Focused only on parsing dates, not time.
+/// For complete datetime parsing, use [ReceiptDateTimeComposer].
 class ReceiptDateParser {
-  /// Keyword yang biasanya ada di struk untuk menandai tanggal
+  /// Keywords commonly found in receipts to indicate dates
   static const List<String> dateKeywords = [
     'tanggal',
     'date',
@@ -16,36 +16,36 @@ class ReceiptDateParser {
     'trx date',
   ];
 
-  /// Format tanggal yang didukung untuk Indonesia
+  /// Supported date formats for Indonesia
   static const List<String> supportedFormats = [
-    // Format dengan pemisah slash
+    // Formats with slash separator
     'dd/MM/yyyy',
     'd/M/yyyy',
     'dd/M/yyyy',
     'd/MM/yyyy',
-    // Format dengan pemisah dash
+    // Formats with dash separator
     'dd-MM-yyyy',
     'd-M-yyyy',
     'dd-M-yyyy',
     'd-MM-yyyy',
-    // Format dengan pemisah dot
+    // Formats with dot separator
     'dd.MM.yyyy',
     'd.M.yyyy',
     'dd.M.yyyy',
     'd.MM.yyyy',
-    // Format nama bulan (Indonesia & Inggris)
+    // Month name formats (Indonesian & English)
     'dd MMM yyyy',
     'd MMM yyyy',
     'dd MMMM yyyy',
     'd MMMM yyyy',
-    // Format tanpa tahun (asumsi tahun saat ini)
+    // Formats without year (assumes current year)
     'dd/MM',
     'dd-MM',
     'dd MMM',
     'dd MMMM',
   ];
 
-  /// Nama bulan dalam bahasa Indonesia
+  /// Month names in Indonesian
   static const List<String> indonesianMonths = [
     'jan', 'feb', 'mar', 'apr', 'mei', 'jun',
     'jul', 'agu', 'sep', 'okt', 'nov', 'des',
@@ -53,7 +53,7 @@ class ReceiptDateParser {
     'juli', 'agustus', 'september', 'oktober', 'november', 'desember',
   ];
 
-  /// Nama bulan dalam bahasa Inggris
+  /// Month names in English
   static const List<String> englishMonths = [
     'jan', 'feb', 'mar', 'apr', 'may', 'jun',
     'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
@@ -61,21 +61,21 @@ class ReceiptDateParser {
     'july', 'august', 'september', 'october', 'november', 'december',
   ];
 
-  /// Batas tahun minimum (2000)
+  /// Minimum year limit (2000)
   static const int minYear = 2000;
 
-  /// Batas tahun maksimum (tahun saat ini + 1)
+  /// Maximum year limit (current year + 1)
   static int get maxYear => DateTime.now().year + 1;
 
-  /// Parse tanggal dari teks struk
+  /// Parse date from receipt text
   ///
-  /// Mengembalikan [DateParseResult] dengan tanggal yang ditemukan
-  /// dan confidence score. Jika tidak ditemukan, kembalikan null
-  /// dengan confidence 0.
+  /// Returns [DateParseResult] with the found date
+  /// and confidence score. If not found, returns null
+  /// with confidence 0.
   static DateParseResult parseDate(String text) {
     final lines = text.toLowerCase().split('\n');
 
-    // 1. Cari baris yang mengandung keyword tanggal
+    // 1. Find lines containing date keywords
     for (final keyword in dateKeywords) {
       for (final line in lines) {
         if (line.contains(keyword)) {
@@ -91,10 +91,10 @@ class ReceiptDateParser {
       }
     }
 
-    // 2. Cari semua tanggal dalam teks tanpa keyword
+    // 2. Find all dates in text without keywords
     final allDates = _extractAllDates(text);
     if (allDates.isNotEmpty) {
-      // Kembalikan tanggal pertama yang ditemukan
+      // Return first date found
       return DateParseResult(
         date: allDates.first,
         confidence: 0.5,
@@ -109,18 +109,18 @@ class ReceiptDateParser {
     );
   }
 
-  /// Ekstrak tanggal dari satu baris teks
+  /// Extract date from a single line of text
   static DateTime? _extractDateFromLine(String line) {
-    // Bersihkan baris dari keyword
+    // Clean line from keywords
     var cleanedLine = line.toLowerCase();
     for (final keyword in dateKeywords) {
       cleanedLine = cleanedLine.replaceAll(keyword, '');
     }
 
-    // Coba parse dengan berbagai format
+    // Try parsing with various formats
     for (final format in supportedFormats) {
       try {
-        // Handle format tanpa tahun
+        // Handle format without year
         if (format == 'dd/MM' || format == 'dd-MM') {
           final match = RegExp(r'(\d{1,2})[/\-](\d{1,2})').firstMatch(cleanedLine);
           if (match != null) {
@@ -141,7 +141,7 @@ class ReceiptDateParser {
             }
           }
         } else {
-          // Gunakan DateFormat untuk format lengkap
+          // Use DateFormat for complete format
           final dateFormat = DateFormat(format);
           final date = dateFormat.parseStrict(cleanedLine.trim());
           if (_isValidDate(date)) {
@@ -149,22 +149,22 @@ class ReceiptDateParser {
           }
         }
       } catch (_) {
-        // Continue ke format berikutnya
+        // Continue to next format
       }
     }
 
     return null;
   }
 
-  /// Ekstrak semua tanggal dari teks
+  /// Extract all dates from text
   static List<DateTime> _extractAllDates(String text) {
     final dates = <DateTime>[];
 
-    // Pola regex untuk berbagai format tanggal
+    // Regex patterns for various date formats
     final patterns = [
-      // dd/mm/yyyy atau dd-mm-yyyy
+      // dd/mm/yyyy or dd-mm-yyyy
       RegExp(r'\b(\d{1,2})[/\-\.](\d{1,2})[/\-\.](\d{2,4})\b'),
-      // dd MMM yyyy (dengan nama bulan)
+      // dd MMM yyyy (with month name)
       RegExp(r'\b(\d{1,2})\s+([a-zA-Z]{3,9})\s+(\d{2,4})\b'),
       // yyyy-mm-dd (ISO format)
       RegExp(r'\b(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})\b'),
@@ -176,27 +176,27 @@ class ReceiptDateParser {
         DateTime? date;
 
         if (match.groupCount >= 3) {
-          // Coba parse berdasarkan format yang terdeteksi
+          // Try parsing based on detected format
           final g1 = match.group(1);
           final g2 = match.group(2);
           final g3 = match.group(3);
 
           if (g1 != null && g2 != null && g3 != null) {
-            // Cek apakah format dd/mm/yyyy atau yyyy/mm/dd
+            // Check if format is dd/mm/yyyy or yyyy/mm/dd
             final n1 = int.tryParse(g1);
             final n2 = int.tryParse(g2);
             final n3 = int.tryParse(g3);
 
             if (n1 != null && n2 != null && n3 != null) {
-              // Jika group 1 adalah hari (1-31)
+              // If group 1 is day (1-31)
               if (n1 <= 31 && n2 <= 12 && n3 >= 100) {
-                // Format: dd/mm/yyyy atau dd-mm-yyyy
+                // Format: dd/mm/yyyy or dd-mm-yyyy
                 date = _tryCreateDate(n3, n2, n1);
               } else if (n1 >= 100 && n2 <= 12 && n3 <= 31) {
-                // Format: yyyy/mm/dd atau yyyy-mm-dd
+                // Format: yyyy/mm/dd or yyyy-mm-dd
                 date = _tryCreateDate(n1, n2, n3);
               } else if (n1 <= 31) {
-                // Mungkin format: dd MMM yyyy
+                // Possibly format: dd MMM yyyy
                 final month = _parseMonthName(g2);
                 if (month != null) {
                   date = _tryCreateDate(n3, month, n1);
@@ -207,7 +207,7 @@ class ReceiptDateParser {
         }
 
         if (date != null && _isValidDate(date)) {
-          // Hindari duplikasi
+          // Avoid duplicates
           if (!dates.any((d) => _isSameDay(d, date!))) {
             dates.add(date);
           }
@@ -215,23 +215,23 @@ class ReceiptDateParser {
       }
     }
 
-    // Sort tanggal, yang terbaru di awal
+    // Sort dates, newest first
     dates.sort((a, b) => b.compareTo(a));
     return dates;
   }
 
-  /// Parse nama bulan ke nomor bulan (1-12)
+  /// Parse month name to month number (1-12)
   static int? _parseMonthName(String monthStr) {
     final lower = monthStr.toLowerCase();
 
-    // Cek bulan Indonesia
+    // Check Indonesian month
     for (int i = 0; i < indonesianMonths.length; i++) {
       if (indonesianMonths[i].toLowerCase() == lower) {
         return (i % 12) + 1;
       }
     }
 
-    // Cek bulan Inggris
+    // Check English month
     for (int i = 0; i < englishMonths.length; i++) {
       if (englishMonths[i].toLowerCase() == lower) {
         return (i % 12) + 1;
@@ -241,17 +241,17 @@ class ReceiptDateParser {
     return null;
   }
 
-  /// Coba membuat tanggal dengan validasi
+  /// Try creating date with validation
   static DateTime? _tryCreateDate(int year, int month, int day) {
     try {
-      // Handle 2 digit year
+      // Handle 2-digit year
       if (year < 100) {
         year += year >= 50 ? 1900 : 2000;
       }
 
       final date = DateTime(year, month, day);
 
-      // Validasi tanggal
+      // Validate date
       if (_isValidDate(date)) {
         return date;
       }
@@ -261,19 +261,19 @@ class ReceiptDateParser {
     return null;
   }
 
-  /// Cek apakah tanggal valid
+  /// Check if date is valid
   static bool _isValidDate(DateTime date) {
-    // Tidak di masa depan (kecuali hari ini)
+    // Not in the future (except today)
     if (date.isAfter(DateTime.now().add(const Duration(days: 1)))) {
       return false;
     }
 
-    // Tidak terlalu jauh di masa lalu (max 5 tahun)
+    // Not too far in the past (max 5 years)
     if (date.year < minYear) {
       return false;
     }
 
-    // Tidak melebihi tahun maksimum
+    // Not exceeding maximum year
     if (date.year > maxYear) {
       return false;
     }
@@ -281,7 +281,7 @@ class ReceiptDateParser {
     return true;
   }
 
-  /// Cek apakah dua tanggal adalah hari yang sama
+  /// Check if two dates are the same day
   static bool _isSameDay(DateTime d1, DateTime d2) {
     return d1.year == d2.year &&
         d1.month == d2.month &&
@@ -289,7 +289,7 @@ class ReceiptDateParser {
   }
 }
 
-/// Hasil parsing tanggal
+/// Date parsing result
 class DateParseResult {
   final DateTime? date;
   final double confidence;

@@ -2,39 +2,39 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transaction_entity.freezed.dart';
 
-/// Entity untuk merepresentasikan transaksi (pemasukan/pengeluaran)
+/// Entity representing a transaction (income/expense)
 @freezed
 abstract class TransactionEntity with _$TransactionEntity {
   const TransactionEntity._();
 
   const factory TransactionEntity({
-    /// Primary key dari database (nullable untuk transaksi baru)
+    /// Primary key from database (nullable for new transactions)
     int? id,
 
-    /// Nominal transaksi
+    /// Transaction amount
     required double amount,
 
-    /// Tipe transaksi (income/expense)
+    /// Transaction type (income/expense)
     required TransactionType type,
 
-    /// Waktu transaksi terjadi
+    /// Transaction timestamp
     required DateTime dateTime,
 
-    /// Foreign key ke kategori
+    /// Foreign key to category
     required int categoryId,
 
-    /// Catatan tambahan (opsional)
+    /// Additional note (optional)
     String? note,
 
-    /// Waktu pembuatan record
+    /// Record creation timestamp
     required DateTime createdAt,
 
-    /// Waktu terakhir update
+    /// Last update timestamp
     required DateTime updatedAt,
   }) = _TransactionEntity;
 }
 
-/// Enum untuk tipe transaksi
+/// Enum for transaction type
 enum TransactionType {
   income('income'),
   expense('expense');
@@ -43,7 +43,7 @@ enum TransactionType {
 
   final String value;
 
-  /// Get enum dari string value
+  /// Get enum from string value
   /// Supports both English ('income', 'expense') and Indonesian ('pemasukan', 'pengeluaran') values
   static TransactionType fromString(String value) {
     // Try exact match first (for English values from database)
@@ -61,7 +61,7 @@ enum TransactionType {
     }
   }
 
-  /// Get display name dalam Bahasa Indonesia
+  /// Get display name in Indonesian
   String get displayName {
     switch (this) {
       case TransactionType.income:

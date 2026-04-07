@@ -2,37 +2,37 @@ import 'package:catat_cuan/domain/entities/category_breakdown_entity.dart';
 import 'package:catat_cuan/domain/entities/monthly_summary_entity.dart';
 import 'package:catat_cuan/domain/services/insight/insight_configuration_service.dart';
 
-/// Rule Engine untuk mengevaluasi kondisi keuangan dan menghasilkan insight decisions
+/// Rule Engine for evaluating financial conditions and generating insight decisions
 ///
-/// Following SRP: Hanya bertanggung jawab untuk mengevaluasi aturan bisnis
-/// Tidak bertanggung jawab untuk formatting atau UI presentation
+/// Following SRP: Only responsible for evaluating business rules
+/// Not responsible for formatting or UI presentation
 class InsightRuleEngine {
-  /// Mengecek apakah pengguna adalah pengguna baru (transaksi sedikit)
+  /// Check if user is a new user (few transactions)
   ///
-  /// - [transactionCount]: Jumlah transaksi
-  /// - [minTransactionCount]: Threshold minimum transaksi (default dari config)
+  /// - [transactionCount]: Number of transactions
+  /// - [minTransactionCount]: Minimum transaction threshold (default from config)
   ///
-  /// Mengembalikan true jika transaksi < minimum
+  /// Returns true if transactions < minimum
   static bool isNewUser(int transactionCount, {int? minTransactionCount}) {
     final threshold = minTransactionCount ?? InsightConfigurationService.minTransactionCount;
     return transactionCount < threshold;
   }
 
-  /// Mengecek apakah terjadi imbalance (pengeluaran > pemasukan)
+  /// Check if there's an imbalance (expense > income)
   ///
-  /// - [summary]: Ringkasan bulanan
+  /// - [summary]: Monthly summary
   ///
-  /// Mengembalikan true jika saldo negatif
+  /// Returns true if balance is negative
   static bool hasImbalance(MonthlySummaryEntity summary) {
     return summary.isImbalance;
   }
 
-  /// Mengecek apakah ada kategori yang berlebihan
+  /// Check if there are excessive categories
   ///
-  /// - [breakdown]: List breakdown kategori
-  /// - [threshold]: Threshold persentase (default dari config)
+  /// - [breakdown]: List of category breakdowns
+  /// - [threshold]: Percentage threshold (default from config)
   ///
-  /// Mengembalikan list kategori yang melewati threshold
+  /// Returns list of categories that exceed threshold
   static List<CategoryBreakdownEntity> checkExcessiveCategories(
     List<CategoryBreakdownEntity> breakdown, {
     double? threshold,
@@ -41,12 +41,12 @@ class InsightRuleEngine {
     return breakdown.where((c) => c.percentage > thresholdValue).toList();
   }
 
-  /// Mengecek apakah keuangan sehat
+  /// Check if finances are healthy
   ///
-  /// - [summary]: Ringkasan bulanan
-  /// - [hasExcessiveCategories]: Apakah ada kategori berlebihan
+  /// - [summary]: Monthly summary
+  /// - [hasExcessiveCategories]: Whether there are excessive categories
   ///
-  /// Mengembalikan true jika saldo > 20% dan tidak ada kategori berlebihan
+  /// Returns true if balance > 20% and no excessive categories
   static bool isHealthyFinance(
     MonthlySummaryEntity summary, {
     bool hasExcessiveCategories = false,
@@ -54,12 +54,12 @@ class InsightRuleEngine {
     return summary.isHealthy && !hasExcessiveCategories && !summary.isImbalance;
   }
 
-  /// Mengecek potensi menabung
+  /// Check savings potential
   ///
-  /// - [summary]: Ringkasan bulanan
-  /// - [threshold]: Threshold persentase (default dari config)
+  /// - [summary]: Monthly summary
+  /// - [threshold]: Percentage threshold (default from config)
   ///
-  /// Mengembalikan persentase potensi menabung, atau null jika tidak ada potensi
+  /// Returns savings potential percentage, or null if no potential
   static double? checkSavingsPotential(
     MonthlySummaryEntity summary, {
     double? threshold,
@@ -80,11 +80,11 @@ class InsightRuleEngine {
     return null;
   }
 
-  /// Menghitung rasio pengeluaran terhadap pemasukan
+  /// Calculate expense ratio against income
   ///
-  /// - [summary]: Ringkasan bulanan
+  /// - [summary]: Monthly summary
   ///
-  /// Mengembalikan persentase pengeluaran (0-100), atau 0 jika tidak ada pemasukan
+  /// Returns expense percentage (0-100), or 0 if no income
   static double calculateExpenseRatio(MonthlySummaryEntity summary) {
     if (summary.totalIncome <= 0) {
       return 0.0;
@@ -92,11 +92,11 @@ class InsightRuleEngine {
     return (summary.totalExpense / summary.totalIncome * 100);
   }
 
-  /// Mendapatkan insight level berdasarkan rasio pengeluaran
+  /// Get insight level based on expense ratio
   ///
-  /// - [expenseRatio]: Persentase pengeluaran (0-100)
+  /// - [expenseRatio]: Expense percentage (0-100)
   ///
-  /// Mengembalikan kategori insight level
+  /// Returns insight level category
   static ExpenseLevel getExpenseLevel(double expenseRatio) {
     if (expenseRatio >= InsightConfigurationService.nearEmptyThreshold) {
       return ExpenseLevel.nearEmpty;
@@ -110,17 +110,17 @@ class InsightRuleEngine {
   }
 }
 
-/// Kategori level pengeluaran
+/// Expense level category
 enum ExpenseLevel {
-  /// Pengeluaran > 90% dari pemasukan
+  /// Expense > 90% of income
   nearEmpty,
 
-  /// Pengeluaran > 70% dari pemasukan
+  /// Expense > 70% of income
   high,
 
-  /// Pengeluaran > 50% dari pemasukan
+  /// Expense > 50% of income
   moderate,
 
-  /// Pengeluaran < 50% dari pemasukan
+  /// Expense < 50% of income
   low,
 }

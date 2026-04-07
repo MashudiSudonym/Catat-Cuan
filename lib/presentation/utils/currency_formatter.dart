@@ -14,7 +14,7 @@ class CurrencyInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    // Jika user menghapus semua text, biarkan kosong
+    // If user deletes all text, let it be empty
     if (newValue.text.isEmpty) {
       return const TextEditingValue(
         text: '',
@@ -22,10 +22,10 @@ class CurrencyInputFormatter extends TextInputFormatter {
       );
     }
 
-    // Hapus karakter non-digit (termasuk prefix "Rp " yang mungkin ada)
+    // Remove non-digit characters (including "Rp " prefix that may be present)
     var rawValue = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
 
-    // Jika kosong setelah filter, return empty
+    // If empty after filter, return empty
     if (rawValue.isEmpty) {
       return const TextEditingValue(
         text: '',
@@ -33,14 +33,14 @@ class CurrencyInputFormatter extends TextInputFormatter {
       );
     }
 
-    // Parse ke integer
+    // Parse to integer
     var value = int.tryParse(rawValue) ?? 0;
 
-    // Format hanya angka dengan pemisah ribuan (TANPA prefix)
-    // Prefix akan ditambahkan oleh TextField's prefixText
+    // Format numbers only with thousand separator (WITHOUT prefix)
+    // Prefix will be added by TextField's prefixText
     var formattedValue = _formatNumberWithSeparator(value);
 
-    // Kembalikan dengan proper cursor position
+    // Return with proper cursor position
     var selectionEnd = formattedValue.length;
     return TextEditingValue(
       text: formattedValue,
@@ -48,16 +48,16 @@ class CurrencyInputFormatter extends TextInputFormatter {
     );
   }
 
-  /// Format integer dengan pemisah ribuan (TANPA prefix)
-  /// Contoh: 1000000 -> "1.000.000"
+  /// Format integer with thousand separator (WITHOUT prefix)
+  /// Example: 1000000 -> "1.000.000"
   static String _formatNumberWithSeparator(int value) {
     if (value == 0) return '0';
 
-    // Format dengan pemisah ribuan
+    // Format with thousand separator
     var buffer = StringBuffer();
     var valueStr = value.toString();
 
-    // Tambahkan pemisah ribuan dari kanan
+    // Add thousand separator from right
     for (var i = 0; i < valueStr.length; i++) {
       var pos = valueStr.length - i;
       if (i > 0 && pos % 3 == 0) {
@@ -69,38 +69,38 @@ class CurrencyInputFormatter extends TextInputFormatter {
     return buffer.toString();
   }
 
-  /// Format integer ke format Rupiah TANPA prefix
-  /// Prefix akan ditangani oleh TextField's prefixText
-  /// Contoh: 1000000 -> "1.000.000"
+  /// Format integer to Rupiah format WITHOUT prefix
+  /// Prefix will be handled by TextField's prefixText
+  /// Example: 1000000 -> "1.000.000"
   static String formatRupiah(int value) {
     if (value == 0) return '0';
     return _formatNumberWithSeparator(value);
   }
 
-  /// Format double ke format Rupiah TANPA prefix
-  /// Prefix akan ditangani oleh TextField's prefixText
-  /// Contoh: 1000000.50 -> "1.000.000"
-  /// Note: Untuk versi ini, kita bulatkan ke integer
+  /// Format double to Rupiah format WITHOUT prefix
+  /// Prefix will be handled by TextField's prefixText
+  /// Example: 1000000.50 -> "1.000.000"
+  /// Note: For this version, we round to integer
   static String formatRupiahFromDouble(double value) {
     return formatRupiah(value.round());
   }
 
-  /// Parse formatted string kembali ke integer
-  /// Contoh: "1.000.000" -> 1000000
+  /// Parse formatted string back to integer
+  /// Example: "1.000.000" -> 1000000
   static int? parseRupiah(String formatted) {
-    // Hapus karakter non-digit (pemisah ribuan)
+    // Remove non-digit characters (thousand separator)
     var rawValue = formatted.replaceAll(RegExp(r'[^\d]'), '');
     if (rawValue.isEmpty) return null;
     return int.tryParse(rawValue);
   }
 
-  /// Parse formatted string kembali ke double
+  /// Parse formatted string back to double
   static double? parseRupiahToDouble(String formatted) {
     var parsed = parseRupiah(formatted);
     return parsed?.toDouble();
   }
 
-  /// Helper untuk menampilkan format currency dalam text widget
+  /// Helper to display currency format in text widget
   static Widget buildCurrencyText(double amount, {
     TextStyle? style,
     int? maxDecimals,
@@ -111,13 +111,13 @@ class CurrencyInputFormatter extends TextInputFormatter {
     );
   }
 
-  /// Get formatted string dengan atau tanpa prefix
+  /// Get formatted string with or without prefix
   static String formatAmount(double amount, {bool withPrefix = true}) {
     var formatted = formatRupiahFromDouble(amount);
     return withPrefix ? '$_defaultPrefix$formatted' : formatted;
   }
 
-  /// Validate apakah string input valid untuk currency
+  /// Validate if input string is valid for currency
   static bool isValidCurrencyInput(String input) {
     if (input.isEmpty) return false;
     var rawValue = input.replaceAll(RegExp(r'[^\d]'), '');
@@ -125,26 +125,26 @@ class CurrencyInputFormatter extends TextInputFormatter {
   }
 }
 
-/// Extension untuk memudahkan formatting
+/// Extension for easier formatting
 extension CurrencyFormatterExtension on double {
-  /// Format double ke string Rupiah
+  /// Format double to Rupiah string
   String toRupiah() {
     return CurrencyInputFormatter.formatRupiahFromDouble(this);
   }
 
-  /// Format double ke string Rupiah tanpa prefix
+  /// Format double to Rupiah string without prefix
   String toRupiahWithoutPrefix() {
     return CurrencyInputFormatter.formatAmount(this, withPrefix: false);
   }
 }
 
 extension CurrencyFormatterExtensionInt on int {
-  /// Format int ke string Rupiah
+  /// Format int to Rupiah string
   String toRupiah() {
     return CurrencyInputFormatter.formatRupiah(this);
   }
 
-  /// Format int ke string Rupiah tanpa prefix
+  /// Format int to Rupiah string without prefix
   String toRupiahWithoutPrefix() {
     var formatted = CurrencyInputFormatter.formatRupiah(this);
     return formatted.substring(3);

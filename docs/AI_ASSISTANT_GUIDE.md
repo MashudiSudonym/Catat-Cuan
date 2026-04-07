@@ -352,6 +352,38 @@ Co-Authored-By: Claude (glm-4.7) <noreply@anthropic.com>"
 
 ---
 
+### 9. Code Comments Must Be in English ⚠️
+
+**⚠️ CRITICAL**: All code comments, documentation, and annotations MUST be written in English.
+
+```dart
+// ❌ WRONG - Comments in Indonesian/Bahasa Indonesia
+/// Entity untuk merepresentasikan transaksi (pemasukan/pengeluaran)
+/// Primary key dari database (nullable untuk transaksi baru)
+/// Get display name dalam Bahasa Indonesia
+
+// ✅ CORRECT - Comments in English
+/// Entity representing a transaction (income/expense)
+/// Primary key from database (nullable for new transactions)
+/// Gets display name in Indonesian
+```
+
+**Why**: English is the universal language of software development:
+- Ensures codebase accessibility to international contributors
+- Maintains consistency with standard programming terminology
+- Facilitates open-source collaboration
+- Aligns with Flutter/Dart ecosystem conventions
+
+**Exception**: User-facing strings (UI text) should remain in Indonesian as per product requirements. This only applies to code comments and documentation.
+
+**Translation Guidelines**:
+- Preserve meaning, not word-for-word translation
+- Use standard terminology: "Entity", "Repository", "Use Case", "Provider"
+- Maintain comment structure (`///`, `//`, `/* */`)
+- Keep technical terms in English
+
+---
+
 ## Reference Locations
 
 ### Domain Layer (Business Logic)
