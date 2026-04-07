@@ -1,6 +1,6 @@
 # Test Coverage Documentation / Dokumentasi Cakupan Tes
 
-**Version**: 1.2.2
+**Version**: 1.5.0
 **Last Updated**: 6 April 2026
 **Status**: 791/791 Tests Passing ✅
 

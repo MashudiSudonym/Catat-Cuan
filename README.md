@@ -14,7 +14,7 @@
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
   [![Tests](https://img.shields.io/badge/Tests-791%2F791%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
-  [![Version](https://img.shields.io/badge/Version-1.4.0-blue.svg)](https://github.com/MashudiSudonym/Catat-Cuan/releases)
+  [![Version](https://img.shields.io/badge/Version-1.5.0-blue.svg)](https://github.com/MashudiSudonym/Catat-Cuan/releases)
 
   [Bahasa Indonesia](#indonesia) | [English](#english)
 
@@ -158,6 +158,11 @@ flutter run
 - [x] Ekstraksi nama merchant dari 50+ retailer Indonesia
 - [x] Prediksi kategori berdasarkan merchant yang dikenali
 - [x] UI display nama merchant di hasil scan
+
+#### v1.5 ✅ (Documentation & Code Standards)
+- [x] English-only code comments standard
+- [x] Documentation synchronization across all files
+- [x] Version synchronization (1.2.2 → 1.5.0)
 
 #### v2.0 (Mendatang)
 - [ ] 💬 AI Chatbot assistant

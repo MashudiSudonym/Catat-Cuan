@@ -1,7 +1,7 @@
 # Project Status Catat Cuan
 
-**Version**: 1.4.0
-**Status**: ✅ v1.4 Complete - Enhanced AI Model | ✅ 100% SRP Compliance | ✅ Automated Versioning
+**Version**: 1.5.0
+**Status**: ✅ v1.5 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
 **Last Updated**: 7 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
@@ -52,7 +52,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 
 # Status Proyek Catat Cuan
 
-**Versi**: 1.2.2 (Selesai)
+**Versi**: 1.5.0 (Selesai)
 **Status**: ✅ v1 Selesai | ✅ 100% Kepatuhan SRP | ✅ Automated Versioning
 **Terakhir Diperbarui**: 6 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)

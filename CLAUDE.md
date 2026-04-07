@@ -236,12 +236,12 @@ git push origin main
 ./scripts/bump_version.sh --dry-run
 ```
 
-**Version Format in `pubspec.yaml`**: `version: 1.2.0` (without build number)
+**Version Format in `pubspec.yaml`**: `version: 1.5.0` (without build number)
 
 Build numbers are auto-generated from git commit count:
 ```bash
 # Local build with version info
-flutter build apk --release --build-name=1.2.0 --build-number=$(git rev-list --count HEAD)
+flutter build apk --release --build-name=1.5.0 --build-number=$(git rev-list --count HEAD)
 ```
 
 **Conventional Commits → Version Bumps**:
