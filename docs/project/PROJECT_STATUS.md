@@ -1,8 +1,8 @@
 # Project Status Catat Cuan
 
-**Version**: 1.2.2
-**Status**: ✅ v1 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
-**Last Updated**: 6 April 2026
+**Version**: 1.3.0
+**Status**: ✅ v1.3 Complete - Home Screen Widgets | ✅ 100% SRP Compliance | ✅ Automated Versioning
+**Last Updated**: 7 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
 
@@ -101,6 +101,8 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 | Onboarding | 3 halaman walkthrough dengan navigasi swipe |
 | Pengaturan mata uang | Dukungan IDR dan USD |
 | Navigasi GoRouter | Routing bertipe aman dengan deep linking |
+| **Home Screen Widgets** (v1.3) | Widget Android/iOS dengan ringkasan pengeluaran |
+| **Widget Deep Linking** (v1.3) | Tap widget → buka form tambah transaksi |
 
 ---
 
@@ -598,6 +600,88 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
    - Cloud sync
    - Budgeting lengkap
    - Multi-currency
+
+---
+
+## Roadmap v1.3 - Home Screen Widgets
+
+**Status**: ✅ Selesai (7 April 2026)
+
+### Fitur yang Diimplementasikan
+
+| Fitur | Status | Deskripsi |
+|-------|--------|-----------|
+| **Widget Data Layer** | ✅ Selesai | WidgetDataEntity, WidgetRepository, WidgetLocalDatasource |
+| **Widget Provider** | ✅ Selesai | WidgetNotifier untuk update data widget |
+| **Android Widget** | ✅ Selesai | ExpenseWidgetProvider dengan home_widget 0.9.0 |
+| **iOS Widget** | ✅ Selesai | SwiftUI widget dengan TimelineProvider |
+| **Deep Linking** | ✅ Selesai | URL scheme catatcuan://widget/add |
+
+### File Baru (22 files)
+
+**Flutter Layer (7 files)**:
+- `lib/domain/entities/widget/widget_data_entity.dart` - Widget data entity
+- `lib/domain/entities/widget/widget_data_serializer.dart` - JSON serializer
+- `lib/domain/repositories/widget/widget_repository.dart` - Repository interface
+- `lib/data/repositories/widget/widget_repository_impl.dart` - Implementation
+- `lib/data/datasources/widget/widget_local_datasource.dart` - home_widget integration
+- `lib/presentation/providers/widget/widget_provider.dart` - Riverpod provider
+
+**Android (5 files)**:
+- `android/app/src/main/kotlin/.../widget/ExpenseGlanceWidget.kt` - GlanceAppWidget
+- `android/app/src/main/kotlin/.../widget/WidgetData.kt` - Data model
+- `android/app/src/main/res/xml/widget_info.xml` - Widget configuration
+- `android/app/src/main/res/layout/widget_loading.xml` - Loading layout
+- `android/app/src/main/res/values/strings.xml` - String resources
+
+**iOS (4 files)**:
+- `ios/Runner/Widgets/ExpenseWidgetData.swift` - Data model
+- `ios/Runner/Widgets/ExpenseWidgetProvider.swift` - TimelineProvider
+- `ios/Runner/Widgets/ExpenseWidgetView.swift` - SwiftUI view
+- `ios/Runner/ExpenseBundle.swift` - Widget bundle
+
+**Configuration Files (3 files)**:
+- `pubspec.yaml` - home_widget: ^0.9.0
+- `android/app/build.gradle.kts` - Glance dependencies
+- `android/app/src/main/AndroidManifest.xml` - Widget registration + deep links
+- `ios/Runner/Info.plist` - URL scheme configuration
+- `lib/presentation/navigation/routes/app_router.dart` - Deep link route
+
+### Dependencies Updated
+- `home_widget`: ^0.5.0 → ^0.9.0 (Flutter 3.41 compatibility)
+- `androidx.glance:glance-appwidget:1.0.0` (Android widget)
+- `androidx.glance:glance-material3:1.0.0` (Android widget)
+
+### Cara Menggunakan Widget
+
+**Android:**
+1. Long press pada home screen
+2. Pilih "Widgets"
+3. Cari "Catat Cuan"
+4. Pilih ukuran (small/medium/large)
+
+**iOS:**
+1. Long press pada home screen
+2. Pilih "Edit"
+3. Pilih "+" di pojok kiri atas
+4. Cari "Catat Cuan"
+5. Pilih ukuran (small/medium/large)
+
+**Tap Widget:**
+- Widget akan membuka aplikasi ke form tambah transaksi
+- Data widget otomatis update setelah ada transaksi baru
+
+---
+
+## Roadmap v1.4 - Enhanced AI Model (Rencana)
+
+**Status**: ⏳ Rencana
+
+| Fitur | Prioritas | Deskripsi |
+|-------|----------|-----------|
+| Indonesian text recognition | Tinggi | ML Kit dengan Indonesian language support |
+| Merchant pattern library | Tinggi | Pola struk Indomaret, Alfamart, dll |
+| Enhanced parsers | Sedang | Keyword & format Indonesian |
 
 ---
 
