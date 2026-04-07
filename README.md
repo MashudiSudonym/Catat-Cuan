@@ -14,6 +14,7 @@
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
   [![Tests](https://img.shields.io/badge/Tests-791%2F791%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
+  [![Version](https://img.shields.io/badge/Version-1.4.0-blue.svg)](https://github.com/MashudiSudonym/Catat-Cuan/releases)
 
   [Bahasa Indonesia](#indonesia) | [English](#english)
 
@@ -42,6 +43,8 @@ Catat Cuan hadir untuk memberikan **kendali sadar** atas keuangan pribadimu. Buk
 - **Smart Amount Detection** - AI mengenali pola "Total", "Jumlah", "Grand Total"
 - **Multi-Format Support** - Mengenali format mata uang Indonesia (Rp 50.000, 50.000, dll)
 - **100% On-Device** - Privasi terjaga, data tidak dikirim ke server
+- **Merchant Recognition** (v1.4) - Kenali 50+ merchant Indonesia otomatis
+- **Category Prediction** (v1.4) - Prediksi kategori berdasarkan merchant
 
 #### 💸 **Pencatatan Transaksi Tanpa Batas**
 - **Unlimited transactions** - catat sebanyak apapun
@@ -62,6 +65,11 @@ Catat Cuan hadir untuk memberikan **kendali sadar** atas keuangan pribadimu. Buk
 - **UI frosted glass** dengan tema orange
 - **Responsive design** - mobile, tablet, desktop
 - **Smooth animations** - pengalaman premium
+
+#### 📱 **Home Screen Widgets** (v1.3)
+- **Widget Android/iOS** - Ringkasan pengeluaran di home screen
+- **Quick Add** - Tap widget untuk langsung tambah transaksi
+- **Auto Update** - Widget update otomatis setelah transaksi baru
 
 ---
 
@@ -124,7 +132,7 @@ flutter run
 
 ### 🎯 Roadmap
 
-#### v1.2.2 (Saat Ini) ✅
+#### v1.2.2 ✅
 - [x] Pencatatan transaksi manual
 - [x] 🤖 AI Smart Scan dengan Google ML Kit
 - [x] Dashboard ringkasan bulanan
@@ -140,9 +148,16 @@ flutter run
 - [x] Pagination (infinite scroll)
 - [x] Full-text search
 
-#### v1.3 (Rencana)
-- [ ] Widget home screen
-- [ ] Enhanced AI model untuk struk Indonesia
+#### v1.3 ✅ (Home Screen Widgets)
+- [x] Widget home screen (Android/iOS)
+- [x] Widget deep linking (tap widget → buka form tambah transaksi)
+- [x] Widget data update otomatis setelah transaksi baru
+
+#### v1.4 ✅ (Enhanced AI Model)
+- [x] ML Kit Latin script configuration untuk teks Indonesia
+- [x] Ekstraksi nama merchant dari 50+ retailer Indonesia
+- [x] Prediksi kategori berdasarkan merchant yang dikenali
+- [x] UI display nama merchant di hasil scan
 
 #### v2.0 (Mendatang)
 - [ ] 💬 AI Chatbot assistant
@@ -197,10 +212,12 @@ Catat Cuan gives you **conscious control** over your personal finances. Understa
 ### ✨ Key Features
 
 - **🤖 AI Smart Scan** - Scan receipts with Google ML Kit (on-device, private)
-- **💸 Unlimited Transactions** - Record as much as you want
+- **🏪 Merchant Recognition** - Auto-recognize 50+ Indonesian retailers (v1.4)
 - **📊 Monthly Dashboard** - AI-powered insights & recommendations
+- **💸 Unlimited Transactions** - Record as much as you want
 - **🏷️ Category Management** - Full CRUD with drag-drop reorder
 - **🎨 Glassmorphism Design** - Modern, responsive UI
+- **📱 Home Screen Widgets** - Quick expense tracking from home screen (v1.3)
 
 ---
 
