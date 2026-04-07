@@ -168,6 +168,12 @@ GoRouter createGoRouter(Ref ref) {
         ],
       ),
 
+      // Widget deep link route (redirects to add transaction)
+      GoRoute(
+        path: '/widget/add',
+        redirect: (context, state) => AppRoutes.addTransaction,
+      ),
+
       // Settings route (can be accessed from any tab)
       GoRoute(
         path: AppRoutes.settings,

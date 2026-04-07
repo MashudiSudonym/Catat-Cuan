@@ -64,6 +64,9 @@ export 'import/import_provider.dart';
 export 'onboarding/onboarding_provider.dart';
 export 'onboarding/category_seeding_provider.dart';
 
+// Widget providers
+export 'widget/widget_provider.dart';
+
 // Controller providers (SRP refactoring)
 export 'controllers/controller_providers.dart';
 

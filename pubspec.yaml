@@ -84,6 +84,9 @@ dependencies:
   # Navigation
   go_router: ^17.1.0
 
+  # Home Screen Widgets
+  home_widget: ^0.9.0
+
   # Freezed for immutable data classes
   freezed_annotation: ^3.1.0
 

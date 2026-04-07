@@ -58,4 +58,8 @@ dependencies {
     // Activity result API for file picker
     implementation("androidx.activity:activity:1.8.0")
     implementation("androidx.activity:activity-ktx:1.8.0")
+
+    // Home Screen Widgets - Jetpack Glance
+    implementation("androidx.glance:glance-appwidget:1.0.0")
+    implementation("androidx.glance:glance-material3:1.0.0")
 }
