@@ -1,5 +1,7 @@
 import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/domain/entities/merchant_pattern_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
+import 'package:catat_cuan/domain/parsers/receipt_merchant_parser.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
 import 'package:catat_cuan/domain/usecases/scan_receipt.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,16 +10,28 @@ import 'package:mockito/mockito.dart';
 
 @GenerateNiceMocks([
   MockSpec<OcrService>(),
+  MockSpec<ReceiptMerchantParser>(),
 ])
 import 'scan_receipt_usecase_test.mocks.dart';
 
 void main() {
   late ScanReceiptUseCase useCase;
   late MockOcrService mockOcrService;
+  late MockReceiptMerchantParser mockMerchantParser;
 
   setUp(() {
     mockOcrService = MockOcrService();
-    useCase = ScanReceiptUseCase(mockOcrService);
+    mockMerchantParser = MockReceiptMerchantParser();
+
+    // Default merchant parser response (no merchant found)
+    when(mockMerchantParser.parseMerchant(any))
+        .thenAnswer((_) => Result.success(const MerchantParseResult(
+          merchantName: null,
+          confidence: 0.0,
+          matchedPattern: null,
+        )));
+
+    useCase = ScanReceiptUseCase(mockOcrService, mockMerchantParser);
   });
 
   group('ScanReceiptUseCase', () {

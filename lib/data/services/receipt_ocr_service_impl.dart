@@ -12,8 +12,10 @@ import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 class ReceiptOcrServiceImpl implements OcrService {
   final TextRecognizer _textRecognizer;
 
-  ReceiptOcrServiceImpl() : _textRecognizer = TextRecognizer() {
-    AppLogger.d('ReceiptOcrService initialized');
+  ReceiptOcrServiceImpl() : _textRecognizer = TextRecognizer(
+    script: TextRecognitionScript.latin,
+  ) {
+    AppLogger.d('ReceiptOcrService initialized with Latin script');
   }
 
   /// Extracts text from an image file

@@ -282,6 +282,45 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen> {
         ),
         const AppSpacingWidget.verticalXXL(),
 
+        // Merchant name display (if detected)
+        if (result.merchantName != null) ...[
+          AppGlassContainer.glassCard(
+            padding: AppSpacing.all(AppSpacing.md),
+            child: Row(
+              children: [
+                const Icon(Icons.store_outlined),
+                const AppSpacingWidget.horizontalMD(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Toko',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      Text(
+                        result.merchantName!,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.verified,
+                  color: AppColors.success,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+          const AppSpacingWidget.verticalLG(),
+        ],
+
+
         // Date and Time picker row
         Row(
           children: [
