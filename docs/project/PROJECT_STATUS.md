@@ -812,6 +812,35 @@ Semua konten dalam Bahasa Indonesia (id_ID):
 
 ---
 
+## Coding Standards
+
+### English-Only Comments (⚠️ MANDATORY)
+
+**Effective**: 8 April 2026
+
+All code comments, documentation, and annotations MUST be written in English.
+
+**Why**: English is the universal language of software development, ensuring:
+- Codebase accessibility to international contributors
+- Consistency with standard programming terminology
+- Better collaboration in open-source environments
+- Alignment with Flutter/Dart ecosystem conventions
+
+**Scope**:
+- ✅ All code comments (`//`, `///`, `/* */`)
+- ✅ Documentation comments
+- ✅ TODO comments
+- ✅ Variable/Function naming (always English)
+- ❌ User-facing strings (UI text remains Indonesian)
+
+**Documentation**:
+- See [CODING_STANDARDS.md](../guides/CODING_STANDARDS.md#language-requirements) for details
+- See [AI_ASSISTANT_GUIDE.md](../AI_ASSISTANT_GUIDE.md#critical-rule-9-code-comments-must-be-in-english) for AI guidelines
+
+**Status**: ✅ Enforced - All code comments converted to English
+
+---
+
 ## Status Proyek
 
 **✅ v1 100% SELESAI** - Semua persyaratan PRD diimplementasikan dengan peningkatan tambahan.
