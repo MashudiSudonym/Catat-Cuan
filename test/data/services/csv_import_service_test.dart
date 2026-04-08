@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:catat_cuan/data/services/csv_import_service_impl.dart';
-import 'package:catat_cuan/domain/core/result.dart';
-import 'package:catat_cuan/domain/entities/import_result_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:flutter_test/flutter_test.dart';

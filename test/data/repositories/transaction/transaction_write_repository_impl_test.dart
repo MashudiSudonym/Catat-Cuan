@@ -1,7 +1,5 @@
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
-import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
-import 'package:catat_cuan/data/models/transaction_model.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_write_repository_impl.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/failures/failures.dart';

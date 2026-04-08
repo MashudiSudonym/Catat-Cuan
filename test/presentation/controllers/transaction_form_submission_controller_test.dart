@@ -1,6 +1,5 @@
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
-import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/presentation/controllers/transaction_form_submission_controller.dart';
 import 'package:catat_cuan/presentation/states/transaction_form_state.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';

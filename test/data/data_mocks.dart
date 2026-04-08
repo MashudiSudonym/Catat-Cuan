@@ -7,4 +7,4 @@ import 'package:mockito/annotations.dart';
 /// Run `flutter pub run build_runner build --delete-conflicting-outputs`
 /// to generate the mock class.
 @GenerateNiceMocks([MockSpec<LocalDataSource>()])
-import 'data_mocks.mocks.dart';
+import 'data_mocks.mocks.dart'; // ignore: unused_import
