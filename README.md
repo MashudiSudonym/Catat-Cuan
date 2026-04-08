@@ -13,7 +13,7 @@
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop-lightgrey)](https://flutter.dev/multi-platform)
   [![SOLID](https://img.shields.io/badge/SOLID-100%25%20SRP-brightgreen.svg)](docs/guides/SOLID.md)
-  [![Tests](https://img.shields.io/badge/Tests-791%2F791%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
+  [![Tests](https://img.shields.io/badge/Tests-954%2F954%20Passing-success.svg)](https://github.com/MashudiSudonym/Catat-Cuan)
   [![Version](https://img.shields.io/badge/Version-1.5.0-blue.svg)](https://github.com/MashudiSudonym/Catat-Cuan/releases)
 
   [Bahasa Indonesia](#indonesia) | [English](#english)
