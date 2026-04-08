@@ -23,6 +23,7 @@
 | [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
 | [PRD v1](../product/00-PRD.md) | Indonesian | Product Requirements Document v1 |
 | [PRD v2](../v2/product/00-PRD.md) | Indonesian | Product Requirements Document v2 |
+| [SPEC v2](../v2/product/IMPLEMENTATION_STATUS.md) | English/Indonesian | v2 Implementation Status |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
 | [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (791 tests) |
 
