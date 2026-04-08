@@ -1,7 +1,7 @@
 # Project Status Catat Cuan
 
 **Version**: 1.5.1
-**Status**: ✅ v1.5.1 | ✅ 100% SRP Compliance | ✅ Phase 4 Tests Complete | ✅ Automated Versioning
+**Status**: ✅ v1.5.1 | ✅ 100% SRP Compliance | ✅ Phase 5 Tests Complete | ✅ Automated Versioning
 **Last Updated**: 8 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
@@ -48,7 +48,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 911/911 tests passing, 0 analyzer errors
+- **Code Quality**: 945/945 tests passing, 0 analyzer errors
 
 ---
 
@@ -167,7 +167,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ## Testing Pyramid Implementation
 
-**Status**: ✅ Phase 4 Completed | 911/911 Tests Passing
+**Status**: ✅ Phase 5 Completed | 945/945 Tests Passing
 
 ### Implementation Plan
 
@@ -184,11 +184,11 @@ Following the Testing Pyramid principle:
 | **Phase 2** | Entity, Validator & Analyzer Tests | ✅ Completed | 248/248 passing |
 | **Phase 3** | Use Case Tests | ✅ Completed | 186/186 passing |
 | **Phase 4** | Data Layer Tests | ✅ Completed | 120/120 passing |
-| **Phase 5** | Presentation Tests | ⏳ Pending | 0/11 planned |
+| **Phase 5** | Presentation Tests | ✅ Completed | 34/34 passing |
 | **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
 | **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
 
-**Total Test Count**: 911/911 tests passing ✅ | 0 analyzer errors ✅
+**Total Test Count**: 945/945 tests passing ✅ | 0 analyzer errors ✅
 
 ### Phase 1: Foundation (Completed ✅)
 
@@ -270,6 +270,28 @@ Following the Testing Pyramid principle:
 - `test/data/repositories/category/` - Category repository tests
 - `test/data/repositories/transaction/` - Transaction repository tests
 - `test/data/services/` - Service test files
+
+**Current Test Count**: 945/945 passing ✅
+
+### Phase 5: Presentation Tests (Completed ✅)
+
+**Completed**:
+- ✅ Controller tests (10 tests)
+  - TransactionFormSubmissionController (6 tests) - add/update strategy selection, form validation, error handling, date/time combination
+  - TransactionDeleteController (4 tests) - single delete, batch delete with validation, empty list handling, failure handling
+- ✅ Provider tests (21 tests)
+  - TransactionSelectionNotifier (10 tests) - toggle selection mode, select/deselect all, multiple item selection, clear selection
+  - TransactionFormNotifier (11 tests) - form validation (nominal, category, date, time), load for edit, reset form, set note, clear error
+- ✅ Widget tests (2 tests)
+  - TransactionFormScreen (2 tests) - basic smoke tests for widget instantiation
+
+**Test Infrastructure Added**:
+- `test/presentation/presentation_mocks.dart` - Mock use cases for presentation layer
+- `test/presentation/controllers/` - Controller test files
+- `test/presentation/providers/` - Provider test files
+- `test/presentation/widgets/` - Widget test files
+
+**Current Test Count**: 945/945 passing ✅
 
 ### Test Infrastructure
 
