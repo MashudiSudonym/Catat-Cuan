@@ -1,17 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/import_result_dialog.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Settings screen for app preferences
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _version = packageInfo.version;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -143,7 +166,7 @@ class SettingsScreen extends ConsumerWidget {
                     color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
                   title: const Text('Versi Aplikasi'),
-                  subtitle: const Text('1.0.0'),
+                  subtitle: Text(_version.isEmpty ? 'Memuat...' : _version),
                 ),
                 const Divider(height: 1),
                 ListTile(
