@@ -2,7 +2,7 @@
 
 **Version**: 1.5.0
 **Status**: ✅ v1.5 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
-**Last Updated**: 7 April 2026
+**Last Updated**: 8 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
 
@@ -21,7 +21,8 @@
 | [DESIGN_SYSTEM_GUIDE.md](../design/DESIGN_SYSTEM_GUIDE.md) | English | Glassmorphism design system |
 | [DATABASE_SCHEMA.md](../database/DATABASE_SCHEMA.md) | English | Database schema documentation |
 | [DATABASE_SCHEMA_ID.md](../database/DATABASE_SCHEMA_ID.md) | Indonesian | Dokumentasi skema database |
-| [PRD](../product/00-PRD.md) | Indonesian | Product Requirements Document |
+| [PRD v1](../product/00-PRD.md) | Indonesian | Product Requirements Document v1 |
+| [PRD v2](../v2/product/00-PRD.md) | Indonesian | Product Requirements Document v2 |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
 | [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (791 tests) |
 
@@ -600,9 +601,56 @@ Proyek ini mengikuti prinsip SOLID. Lihat [SOLID.md](../../../guides/SOLID.md) u
    - Buat contributor guide untuk developer
 
 5. **Fitur v2 (Rencana)**
-   - Cloud sync
-   - Budgeting lengkap
-   - Multi-currency
+   - ✅ PRD v2 completed → See [docs/v2/product/00-PRD.md](../v2/product/00-PRD.md)
+   - Google Drive Backup/Restore
+   - Full Budgeting
+   - Savings Goals
+   - Dark Mode
+   - Enhanced Reports
+
+---
+
+## Roadmap v2 - Cloud, Budgeting & Enhanced Features
+
+**Status**: 📝 Planning Phase
+**Target**: Short-term (2-3 months)
+**PRD**: [docs/v2/product/00-PRD.md](../v2/product/00-PRD.md)
+
+### Features Planned
+
+| Feature | Description | Priority |
+|---------|-------------|----------|
+| **Google Drive Backup/Restore** | Manual backup/restore via Google Drive | P0 |
+| **Full Budgeting** | Budget per category with alerts | P0 |
+| **Savings Goals** | Target savings with progress tracking | P0 |
+| **Dark Mode** | Dark theme for the app | P1 |
+| **Enhanced Reports** | More detailed monthly financial reports | P1 |
+
+### Timeline
+
+| Phase | Duration | Focus |
+|-------|----------|-------|
+| Phase 1 | Week 1-2 | Database schema + Dark mode |
+| Phase 2 | Week 3-4 | Full Budgeting |
+| Phase 3 | Week 5-6 | Savings Goals |
+| Phase 4 | Week 7-8 | Google Drive Backup |
+| Phase 5 | Week 9-10 | Enhanced Reports |
+| Phase 6 | Week 11-12 | Polish & Testing |
+
+### New Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| google_sign_in | OAuth for Google Drive |
+| googleapis | Google Drive API v3 |
+| extension_google_sign_in_as_googleapis_auth | Auth adapter |
+
+### Database Schema Changes
+
+**New Tables:**
+- `budgets` - Budget per category per month
+- `savings_goals` - Savings targets
+- `goal_contributions` - Goal contribution history
 
 ---
 
