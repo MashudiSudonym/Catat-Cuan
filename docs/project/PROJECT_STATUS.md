@@ -1,7 +1,7 @@
 # Project Status Catat Cuan
 
-**Version**: 1.5.0
-**Status**: ✅ v1.5 Complete | ✅ 100% SRP Compliance | ✅ Automated Versioning
+**Version**: 1.5.1
+**Status**: ✅ v1.5.1 | ✅ 100% SRP Compliance | ✅ Phase 4 Tests Complete | ✅ Automated Versioning
 **Last Updated**: 8 April 2026
 **Platform**: Flutter (Android, iOS, macOS, Linux, Windows)
 **Locale**: Indonesia (id_ID)
@@ -25,7 +25,7 @@
 | [PRD v2](../v2/product/00-PRD.md) | Indonesian | Product Requirements Document v2 |
 | [SPEC v2](../v2/product/IMPLEMENTATION_STATUS.md) | English/Indonesian | v2 Implementation Status |
 | [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) | English | Complete SOLID refactoring journey |
-| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (791 tests) |
+| [TEST_COVERAGE.md](TEST_COVERAGE.md) | English/Indonesian | Test coverage documentation (911 tests) |
 
 ---
 
@@ -48,7 +48,7 @@ Catat Cuan is a personal expense tracking application with OCR receipt scanning 
 - **Database**: SQLite with SchemaManager version 2
 - **Navigation**: GoRouter 17.1.0 with type-safe routing
 - **Design System**: Glassmorphism with complete component library
-- **Code Quality**: 791/791 tests passing, 0 analyzer errors
+- **Code Quality**: 911/911 tests passing, 0 analyzer errors
 
 ---
 
@@ -131,7 +131,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 #### Hasil Akhir
 - **16/16 violations addressed** (100% SRP compliance)
 - **22 files created** (repositories, controllers, services, analyzers, barrels)
-- **263/263 tests passing** ✅ → **791/791 tests passing** ✅
+- **263/263 tests passing** ✅ → **911/911 tests passing** ✅
 - **0 analyzer errors** ✅
 
 #### File Baru yang Dibuat
@@ -167,7 +167,7 @@ Catat Cuan adalah aplikasi pencatatan keuangan pribadi dengan kemampuan pemindai
 
 ## Testing Pyramid Implementation
 
-**Status**: ✅ Phase 2 Completed | 791/791 Tests Passing
+**Status**: ✅ Phase 4 Completed | 911/911 Tests Passing
 
 ### Implementation Plan
 
@@ -183,12 +183,12 @@ Following the Testing Pyramid principle:
 | **Phase 1** | Test Infrastructure & Parsers | ✅ Completed | 42/42 passing |
 | **Phase 2** | Entity, Validator & Analyzer Tests | ✅ Completed | 248/248 passing |
 | **Phase 3** | Use Case Tests | ✅ Completed | 186/186 passing |
-| **Phase 4** | Data Layer Tests | ⏳ Pending | 0/20 planned |
+| **Phase 4** | Data Layer Tests | ✅ Completed | 120/120 passing |
 | **Phase 5** | Presentation Tests | ⏳ Pending | 0/11 planned |
 | **Phase 6** | Integration Tests | ⏳ Pending | 0/8 planned |
 | **Phase 7** | E2E Tests | ⏳ Pending | 0/5 planned |
 
-**Total Test Count**: 791/791 tests passing ✅ | 0 analyzer errors ✅
+**Total Test Count**: 911/911 tests passing ✅ | 0 analyzer errors ✅
 
 ### Phase 1: Foundation (Completed ✅)
 
@@ -247,7 +247,29 @@ Following the Testing Pyramid principle:
   - Category use cases (13 tests) - existing
   - ImportTransactionsUseCase tests - existing
 
-**Current Test Count**: 791/791 passing ✅
+**Current Test Count**: 911/911 passing ✅
+
+### Phase 4: Data Layer Tests (Completed ✅)
+
+**Completed**:
+- ✅ Model tests (25 tests)
+  - CategoryModel (14 tests) - fromMap, toMap, toEntity, fromEntity, round-trip
+  - TransactionModel (14 tests) - fromMap, toMap, toEntity, fromEntity, round-trip
+- ✅ Repository tests (34 tests)
+  - CategoryReadRepositoryImpl (12 tests) - getById, getCategoriesByType, getCategoryByName, getCategoriesWithCount, getTransactionCount
+  - TransactionWriteRepositoryImpl (11 tests) - addTransaction, updateTransaction, deleteTransaction, deleteAllTransactions, deleteMultipleTransactions
+  - TransactionAnalyticsRepositoryImpl (11 tests) - getMonthlySummary, getAllTimeSummary, getCategoryBreakdown, getAllCategoryBreakdown, getMultiMonthSummary
+- ✅ Service tests (61 tests)
+  - CsvExportServiceImpl (12 tests) - generateCsvString with headers, date/time formatting, type translation, currency formatting, special characters escaping
+  - CsvImportServiceImpl (14 tests) - header validation, row parsing, quoted fields, different line endings, edge cases
+  - IndonesianMerchantPatternServiceImpl (35 tests) - findMatch, findMatchInHeader, findByName, findById, getPatterns, category mapping
+
+**Test Infrastructure Added**:
+- `test/data/data_mocks.dart` - MockLocalDataSource generator
+- `test/data/models/` - Model test files
+- `test/data/repositories/category/` - Category repository tests
+- `test/data/repositories/transaction/` - Transaction repository tests
+- `test/data/services/` - Service test files
 
 ### Test Infrastructure
 
@@ -367,7 +389,7 @@ git push origin main --tags
 
 ### Project (English)
 - [REFACTORING_HISTORY.md](REFACTORING_HISTORY.md) - Complete SOLID refactoring journey
-- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (791 tests)
+- [TEST_COVERAGE.md](TEST_COVERAGE.md) - Test coverage documentation (911 tests)
 - [IMPLEMENTATION_STATUS.md](../product/IMPLEMENTATION_STATUS.md) - Verification dashboard for all SPEC checklists
 - [CHECKLIST_VERIFICATION.md](../product/CHECKLIST_VERIFICATION.md) - Verification methodology
 
