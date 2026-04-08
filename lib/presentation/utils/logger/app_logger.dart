@@ -21,12 +21,13 @@ import 'package:logger/logger.dart';
 class AppLogger {
   AppLogger._();
 
-  static late final Logger _logger;
+  static Logger? _logger;
 
   /// Initialize the logger with appropriate configuration.
   /// Should be called once at app startup (in main.dart).
+  /// Safe to call multiple times - will only initialize once.
   static void initialize() {
-    _logger = Logger(
+    _logger ??= Logger(
       level: kReleaseMode ? Level.warning : Level.trace,
       printer: PrettyPrinter(
         methodCount: 2,
@@ -40,6 +41,11 @@ class AppLogger {
     );
   }
 
+  /// Get the logger instance, throwing if not initialized.
+  static Logger get _log {
+    return _logger ?? (throw StateError('AppLogger not initialized. Call AppLogger.initialize() first.'));
+  }
+
   /// Log trace level message.
   /// Use for very detailed debugging information.
   static void t(
@@ -47,7 +53,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.t(
+    _log.t(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -61,7 +67,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.d(
+    _log.d(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -75,7 +81,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.i(
+    _log.i(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -89,7 +95,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.w(
+    _log.w(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -103,7 +109,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.e(
+    _log.e(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -117,7 +123,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   ]) {
-    _logger.f(
+    _log.f(
       message,
       error: error,
       stackTrace: stackTrace,
@@ -127,8 +133,8 @@ class AppLogger {
   /// Log a structured data object.
   /// Useful for logging JSON, maps, or complex objects.
   static void data(String message, dynamic data) {
-    _logger.d(message);
-    _logger.d(data.toString());
+    _log.d(message);
+    _log.d(data.toString());
   }
 }
 
