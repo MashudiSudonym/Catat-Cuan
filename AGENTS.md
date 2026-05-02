@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 **Catat Cuan** - Aplikasi pelacakan pengeluaran pribadi Flutter dengan OCR struk.
 
