@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-05-06)
 
 Phase: 1 of 6 (Foundation)
 Plan: 0 of 3 in current phase
-Status: Context gathered, ready to plan
-Last activity: 2026-05-07 — Phase 1 context gathered (18 decisions captured)
+Status: UI-SPEC approved, ready to plan
+Last activity: 2026-05-07 — Phase 1 UI-SPEC approved (6/6 dimensions passed, 2 FLAGs non-blocking)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -70,5 +70,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-07
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundation/01-CONTEXT.md
+Stopped at: Phase 1 UI-SPEC approved
+Resume file: .planning/phases/01-foundation/01-UI-SPEC.md
