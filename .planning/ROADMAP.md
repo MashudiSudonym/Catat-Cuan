@@ -31,12 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. All existing UI components render correctly in dark mode with adjusted glassmorphism blur and alpha
   4. App follows device theme in real-time when set to System Default
   5. All text and icons meet WCAG contrast ratios (≥4.5:1 normal, ≥3:1 large) in both themes
-**Plans**: TBD
+**Plans:** 3 plans in 2 waves
 
 Plans:
-- [ ] 01-01: Schema migration v2→v3 (3 new tables + indexes, onCreate + onUpgrade)
-- [ ] 01-02: Dark mode — audit hardcoded colors, fix glassmorphism, verify all existing screens
-- [ ] 01-03: Navigation restructure — 4-tab layout (Transactions, Budget, Goals, Reports)
+- [ ] 01-01-PLAN.md — Schema migration v2→v3 (3 new tables + indexes, onCreate + onUpgrade)
+- [ ] 01-02-PLAN.md — Dark mode audit + glassmorphism redesign (fix hardcoded colors, verify all screens)
+- [ ] 01-03-PLAN.md — Navigation restructure (2-tab layout with dynamic branch config for 4-tab growth)
 **UI hint**: yes
 
 ### Phase 2: Budgeting
