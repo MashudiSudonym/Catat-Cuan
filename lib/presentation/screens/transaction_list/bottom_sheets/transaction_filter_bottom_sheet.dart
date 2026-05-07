@@ -105,13 +105,12 @@ class _TransactionFilterBottomSheetState
   }
 
   Widget _buildHandle() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: AppSpacing.symmetric(vertical: AppSpacing.md),
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(2), // Non-standard (2px) - handle
       ),
     );
@@ -215,10 +214,9 @@ class _TransactionFilterBottomSheetState
   }
 
   Widget _buildCategoryFilter(CategoryListState categoryData) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final unselectedLabelColor = isDark ? Colors.white70 : AppColors.textPrimary;
-    final selectedLabelColor = Colors.white;
-    final borderSideColor = isDark ? Colors.grey.shade600 : Colors.grey.shade400;
+    final unselectedLabelColor = AppColors.textSecondary;
+    final selectedLabelColor = Colors.white; // On-primary contrast color
+    final borderSideColor = AppColors.textTertiary;
 
     return categoryData.when(
       data: (categories) {
