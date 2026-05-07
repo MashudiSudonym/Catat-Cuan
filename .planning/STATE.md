@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-05-06)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** Phase 1 (Foundation)
+**Current focus:** Phase 1 (Foundation) — Execution Complete
 
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 0 of 3 in current phase
-Status: UI-SPEC approved, ready to plan
-Last activity: 2026-05-07 — Phase 1 UI-SPEC approved (6/6 dimensions passed, 2 FLAGs non-blocking)
+Plan: 3 of 3 in current phase
+Status: Phase 1 execution complete — all 3 plans done
+Last activity: 2026-05-07 — Phase 1 execution complete (3/3 plans)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 3
+- Average duration: 8min
+- Total execution time: 0.4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1 Foundation | 3 | 24min | 8min |
 
 **Recent Trend:**
-- Last 5 plans: (none)
-- Trend: N/A
+- Last 5 plans: 01-01 (8min), 01-02 (10min), 01-03 (6min)
+- Trend: Healthy execution pace
 
 *Updated after each plan completion*
 
@@ -48,6 +48,10 @@ Recent decisions affecting current work:
 - Phase 1: Dark mode glassmorphism needs full redesign for dark theme
 - Phase 1: Budgets DB-level constraint for expense-only categories
 - Phase 1: Savings goals current_amount stored + kept in sync (not computed)
+- 01-01: SQLite doesn't support subqueries in CHECK — expense-only constraint enforced at repository layer
+- 01-01: Added sqflite_common_ffi for integration-style DB tests
+- 01-02: On-primary Colors.white kept as-is (correct Material Design contrast)
+- 01-03: NavigationTabConfig pattern enables Phase 2/3 tab additions as config changes
 
 ### Pending Todos
 
@@ -57,7 +61,6 @@ None yet.
 
 - **Phase 4 (Cloud Backup):** Google Cloud Console OAuth Client ID setup is a manual step outside the codebase — must be done before Phase 4 can test on real devices
 - **Phase 3 (Savings Goals):** Contribution semantics decision needed — earmarks (visual tracking) vs real transactions (reduce available balance). Research recommends earmarks.
-- **Phase 1 (Foundation):** Dark mode audit scope may surface more hardcoded colors than expected
 
 ## Deferred Items
 
@@ -70,5 +73,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-07
-Stopped at: Phase 1 UI-SPEC approved
-Resume file: .planning/phases/01-foundation/01-UI-SPEC.md
+Stopped at: Phase 1 execution complete (3/3 plans)
+Resume file: .planning/phases/01-foundation/01-03-SUMMARY.md
