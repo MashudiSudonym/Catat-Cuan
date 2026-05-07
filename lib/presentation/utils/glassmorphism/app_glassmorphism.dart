@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:catat_cuan/presentation/utils/app_colors.dart';
 
 /// Blur intensity scale for glass effects
 ///
@@ -160,12 +161,12 @@ class GlassDecoration {
       color: color,
       borderRadius: borderRadius,
       border: Border.all(
-        color: borderColor ?? Colors.white.withValues(alpha: GlassBorder.getAlpha(isDark: isDark)),
+        color: borderColor ?? AppColors.getGlassBorder(isDark: isDark),
         width: GlassBorder.width,
       ),
       boxShadow: [
         BoxShadow(
-          color: shadowColor ?? Colors.white.withValues(alpha: isDark ? 0.08 : 0.1),
+          color: shadowColor ?? AppColors.getGlassShadow(isDark: isDark),
           blurRadius: blur,
           spreadRadius: 2,
         ),

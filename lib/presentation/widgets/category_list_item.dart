@@ -55,7 +55,7 @@ class CategoryListItem extends StatelessWidget {
                     index: reorderIndex!,
                     child: Padding(
                       padding: AppSpacing.only(right: AppSpacing.md),
-                      child: const Icon(Icons.drag_handle, color: Colors.grey),
+                      child: Icon(Icons.drag_handle, color: AppColors.textTertiary),
                     ),
                   ),
 
@@ -80,23 +80,23 @@ class CategoryListItem extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               color: category.isActive
                                   ? null
-                                  : Colors.grey,
-                            ),
-                      ),
+                                  : AppColors.textTertiary,
+                             ),
+                       ),
 
-                      const AppSpacingWidget.verticalXS(),
+                       const AppSpacingWidget.verticalXS(),
 
-                      // Transaction count and type
-                      Row(
-                        children: [
-                          // Transaction count badge
-                          if (transactionCount > 0)
-                            Container(
-                              padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-                              decoration: BoxDecoration(
-                                color: category.isActive
-                                    ? Colors.blue.withValues(alpha: 0.1)
-                                    : Colors.grey.withValues(alpha: 0.1),
+                       // Transaction count and type
+                       Row(
+                         children: [
+                           // Transaction count badge
+                           if (transactionCount > 0)
+                             Container(
+                               padding: AppSpacing.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                               decoration: BoxDecoration(
+                                 color: category.isActive
+                                     ? Colors.blue.withValues(alpha: 0.1)
+                                     : AppColors.textTertiary.withValues(alpha: 0.1),
                                 borderRadius: AppRadius.mdAll,
                               ),
                               child: Text(
@@ -107,7 +107,7 @@ class CategoryListItem extends StatelessWidget {
                                     ?.copyWith(
                                       color: category.isActive
                                           ? Colors.blue
-                                          : Colors.grey,
+                                          : AppColors.textTertiary,
                                       fontWeight: FontWeight.w500,
                                     ),
                               ),
@@ -148,7 +148,7 @@ class CategoryListItem extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     onPressed: onEdit,
-                    color: Colors.grey,
+                    color: AppColors.textTertiary,
                   ),
               ],
             ),
@@ -194,7 +194,7 @@ class _CategoryIcon extends StatelessWidget {
     return AppContainer(
       color: isActive
           ? color.withValues(alpha: 0.15)
-          : Colors.grey.withValues(alpha: 0.1),
+          : AppColors.textTertiary.withValues(alpha: 0.1),
       borderRadius: AppRadius.lgAll,
       width: 48,
       height: 48,
@@ -203,7 +203,7 @@ class _CategoryIcon extends StatelessWidget {
         icon,
         style: TextStyle(
           fontSize: 24,
-          color: isActive ? color : Colors.grey,
+          color: isActive ? color : AppColors.textTertiary,
         ),
       ),
     );

@@ -149,7 +149,7 @@ class ProfileScreen extends ConsumerWidget {
                     color: levelColor,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isDark ? Colors.black : Colors.white,
+                      color: isDark ? AppColors.backgroundDark : AppColors.surfaceLight,
                       width: 2,
                     ),
                   ),
@@ -540,13 +540,11 @@ class ProfileScreen extends ConsumerWidget {
     required String label,
     required String value,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return ListTile(
       contentPadding: AppSpacing.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
       leading: Icon(
         icon,
-        color: isDark ? Colors.white70 : Colors.grey.shade600,
+        color: AppColors.textSecondary,
         size: 20,
       ),
       title: Text(

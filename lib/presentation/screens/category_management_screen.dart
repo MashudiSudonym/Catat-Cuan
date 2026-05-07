@@ -287,7 +287,7 @@ class _CategoryManagementScreenState
             Text(
               'Tekan tombol + untuk menambah kategori baru',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
+                    color: AppColors.textTertiary,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -332,7 +332,7 @@ class _CategoryManagementScreenState
             Text(
               userMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
+                    color: AppColors.textTertiary,
                   ),
               textAlign: TextAlign.center,
             ),

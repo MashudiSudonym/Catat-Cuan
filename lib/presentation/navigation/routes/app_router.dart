@@ -19,6 +19,47 @@ import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 /// Public so other widgets (e.g., export bottom sheet) can use it for stable context access
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Navigation tab configuration
+/// Per D-07: Dynamic tab count — Phase 2 adds Anggaran, Phase 3 adds Tabungan
+class NavigationTabConfig {
+  final String label;
+  final IconData icon;
+  final IconData activeIcon;
+  final String route;
+  final bool showFab;
+
+  const NavigationTabConfig({
+    required this.label,
+    required this.icon,
+    required this.activeIcon,
+    required this.route,
+    required this.showFab,
+  });
+}
+
+/// Active tabs for current phase.
+/// Phase 1: Transaksi + Laporan (2 tabs)
+/// Phase 2: Add Anggaran (3 tabs)
+/// Phase 3: Add Tabungan (4 tabs)
+/// Per D-04: Icons are receipt_long, bar_chart
+/// Per D-06: FAB only on Transaksi tab
+const activeTabs = [
+  NavigationTabConfig(
+    label: 'Transaksi',
+    icon: Icons.receipt_long,
+    activeIcon: Icons.receipt_long,
+    route: AppRoutes.transactions,
+    showFab: true,
+  ),
+  NavigationTabConfig(
+    label: 'Laporan',
+    icon: Icons.bar_chart,
+    activeIcon: Icons.bar_chart,
+    route: AppRoutes.reports,
+    showFab: false,
+  ),
+];
+
 /// Create GoRouter configuration with Riverpod integration
 /// Following SOLID principles:
 /// - SRP: Single responsibility for router configuration
@@ -70,7 +111,7 @@ GoRouter createGoRouter(Ref ref) {
           return HomeNavigationShell(navigationShell: navigationShell);
         },
         branches: [
-          // Branch 1: Transactions tab
+          // Branch 1: Transaksi tab
           StatefulShellBranch(
             routes: [
               // Transactions list (tab route)
@@ -117,12 +158,12 @@ GoRouter createGoRouter(Ref ref) {
             ],
           ),
 
-          // Branch 2: Summary tab
+          // Branch 2: Laporan (Reports) tab — per D-01: summary content moved here
           StatefulShellBranch(
             routes: [
-              // Monthly summary (tab route)
+              // Monthly summary as reports page (tab route)
               GoRoute(
-                path: AppRoutes.summary,
+                path: AppRoutes.reports,
                 pageBuilder: (context, state) => const NoTransitionPage(
                   child: MonthlySummaryScreen(),
                 ),
@@ -189,6 +230,8 @@ GoRouter createGoRouter(Ref ref) {
 
 /// Home Navigation Shell for StatefulShellRoute
 /// Following SRP: Manages bottom navigation UI and branch switching
+/// Per D-05: Settings accessible from Laporan tab header gear icon
+/// Per D-06: FAB shows on Transaksi tab, hidden on Laporan tab
 class HomeNavigationShell extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -199,9 +242,11 @@ class HomeNavigationShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentTab = activeTabs[navigationShell.currentIndex];
+
     return Scaffold(
       body: navigationShell,
-      floatingActionButton: _buildSeamlessFab(context),
+      floatingActionButton: currentTab.showFab ? _buildSeamlessFab(context) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildSeamlessBottomNav(),
     );
@@ -218,6 +263,7 @@ class HomeNavigationShell extends ConsumerWidget {
   }
 
   /// Build seamless bottom navigation with glassmorphism
+  /// Built dynamically from activeTabs config for easy Phase 2/3 additions
   Widget _buildSeamlessBottomNav() {
     return AppGlassNavigation(
       showTopBorder: true,
@@ -237,18 +283,11 @@ class HomeNavigationShell extends ConsumerWidget {
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
-            activeIcon: Icon(Icons.receipt_long),
-            label: 'Transaksi',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            activeIcon: Icon(Icons.bar_chart),
-            label: 'Ringkasan',
-          ),
-        ],
+        items: activeTabs.map((tab) => BottomNavigationBarItem(
+          icon: Icon(tab.icon),
+          activeIcon: Icon(tab.activeIcon),
+          label: tab.label,
+        )).toList(),
       ),
     );
   }

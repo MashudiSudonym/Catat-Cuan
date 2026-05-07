@@ -96,7 +96,7 @@ class AppColors {
   /// Used for forms, dialogs, and primary surfaces
   /// Dark mode uses slightly higher alpha for better readability
   static Color getGlassSurface({bool isDark = false, double? alpha}) {
-    final effectiveAlpha = alpha ?? (isDark ? 0.92 : 0.95);
+    final effectiveAlpha = alpha ?? (isDark ? 0.90 : 0.95);
     final baseColor = isDark ? surfaceDark : surfaceLight;
     return baseColor.withValues(alpha: effectiveAlpha);
   }
@@ -143,7 +143,7 @@ class AppColors {
   /// Used for glass container borders
   /// Returns subtle border with appropriate opacity for theme
   static Color getGlassBorder({bool isDark = false, double? alpha}) {
-    final effectiveAlpha = alpha ?? (isDark ? 0.08 : 0.10);
+    final effectiveAlpha = alpha ?? (isDark ? 0.12 : 0.10);
     if (isDark) {
       return Colors.white.withValues(alpha: effectiveAlpha);
     }
@@ -155,7 +155,7 @@ class AppColors {
   /// Used for glass container shadows
   /// Dark mode uses lighter shadow for better depth perception
   static Color getGlassShadow({bool isDark = false, double? alpha}) {
-    final effectiveAlpha = alpha ?? (isDark ? 0.15 : 0.08);
+    final effectiveAlpha = alpha ?? (isDark ? 0.18 : 0.08);
     if (isDark) {
       // Dark mode: use lighter shadow for better contrast
       return const Color(0xFF000000).withValues(alpha: effectiveAlpha);

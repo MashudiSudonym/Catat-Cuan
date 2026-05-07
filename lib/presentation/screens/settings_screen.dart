@@ -36,7 +36,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +57,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       Icon(
                         Icons.palette_outlined,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Text(
@@ -101,7 +100,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       Icon(
                         Icons.attach_money_outlined,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Text(
@@ -139,7 +138,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: ListTile(
               leading: Icon(
                 Icons.upload_file_outlined,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               title: const Text('Impor Transaksi'),
               subtitle: const Text('Impor data dari file CSV'),
@@ -163,7 +162,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.info_outline,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   title: const Text('Versi Aplikasi'),
                   subtitle: Text(_version.isEmpty ? 'Memuat...' : _version),
@@ -172,7 +171,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.brightness_6_outlined,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   title: const Text('Tema Saat Ini'),
                   subtitle: Text(_getCurrentThemeLabel(context, themeState.themeModeOption)),
@@ -289,8 +288,6 @@ class _ThemeOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -300,7 +297,7 @@ class _ThemeOptionTile extends StatelessWidget {
             // Icon
             Icon(
               _getIconForOption(option),
-              color: isSelected ? AppColors.primary : (isDark ? Colors.white70 : Colors.grey.shade600),
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
               size: 24,
             ),
             const SizedBox(width: AppSpacing.md),
@@ -355,8 +352,6 @@ class _CurrencyOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -368,7 +363,7 @@ class _CurrencyOptionTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary.withValues(alpha: 0.1)
-                    : (isDark ? Colors.white12 : Colors.grey.shade200),
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: AppRadius.smAll,
               ),
               child: Text(

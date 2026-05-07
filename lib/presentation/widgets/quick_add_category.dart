@@ -85,7 +85,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                 child: AppContainer(
                   width: 40,
                   height: 4,
-                  color: Colors.grey.withValues(alpha: 0.3),
+                  color: AppColors.textTertiary.withValues(alpha: 0.3),
                   borderRadius: AppRadius.xsAll,
                   alignment: Alignment.center,
                   child: const SizedBox.shrink(),
@@ -150,7 +150,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                   if (_previewIcon != null && _previewColor != null)
                     AppContainer(
                       padding: AppSpacing.all(AppSpacing.md),
-                      color: Colors.grey.withValues(alpha: 0.05),
+                      color: AppColors.textTertiary.withValues(alpha: 0.05),
                       borderRadius: AppRadius.mdAll,
                       child: Row(
                         children: [
@@ -186,7 +186,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                        color: Colors.grey.shade600,
+                                        color: AppColors.textSecondary,
                                       ),
                                 ),
                               ],
@@ -196,7 +196,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                             Icons.auto_awesome,
                             color: _previewColor != null
                                 ? ColorHelper.hexToColorWithFallback(_previewColor!)
-                                : Colors.grey,
+                                : AppColors.textTertiary,
                           ),
                         ],
                       ),
@@ -209,7 +209,7 @@ class _QuickAddCategorySheetState extends ConsumerState<QuickAddCategorySheet> {
                     'Icon dan warna akan otomatis disesuaikan '
                     'berdasarkan nama kategori.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
+                          color: AppColors.textSecondary,
                         ),
                     textAlign: TextAlign.center,
                   ),

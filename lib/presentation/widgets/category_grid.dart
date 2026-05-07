@@ -176,7 +176,7 @@ class _CategoryItemState extends State<_CategoryItem>
             border: Border.all(
               color: widget.isSelected
                   ? widget.color
-                  : Colors.grey.shade300,
+                  : AppColors.textTertiary.withValues(alpha: 0.3),
               width: widget.isSelected ? 2 : 1,
             ),
           ),
@@ -240,10 +240,10 @@ class _AddCategoryItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.05),
+          color: AppColors.textTertiary.withValues(alpha: 0.05),
           borderRadius: AppRadius.mdAll,
           border: Border.all(
-            color: Colors.grey.shade300,
+            color: AppColors.textTertiary.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -253,13 +253,13 @@ class _AddCategoryItem extends StatelessWidget {
             AppContainer(
               width: 32,
               height: 32,
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: AppColors.textTertiary.withValues(alpha: 0.1),
               borderRadius: AppRadius.smAll,
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.add,
                 size: 18,
-                color: Colors.grey,
+                color: AppColors.textTertiary,
               ),
             ),
             const SizedBox(height: 6),
@@ -269,8 +269,7 @@ class _AddCategoryItem extends StatelessWidget {
                 'Tambah',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 10,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+                      color: AppColors.textTertiary,                      fontWeight: FontWeight.w500,
                     ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
