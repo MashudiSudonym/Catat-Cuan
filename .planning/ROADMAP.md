@@ -12,7 +12,7 @@ Transform Catat Cuan from "expense visibility" to "financial control" by adding 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** — Schema v3, dark mode, 4-tab navigation
+- [x] **Phase 1: Foundation** — Schema v3, dark mode, 4-tab navigation
 - [ ] **Phase 2: Budgeting** — Per-category monthly budgets with alerts and progress tracking
 - [ ] **Phase 3: Savings Goals** — Goals with contributions, progress, and confetti celebration
 - [ ] **Phase 4: Cloud Backup** — Google Drive backup/restore with OAuth
@@ -34,9 +34,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 3 plans in 2 waves
 
 Plans:
-- [ ] 01-01-PLAN.md — Schema migration v2→v3 (3 new tables + indexes, onCreate + onUpgrade)
-- [ ] 01-02-PLAN.md — Dark mode audit + glassmorphism redesign (fix hardcoded colors, verify all screens)
-- [ ] 01-03-PLAN.md — Navigation restructure (2-tab layout with dynamic branch config for 4-tab growth)
+- [x] 01-01-PLAN.md — Schema migration v2→v3 (3 new tables + indexes, onCreate + onUpgrade)
+- [x] 01-02-PLAN.md — Dark mode audit + glassmorphism redesign (fix hardcoded colors, verify all screens)
+- [x] 01-03-PLAN.md — Navigation restructure (2-tab layout with dynamic branch config for 4-tab growth)
 **UI hint**: yes
 
 ### Phase 2: Budgeting
@@ -135,7 +135,7 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | 0/3 | Not started | - |
 | 3. Savings Goals | 0/3 | Not started | - |
 | 4. Cloud Backup | 0/3 | Not started | - |
