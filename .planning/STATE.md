@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-05-06)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** Phase 1 (Foundation) — Verified Complete (UAT passed 10/10)
+**Current focus:** Phase 1 (Foundation) — Shipped (PR #1)
 
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
 Plan: 3 of 3 in current phase
-Status: Phase 1 verified complete — UAT 10/10 passed
-Last activity: 2026-05-07 — Phase 1 UAT complete (all tests passed)
+Status: Phase 1 shipped — PR #1
+Last activity: 2026-05-07 — Phase 1 shipped (PR #1)
 
 Progress: [██████████] 100%
 
@@ -73,6 +73,6 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-07
-Stopped at: Phase 1 verified complete (UAT 10/10 passed)
+Stopped at: Phase 1 shipped — PR #1
 Resume file: .planning/phases/01-foundation/01-UAT.md
 Next phase: Phase 2 (Budgeting) or Phase 3 (Savings Goals) — independent, may be parallelized
