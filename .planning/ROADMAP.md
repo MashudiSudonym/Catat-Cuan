@@ -43,10 +43,11 @@
   4. User receives in-app alerts exactly once when budget reaches 75% (warning), 100% (limit), and >100% (overspending)
   5. User sees budget overview card on home screen and can drill into budget vs actual comparison per category with transaction list
 
+**Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 02-01: Budget data layer — entity, repository interfaces, SQLite implementation
-- [ ] 02-02: Budget tracking — real-time spent calculation, cross-aggregate query (transactions JOIN budgets)
-- [ ] 02-03: Budget UI — CRUD screens, progress bars, alerts, home screen card, detail comparison view
+- [ ] 02-01-PLAN.md — Budget data layer: entities, repository interfaces, SQLite implementations, tests (Wave 1)
+- [ ] 02-02-PLAN.md — Budget tracking: use cases, providers, alert system, schema v3→v4 migration (Wave 2)
+- [ ] 02-03-PLAN.md — Budget UI: Anggaran tab, CRUD screens, progress bars, home card, alerts wiring (Wave 3)
 **UI hint**: yes
 
 ### Phase 3: Savings Goals
@@ -124,7 +125,7 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
-| 2. Budgeting | v2.1 | 0/3 | Not started | - |
+| 2. Budgeting | v2.1 | 0/3 | Planned | - |
 | 3. Savings Goals | v2.1 | 0/3 | Not started | - |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
