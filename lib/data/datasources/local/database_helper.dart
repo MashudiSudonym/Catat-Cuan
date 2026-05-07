@@ -24,6 +24,9 @@ class DatabaseHelper {
   /// Table names
   static const String tableTransactions = 'transactions';
   static const String tableCategories = 'categories';
+  static const String tableBudgets = 'budgets';
+  static const String tableSavingsGoals = 'savings_goals';
+  static const String tableGoalContributions = 'goal_contributions';
 
   /// Gets the database instance, initializing it if necessary
   Future<Database> get database async {
