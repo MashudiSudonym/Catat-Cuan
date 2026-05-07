@@ -58,12 +58,12 @@ Requirements for v2 release. Each maps to roadmap phases.
 
 ### Dark Mode
 
-- [ ] **THM-01**: User can select theme mode (Light, Dark, System Default) from Settings with instant switch and no app restart
-- [ ] **THM-02**: System persists theme preference across sessions using shared_preferences
-- [ ] **THM-03**: System adapts all UI components for dark mode including glassmorphism containers with adjusted blur and alpha
-- [ ] **THM-04**: System follows device theme when set to System Default, updating in real-time on platform brightness change
-- [ ] **THM-05**: Dark theme uses Material Design dark colors (#121212 background, elevated surfaces #1E1E1E/#2C2C2C) with maintained accent colors
-- [ ] **THM-06**: All text and icons meet accessibility contrast ratios (≥4.5:1 normal text, ≥3:1 large text and icons)
+- [x] **THM-01**: User can select theme mode (Light, Dark, System Default) from Settings with instant switch and no app restart — ✅ Validated v2.0
+- [x] **THM-02**: System persists theme preference across sessions using shared_preferences — ✅ Validated v2.0
+- [x] **THM-03**: System adapts all UI components for dark mode including glassmorphism containers with adjusted blur and alpha — ✅ Validated v2.0
+- [x] **THM-04**: System follows device theme when set to System Default, updating in real-time on platform brightness change — ✅ Validated v2.0
+- [x] **THM-05**: Dark theme uses Material Design dark colors (#121212 background, elevated surfaces #1E1E1E/#2C2C2C) with maintained accent colors — ✅ Validated v2.0
+- [x] **THM-06**: All text and icons meet accessibility contrast ratios (≥4.5:1 normal text, ≥3:1 large text and icons) — ✅ Validated v2.0
 
 ### Enhanced Reports
 
@@ -146,12 +146,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | SAV-08 | Phase 3 | Pending |
 | SAV-09 | Phase 3 | Pending |
 | SAV-10 | Phase 3 | Pending |
-| THM-01 | Phase 1 | Pending |
-| THM-02 | Phase 1 | Pending |
-| THM-03 | Phase 1 | Pending |
-| THM-04 | Phase 1 | Pending |
-| THM-05 | Phase 1 | Pending |
-| THM-06 | Phase 1 | Pending |
+| THM-01 | Phase 1 | ✅ Complete |
+| THM-02 | Phase 1 | ✅ Complete |
+| THM-03 | Phase 1 | ✅ Complete |
+| THM-04 | Phase 1 | ✅ Complete |
+| THM-05 | Phase 1 | ✅ Complete |
+| THM-06 | Phase 1 | ✅ Complete |
 | RPT-01 | Phase 5 | Pending |
 | RPT-02 | Phase 5 | Pending |
 | RPT-03 | Phase 5 | Pending |
@@ -167,4 +167,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-05-06*
-*Last updated: 2026-05-06 after roadmap creation (6 phases, 37/37 mapped)*
+*Last updated: 2026-05-07 after v2.0 Foundation milestone (6/37 complete)*

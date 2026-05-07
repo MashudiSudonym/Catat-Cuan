@@ -2,19 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-06)
+See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** Phase 1 (Foundation) — Shipped (PR #1)
+**Current focus:** v2.0 Foundation shipped — planning v2.1 Budgeting & Goals
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation)
-Plan: 3 of 3 in current phase
-Status: Phase 1 shipped — PR #1
-Last activity: 2026-05-07 — Phase 1 shipped (PR #1)
+Phase: 2 of 6 (Budgeting) — next milestone
+Status: v2.0 Foundation milestone complete — PR #1
+Last activity: 2026-05-07 — v2.0 Foundation milestone archived
 
-Progress: [██████████] 100%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
@@ -44,14 +43,9 @@ Recent decisions affecting current work:
 
 - Roadmap: 6-phase build order derived from research (schema first → independent data features → backup → reports → polish)
 - Phase 2 & 3 are independent (no shared tables/repositories) and may be parallelized
-- Phase 1: 2-tab layout in Phase 1 (Transaksi + Laporan), grow to 4 tabs in Phase 2/3
-- Phase 1: Dark mode glassmorphism needs full redesign for dark theme
-- Phase 1: Budgets DB-level constraint for expense-only categories
-- Phase 1: Savings goals current_amount stored + kept in sync (not computed)
-- 01-01: SQLite doesn't support subqueries in CHECK — expense-only constraint enforced at repository layer
-- 01-01: Added sqflite_common_ffi for integration-style DB tests
-- 01-02: On-primary Colors.white kept as-is (correct Material Design contrast)
-- 01-03: NavigationTabConfig pattern enables Phase 2/3 tab additions as config changes
+- Phase 1: 2-tab layout (Transaksi + Laporan), grow to 4 tabs in Phase 2/3
+- 01-01: SQLite CHECK via repository layer (no subquery support)
+- 01-03: NavigationTabConfig enables Phase 2/3 tab additions as config changes
 
 ### Pending Todos
 
@@ -64,15 +58,15 @@ None yet.
 
 ## Deferred Items
 
-Items acknowledged and carried forward from previous milestone close:
+Items acknowledged and carried forward from v2.0 milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| blocker | Phase 4 OAuth Client ID setup (manual) | Open | 2026-05-07 |
+| decision | Phase 3 contribution semantics (earmarks vs transactions) | Open | 2026-05-07 |
 
 ## Session Continuity
 
 Last session: 2026-05-07
-Stopped at: Phase 1 shipped — PR #1
-Resume file: .planning/phases/01-foundation/01-UAT.md
+Stopped at: v2.0 Foundation milestone archived
 Next phase: Phase 2 (Budgeting) or Phase 3 (Savings Goals) — independent, may be parallelized
