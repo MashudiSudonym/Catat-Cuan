@@ -16,6 +16,11 @@ class AppRoutes {
   static const String addCategory = '/reports/categories/add';
   static const String editCategory = '/reports/categories/edit';
 
+  // Budget routes
+  static const String budgets = '/budgets';
+  static const String budgetForm = '/budgets/form';
+  static const String budgetDetail = '/budgets/detail';
+
   // Settings (full-screen)
   static const String settings = '/settings';
 

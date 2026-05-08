@@ -9,6 +9,9 @@ import 'package:catat_cuan/presentation/screens/category_form_screen.dart';
 import 'package:catat_cuan/presentation/screens/settings_screen.dart';
 import 'package:catat_cuan/presentation/screens/scan_receipt_screen.dart';
 import 'package:catat_cuan/presentation/screens/category_management_screen.dart';
+import 'package:catat_cuan/presentation/screens/budget/budget_list_screen.dart';
+import 'package:catat_cuan/presentation/screens/budget/budget_form_screen.dart';
+import 'package:catat_cuan/presentation/screens/budget/budget_detail_screen.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
@@ -49,6 +52,13 @@ const activeTabs = [
     icon: Icons.receipt_long,
     activeIcon: Icons.receipt_long,
     route: AppRoutes.transactions,
+    showFab: true,
+  ),
+  NavigationTabConfig(
+    label: 'Anggaran',
+    icon: Icons.account_balance_wallet,
+    activeIcon: Icons.account_balance_wallet,
+    route: AppRoutes.budgets,
     showFab: true,
   ),
   NavigationTabConfig(
@@ -158,7 +168,52 @@ GoRouter createGoRouter(Ref ref) {
             ],
           ),
 
-          // Branch 2: Laporan (Reports) tab — per D-01: summary content moved here
+          // Branch 2: Anggaran (Budget) tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.budgets,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: BudgetListScreen(),
+                ),
+                routes: [
+                  // Add/edit budget (full-screen, uses parentNavigatorKey)
+                  GoRoute(
+                    path: 'form',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) => MaterialPage(
+                      key: state.pageKey,
+                      child: BudgetFormScreen(
+                        year: state.uri.queryParameters['year'] != null
+                            ? int.parse(state.uri.queryParameters['year']!)
+                            : null,
+                        month: state.uri.queryParameters['month'] != null
+                            ? int.parse(state.uri.queryParameters['month']!)
+                            : null,
+                        budgetId: state.uri.queryParameters['id'] != null
+                            ? int.parse(state.uri.queryParameters['id']!)
+                            : null,
+                      ),
+                    ),
+                  ),
+                  // Budget detail (full-screen, uses parentNavigatorKey)
+                  GoRoute(
+                    path: 'detail',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) => MaterialPage(
+                      key: state.pageKey,
+                      child: BudgetDetailScreen(
+                        year: int.parse(state.uri.queryParameters['year'] ?? DateTime.now().year.toString()),
+                        month: int.parse(state.uri.queryParameters['month'] ?? DateTime.now().month.toString()),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Branch 3: Laporan (Reports) tab — per D-01: summary content moved here
           StatefulShellBranch(
             routes: [
               // Monthly summary as reports page (tab route)
@@ -252,13 +307,27 @@ class HomeNavigationShell extends ConsumerWidget {
     );
   }
 
-  /// Build seamless glassmorphism FAB for adding transactions
+  /// Build seamless glassmorphism FAB for adding transactions/budgets
   Widget _buildSeamlessFab(BuildContext context) {
+    // Determine FAB action based on current tab
+    final tab = activeTabs[navigationShell.currentIndex];
+    final String fabRoute;
+    final String fabTooltip;
+
+    if (tab.label == 'Anggaran') {
+      final now = DateTime.now();
+      fabRoute = '${AppRoutes.budgets}/form?year=${now.year}&month=${now.month}';
+      fabTooltip = 'Tambah Anggaran';
+    } else {
+      fabRoute = AppRoutes.addTransaction;
+      fabTooltip = 'Tambah Transaksi';
+    }
+
     return SeamlessGlassFab(
       icon: Icons.add,
-      tooltip: 'Tambah Transaksi',
+      tooltip: fabTooltip,
       size: SeamlessFabSize.large,
-      onPressed: () => context.push(AppRoutes.addTransaction),
+      onPressed: () => context.push(fabRoute),
     );
   }
 
