@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:catat_cuan/domain/failures/failure.dart';
 
 /// Utility class for converting technical errors to user-friendly
 /// Indonesian messages.
@@ -35,7 +36,12 @@ class ErrorMessageMapper {
       return _mapDatabaseError(error);
     }
 
-    // Handle Failure types from the domain layer
+    // Handle Failure types from the domain layer — they already have
+    // user-friendly Indonesian messages (DatabaseFailure, ValidationFailure, etc.)
+    if (error is Failure) {
+      return error.message;
+    }
+
     final errorString = error.toString();
 
     // OCR failures
