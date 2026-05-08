@@ -12,7 +12,7 @@ class DatabaseSchemaManager {
   DatabaseSchemaManager._(); // Private constructor
 
   /// Current database version
-  static const int currentVersion = 3;
+  static const int currentVersion = 4;
 
   /// Creates all tables during initial database creation
   ///
@@ -55,6 +55,31 @@ class DatabaseSchemaManager {
       await _createSavingsGoalsIndexes(db);
       await _createGoalContributionsTable(db);
       await _createGoalContributionsIndexes(db);
+    }
+
+    // Migration from version 3 to 4: Add alert tracking columns to budgets
+    // Per D-02: alert tracking uses DB fields on budget record
+    if (oldVersion < 4) {
+      // Only add columns if they don't already exist (handles case where
+      // _createBudgetsTable was already called with v4 schema during v3 migration)
+      final columns = await db.rawQuery("PRAGMA table_info(${DatabaseHelper.tableBudgets})");
+      final columnNames = columns.map((c) => c['name'] as String).toSet();
+
+      if (!columnNames.contains(BudgetFields.warningShownAt)) {
+        await db.execute(
+          'ALTER TABLE ${DatabaseHelper.tableBudgets} ADD COLUMN ${BudgetFields.warningShownAt} TEXT',
+        );
+      }
+      if (!columnNames.contains(BudgetFields.limitShownAt)) {
+        await db.execute(
+          'ALTER TABLE ${DatabaseHelper.tableBudgets} ADD COLUMN ${BudgetFields.limitShownAt} TEXT',
+        );
+      }
+      if (!columnNames.contains(BudgetFields.overShownAt)) {
+        await db.execute(
+          'ALTER TABLE ${DatabaseHelper.tableBudgets} ADD COLUMN ${BudgetFields.overShownAt} TEXT',
+        );
+      }
     }
   }
 
@@ -142,6 +167,9 @@ class DatabaseSchemaManager {
         ${BudgetFields.year} INTEGER NOT NULL,
         ${BudgetFields.month} INTEGER NOT NULL CHECK(${BudgetFields.month} BETWEEN 1 AND 12),
         ${BudgetFields.amount} REAL NOT NULL CHECK(${BudgetFields.amount} > 0),
+        ${BudgetFields.warningShownAt} TEXT,
+        ${BudgetFields.limitShownAt} TEXT,
+        ${BudgetFields.overShownAt} TEXT,
         ${BudgetFields.createdAt} TEXT NOT NULL,
         ${BudgetFields.updatedAt} TEXT NOT NULL,
         FOREIGN KEY (${BudgetFields.categoryId}) REFERENCES ${DatabaseHelper.tableCategories}(${CategoryFields.id}) ON DELETE CASCADE,
@@ -244,6 +272,9 @@ class BudgetFields {
   static const String year = 'year';
   static const String month = 'month';
   static const String amount = 'amount';
+  static const String warningShownAt = 'warning_shown_at';
+  static const String limitShownAt = 'limit_shown_at';
+  static const String overShownAt = 'over_shown_at';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
 }

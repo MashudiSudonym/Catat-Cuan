@@ -172,4 +172,55 @@ class BudgetWriteRepositoryImpl implements BudgetWriteRepository {
       );
     }
   }
+
+  @override
+  Future<Result<void>> updateAlertStatus({
+    required int budgetId,
+    DateTime? warningShownAt,
+    DateTime? limitShownAt,
+    DateTime? overShownAt,
+  }) async {
+    AppLogger.d('BudgetWrite: Updating alert status for budget $budgetId');
+
+    try {
+      final updates = <String, dynamic>{};
+
+      if (warningShownAt != null) {
+        updates[BudgetFields.warningShownAt] = warningShownAt.toIso8601String();
+      }
+      if (limitShownAt != null) {
+        updates[BudgetFields.limitShownAt] = limitShownAt.toIso8601String();
+      }
+      if (overShownAt != null) {
+        updates[BudgetFields.overShownAt] = overShownAt.toIso8601String();
+      }
+
+      if (updates.isEmpty) {
+        AppLogger.d('BudgetWrite: No alert status fields to update');
+        return Result.success(null);
+      }
+
+      final rowsAffected = await _dataSource.update(
+        DatabaseHelper.tableBudgets,
+        updates,
+        where: '${BudgetFields.id} = ?',
+        whereArgs: [budgetId],
+      );
+
+      if (rowsAffected == 0) {
+        AppLogger.w('BudgetWrite: Budget not found for alert update: ID $budgetId');
+        return Result.failure(
+          NotFoundFailure('Anggaran dengan ID $budgetId tidak ditemukan'),
+        );
+      }
+
+      AppLogger.i('BudgetWrite: Alert status updated for budget $budgetId');
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      AppLogger.e('BudgetWrite: Failed to update alert status', e, stackTrace);
+      return Result.failure(
+        DatabaseFailure('Gagal mengupdate status alert'),
+      );
+    }
+  }
 }

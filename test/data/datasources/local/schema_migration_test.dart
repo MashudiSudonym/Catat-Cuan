@@ -40,12 +40,14 @@ void main() {
       expect(tableNames, contains('goal_contributions'));
     });
 
-    test('budgets table has correct columns', () async {
+    test('budgets table has correct columns including alert tracking', () async {
       final columns = await db.rawQuery("PRAGMA table_info(budgets)");
       final columnNames = columns.map((c) => c['name'] as String).toList();
 
       expect(columnNames, containsAll([
-        'id', 'category_id', 'year', 'month', 'amount', 'created_at', 'updated_at',
+        'id', 'category_id', 'year', 'month', 'amount',
+        'warning_shown_at', 'limit_shown_at', 'over_shown_at',
+        'created_at', 'updated_at',
       ]));
     });
 
@@ -253,6 +255,130 @@ void main() {
       final categories = await db.query('categories');
       expect(categories.length, 1);
       expect(categories.first['name'], 'Food');
+
+      // Clean up
+      await db.close();
+      if (await file.exists()) {
+        await file.delete();
+      }
+    });
+  });
+
+  group('Schema v3→v4 migration', () {
+    test('onUpgrade from v3 to v4 adds alert tracking columns without data loss', () async {
+      // Use a temporary file-based database
+      final dbPath = await getDatabasesPath();
+      final testDbPath = join(dbPath, 'test_migration_v3tov4.db');
+
+      // Clean up any previous test database
+      final file = File(testDbPath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      // Create a v3 database (budgets table without alert columns)
+      db = await openDatabase(
+        testDbPath,
+        version: 3,
+        onCreate: (db, version) async {
+          // Create v3 schema
+          await db.execute('''
+            CREATE TABLE categories (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+              color TEXT NOT NULL,
+              icon TEXT,
+              sort_order INTEGER NOT NULL DEFAULT 0,
+              is_active INTEGER NOT NULL DEFAULT 1,
+              created_at TEXT NOT NULL,
+              updated_at TEXT NOT NULL
+            )
+          ''');
+          await db.execute('CREATE INDEX idx_categories_type ON categories(type)');
+          await db.execute('CREATE INDEX idx_categories_is_active ON categories(is_active)');
+          await db.execute('''
+            CREATE TABLE transactions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              amount REAL NOT NULL CHECK(amount > 0),
+              type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+              date_time TEXT NOT NULL,
+              category_id INTEGER NOT NULL,
+              note TEXT,
+              created_at TEXT NOT NULL,
+              updated_at TEXT NOT NULL,
+              FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
+            )
+          ''');
+          await db.execute('CREATE INDEX idx_transactions_date_time ON transactions(date_time DESC)');
+          await db.execute('CREATE INDEX idx_transactions_category_id ON transactions(category_id)');
+          await db.execute('CREATE INDEX idx_transactions_type ON transactions(type)');
+          await db.execute('CREATE INDEX idx_transactions_date_type ON transactions(date_time DESC, type)');
+          await db.execute('''
+            CREATE TABLE budgets (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              category_id INTEGER NOT NULL,
+              year INTEGER NOT NULL,
+              month INTEGER NOT NULL CHECK(month BETWEEN 1 AND 12),
+              amount REAL NOT NULL CHECK(amount > 0),
+              created_at TEXT NOT NULL,
+              updated_at TEXT NOT NULL,
+              FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+              UNIQUE (category_id, year, month)
+            )
+          ''');
+          await db.execute('CREATE INDEX idx_budgets_year_month ON budgets(year, month)');
+        },
+      );
+
+      // Insert a category and a budget to verify data survives migration
+      await db.insert('categories', {
+        'name': 'Food',
+        'type': 'expense',
+        'color': '#FF0000',
+        'icon': 'restaurant',
+        'sort_order': 0,
+        'is_active': 1,
+        'created_at': '2026-01-01T00:00:00',
+        'updated_at': '2026-01-01T00:00:00',
+      });
+
+      await db.insert('budgets', {
+        'category_id': 1,
+        'year': 2026,
+        'month': 5,
+        'amount': 500000.0,
+        'created_at': '2026-01-01T00:00:00',
+        'updated_at': '2026-01-01T00:00:00',
+      });
+
+      await db.close();
+
+      // Now open with v4 using onUpgrade
+      db = await openDatabase(
+        testDbPath,
+        version: 4,
+        onUpgrade: DatabaseSchemaManager.onUpgrade,
+      );
+
+      // Verify new alert columns exist
+      final columns = await db.rawQuery("PRAGMA table_info(budgets)");
+      final columnNames = columns.map((c) => c['name'] as String).toList();
+
+      expect(columnNames, contains('warning_shown_at'));
+      expect(columnNames, contains('limit_shown_at'));
+      expect(columnNames, contains('over_shown_at'));
+
+      // Verify existing data survived
+      final budgets = await db.query('budgets');
+      expect(budgets.length, 1);
+      expect(budgets.first['amount'], 500000.0);
+      expect(budgets.first['category_id'], 1);
+
+      // Verify alert columns are NULL for existing budget
+      expect(budgets.first['warning_shown_at'], isNull);
+      expect(budgets.first['limit_shown_at'], isNull);
+      expect(budgets.first['over_shown_at'], isNull);
 
       // Clean up
       await db.close();

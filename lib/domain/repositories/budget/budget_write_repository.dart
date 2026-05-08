@@ -41,4 +41,15 @@ abstract class BudgetWriteRepository {
   ///
   /// Returns Result with void on success
   Future<Result<void>> deleteBudget(int id);
+
+  /// Updates alert status fields on a budget record
+  ///
+  /// Per D-02: Persists alert tracking timestamps on the budget record.
+  /// Only non-null fields are updated (partial update).
+  Future<Result<void>> updateAlertStatus({
+    required int budgetId,
+    DateTime? warningShownAt,
+    DateTime? limitShownAt,
+    DateTime? overShownAt,
+  });
 }

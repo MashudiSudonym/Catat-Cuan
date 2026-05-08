@@ -1,10 +1,12 @@
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/budget_alert_status_entity.dart';
 import 'package:catat_cuan/domain/entities/budget_entity.dart';
+import 'package:catat_cuan/domain/failures/failures.dart';
 import 'package:catat_cuan/domain/repositories/budget/budget_read_repository.dart';
 import 'package:catat_cuan/domain/repositories/budget/budget_query_repository.dart';
 import 'package:catat_cuan/domain/repositories/budget/budget_write_repository.dart';
 import 'package:catat_cuan/domain/usecases/budget/check_budget_alerts_usecase.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -23,6 +25,7 @@ void main() {
   late MockBudgetWriteRepository mockWriteRepo;
 
   setUp(() {
+    AppLogger.initialize();
     mockReadRepo = MockBudgetReadRepository();
     mockQueryRepo = MockBudgetQueryRepository();
     mockWriteRepo = MockBudgetWriteRepository();
