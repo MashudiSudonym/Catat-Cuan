@@ -29,37 +29,41 @@ class BudgetListScreen extends ConsumerStatefulWidget {
 
 class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
   late DateTime _currentMonth;
+  Future<List<BudgetWithSpentEntity>>? _budgetsFuture;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = DateTime.now();
+    _loadBudgets();
+  }
+
+  void _loadBudgets() {
+    _budgetsFuture = ref.read(getBudgetWithSpentUseCaseProvider)(
+      MonthParams(year: _currentMonth.year, month: _currentMonth.month),
+    ).then((result) => result.isSuccess ? result.data ?? [] : []);
+    setState(() {});
   }
 
   void _goToPreviousMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-    });
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
+    _loadBudgets();
   }
 
   void _goToNextMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
-    });
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
+    _loadBudgets();
   }
 
   void _goToCurrentMonth() {
-    setState(() {
-      _currentMonth = DateTime.now();
-    });
+    _currentMonth = DateTime.now();
+    _loadBudgets();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<BudgetWithSpentEntity>>(
-      future: ref.read(getBudgetWithSpentUseCaseProvider)(
-        MonthParams(year: _currentMonth.year, month: _currentMonth.month),
-      ).then((result) => result.isSuccess ? result.data ?? [] : []),
+      future: _budgetsFuture,
       builder: (context, snapshot) {
         return Scaffold(
           appBar: AppBar(
@@ -129,25 +133,35 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
     final sortedBudgets = List<BudgetWithSpentEntity>.from(budgets)
       ..sort((a, b) => b.progressPercent.compareTo(a.progressPercent));
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        setState(() {});
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity == null) return;
+        if (details.primaryVelocity! < -300) {
+          _goToNextMonth(); // Swipe left → next month
+        } else if (details.primaryVelocity! > 300) {
+          _goToPreviousMonth(); // Swipe right → previous month
+        }
       },
-      child: ListView.builder(
-        padding: AppSpacing.only(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          top: AppSpacing.sm,
-          bottom: AppSpacing.xxxl,
-        ),
-        itemCount: sortedBudgets.length,
-        itemBuilder: (context, index) {
-          final budgetWithSpent = sortedBudgets[index];
-          return Padding(
-            padding: AppSpacing.only(bottom: AppSpacing.sm),
-            child: _buildBudgetCard(budgetWithSpent),
-          );
+      child: RefreshIndicator(
+        onRefresh: () async {
+          _loadBudgets();
         },
+        child: ListView.builder(
+          padding: AppSpacing.only(
+            left: AppSpacing.lg,
+            right: AppSpacing.lg,
+            top: AppSpacing.sm,
+            bottom: AppSpacing.xxxl,
+          ),
+          itemCount: sortedBudgets.length,
+          itemBuilder: (context, index) {
+            final budgetWithSpent = sortedBudgets[index];
+            return Padding(
+              padding: AppSpacing.only(bottom: AppSpacing.sm),
+              child: _buildBudgetCard(budgetWithSpent),
+            );
+          },
+        ),
       ),
     );
   }
@@ -176,11 +190,12 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
         return BudgetCard(
           budgetWithSpent: budgetWithSpent,
           category: category,
-          onTap: () {
-            // Navigate to budget detail
-            context.push(
+          onTap: () async {
+            // Navigate to budget detail and refresh on return
+            await context.push<bool>(
               '${AppRoutes.budgets}/detail?year=${_currentMonth.year}&month=${_currentMonth.month}',
             );
+            _loadBudgets();
           },
         );
       },
@@ -209,10 +224,11 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
       subtitle:
           'Atur anggaran bulanan per kategori untuk mengontrol pengeluaran Anda',
       actionLabel: 'Tambah Anggaran',
-      onAction: () {
-        context.push(
+      onAction: () async {
+        final result = await context.push<bool>(
           '${AppRoutes.budgets}/form?year=${_currentMonth.year}&month=${_currentMonth.month}',
         );
+        if (result == true) _loadBudgets();
       },
     );
   }
@@ -255,7 +271,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
             ),
             const AppSpacingWidget.verticalLG(),
             ElevatedButton.icon(
-              onPressed: () => setState(() {}),
+              onPressed: _loadBudgets,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
             ),
