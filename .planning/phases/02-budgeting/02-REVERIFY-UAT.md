@@ -1,10 +1,10 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-budgeting
 source: 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md
 type: re-verification
 started: 2026-05-08T16:30:00Z
-updated: 2026-05-08T16:55:00Z
+updated: 2026-05-08T17:00:00Z
 ---
 
 ## Current Test
@@ -78,7 +78,6 @@ issues: 3
 pending: 0
 skipped: 1
 blocked: 1
-skipped: 1
 
 ## Gaps
 
@@ -87,21 +86,37 @@ skipped: 1
   reason: "User reported: the 'Add Budget' button wasn't available when there was already a saved budget in the list. Therefore, you couldn't add a new budget beyond the one already on the list."
   severity: major
   test: 12
-  artifacts: []
-  missing: []
+  root_cause: "BudgetListScreen._buildContent() only shows 'Tambah Anggaran' in empty state (_buildEmptyState). When budgets exist, _buildContent() returns a ListView with no add button. FAB is hidden (showFab: false) for Anggaran tab in app_router.dart."
+  artifacts:
+    - path: "lib/presentation/screens/budget/budget_list_screen.dart"
+      issue: "Lines 127-167: _buildContent() has no add button when budgets exist; add button only in _buildEmptyState (lines 220-233)"
+    - path: "lib/presentation/navigation/routes/app_router.dart"
+      issue: "Line 62: showFab: false for Anggaran tab hides the FAB entirely"
+  missing:
+    - "Add a persistent '+' or 'Tambah Anggaran' button to BudgetListScreen AppBar actions when budgets exist, OR change showFab to true for Anggaran tab and remove the FAB hide logic"
 
 - truth: "Budget page auto-refreshes when switching to Anggaran tab after making changes"
   status: failed
   reason: "User reported: no"
   severity: major
   test: 7
-  artifacts: []
-  missing: []
+  root_cause: "StatefulShellRoute.indexedStack preserves widget state. BudgetListScreen loads data only in initState (line 38). No RouteAware mixin or visibility listener to detect tab re-activation. Switching tabs does not re-trigger initState or _loadBudgets()."
+  artifacts:
+    - path: "lib/presentation/screens/budget/budget_list_screen.dart"
+      issue: "initState (line 38) is the only trigger for _loadBudgets(). No RouteAware or WidgetsBindingObserver lifecycle hook."
+    - path: "lib/presentation/navigation/routes/app_router.dart"
+      issue: "Line 119: StatefulShellRoute.indexedStack preserves tab state"
+  missing:
+    - "Add RouteAware mixin to BudgetListScreen to call _loadBudgets() on didChangeDependencies or didPushNext"
 
 - truth: "Spent amount auto-updates on budget detail screen after adding/deleting transactions"
   status: failed
   reason: "User reported: no"
   severity: major
   test: 8
-  artifacts: []
-  missing: []
+  root_cause: "Same root cause as Test 7: BudgetListScreen is cached by StatefulShellRoute. The list shows stale progress bars after transactions are added on another tab. BudgetDetailScreen loads fresh on each navigation, but the LIST screen (first thing user sees on Anggaran tab) shows stale data."
+  artifacts:
+    - path: "lib/presentation/screens/budget/budget_list_screen.dart"
+      issue: "Same as Test 7"
+  missing:
+    - "Same fix as Test 7 — RouteAware refresh fixes both list and detail (detail already loads fresh on navigation)"
