@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:catat_cuan/domain/usecases/budget/check_budget_alerts_usecase.dart';
+import 'package:catat_cuan/domain/usecases/budget/get_budgets_for_month_usecase.dart';
 import 'package:catat_cuan/presentation/managers/transaction_grouper.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
+import 'package:catat_cuan/presentation/providers/budget/budget_providers.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_card.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
 import 'package:catat_cuan/presentation/widgets/export_bottom_sheet.dart';
+import 'package:catat_cuan/presentation/widgets/budget/budget_overview_card.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/transaction_filter_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
@@ -226,6 +230,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       ),
       body: Column(
         children: [
+          // Budget overview card per D-08/D-10
+          _buildBudgetOverviewCard(),
+
           // Search bar
           TransactionSearchBar(currentTypeFilter: filterState.type),
 
@@ -565,6 +572,117 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
+  /// Build budget overview card above transaction list per D-08/D-10
+  Widget _buildBudgetOverviewCard() {
+    return FutureBuilder<BudgetSummary>(
+      future: _loadBudgetSummary(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final summary = snapshot.data!;
+        if (!summary.hasBudgets) return const SizedBox.shrink();
+
+        return Padding(
+          padding: EdgeInsets.only(
+            left: AppSpacing.lg,
+            right: AppSpacing.lg,
+            top: AppSpacing.sm,
+          ),
+          child: BudgetOverviewCard(summary: summary),
+        );
+      },
+    );
+  }
+
+  /// Load budget summary for current month per D-08
+  Future<BudgetSummary> _loadBudgetSummary() async {
+    try {
+      final now = DateTime.now();
+      final useCase = ref.read(getBudgetWithSpentUseCaseProvider);
+      final result = await useCase(
+        MonthParams(year: now.year, month: now.month),
+      );
+
+      if (!result.isSuccess || result.data == null || result.data!.isEmpty) {
+        return const BudgetSummary();
+      }
+
+      final budgets = result.data!;
+      double totalBudget = 0;
+      double totalSpent = 0;
+      int overspendingCount = 0;
+
+      for (final b in budgets) {
+        totalBudget += b.budget.amount;
+        totalSpent += b.spentAmount;
+        if (b.progressPercent > 100) overspendingCount++;
+      }
+
+      return BudgetSummary(
+        totalBudget: totalBudget,
+        totalSpent: totalSpent,
+        remainingAmount: totalBudget - totalSpent,
+        overspendingCount: overspendingCount,
+        hasBudgets: true,
+        year: now.year,
+        month: now.month,
+      );
+    } catch (e) {
+      AppLogger.e('BudgetOverview: Error loading summary: $e');
+      return const BudgetSummary();
+    }
+  }
+
+  /// Check budget alerts after a transaction is deleted per D-03/BUD-04
+  ///
+  /// Deletion may bring spending below a threshold, but the alert system
+  /// tracks "already shown" per threshold, so we only need to check on add/edit.
+  Future<void> _checkBudgetAlertAfterTransaction(
+    TransactionEntity transaction,
+  ) async {
+    try {
+      final controller = ref.read(budgetAlertControllerProvider);
+      final alertType = await controller.checkAlertsAfterTransaction(
+        categoryId: transaction.categoryId,
+        year: transaction.dateTime.year,
+        month: transaction.dateTime.month,
+      );
+
+      if (!mounted) return;
+      if (alertType == BudgetAlertType.none) return;
+
+      // Get category name for the alert message per D-01
+      final categoriesAsync = ref.read(categoryListProvider);
+      String categoryName = 'Kategori';
+      categoriesAsync.whenData((categories) {
+        final cat = categories.where((c) => c.id == transaction.categoryId).firstOrNull;
+        if (cat != null) categoryName = cat.name;
+      });
+
+      // Show SnackBar per D-01 with Indonesian messages
+      final message = switch (alertType) {
+        BudgetAlertType.warning => '⚠ Anggaran $categoryName sudah 75% terpakai',
+        BudgetAlertType.limit => '🔴 Anggaran $categoryName sudah mencapai batas',
+        BudgetAlertType.over => '🚨 Anggaran $categoryName melebihi batas!',
+        BudgetAlertType.none => '',
+      };
+
+      if (message.isEmpty) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e, stackTrace) {
+      // Per T-02-04: Must not block transaction flow
+      AppLogger.e('BudgetAlert: Error after transaction', e, stackTrace);
+    }
+  }
+
   /// Group transactions by date using TransactionGrouper
   List<Map<String, dynamic>> _groupTransactionsByDate(
       List<TransactionEntity> transactions) {
@@ -610,6 +728,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+
+        _checkBudgetAlertAfterTransaction(transaction);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
