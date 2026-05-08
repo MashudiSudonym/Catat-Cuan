@@ -34,6 +34,20 @@ class BudgetDetailScreen extends ConsumerStatefulWidget {
 
 class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
   int? _expandedCategoryId;
+  Future<List<BudgetWithSpentEntity>>? _budgetsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBudgets();
+  }
+
+  void _loadBudgets() {
+    _budgetsFuture = ref.read(getBudgetWithSpentUseCaseProvider)(
+      MonthParams(year: widget.year, month: widget.month),
+    ).then((result) => result.isSuccess ? result.data ?? [] : []);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +58,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         title: Text(AppDateFormatter.formatMonthYearDate(monthDate)),
       ),
       body: FutureBuilder<List<BudgetWithSpentEntity>>(
-        future: _loadBudgets(),
+        future: _budgetsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -69,7 +83,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
             ..sort((a, b) => b.progressPercent.compareTo(a.progressPercent));
 
           return RefreshIndicator(
-            onRefresh: () async => setState(() {}),
+            onRefresh: () async => _loadBudgets(),
             child: ListView.builder(
               padding: AppSpacing.only(
                 left: AppSpacing.lg,
@@ -89,14 +103,6 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         },
       ),
     );
-  }
-
-  Future<List<BudgetWithSpentEntity>> _loadBudgets() async {
-    final useCase = ref.read(getBudgetWithSpentUseCaseProvider);
-    final result = await useCase(
-      MonthParams(year: widget.year, month: widget.month),
-    );
-    return result.isSuccess ? result.data ?? [] : [];
   }
 
   Widget _buildBudgetCategoryCard(BudgetWithSpentEntity budgetWithSpent) {
@@ -178,7 +184,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
             ),
             const AppSpacingWidget.verticalLG(),
             ElevatedButton.icon(
-              onPressed: () => setState(() {}),
+              onPressed: _loadBudgets,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
             ),
