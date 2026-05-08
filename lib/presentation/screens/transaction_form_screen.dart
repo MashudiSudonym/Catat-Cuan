@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/domain/entities/receipt_data_entity.dart';
 import 'package:catat_cuan/domain/entities/transaction_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
+import 'package:catat_cuan/domain/usecases/budget/check_budget_alerts_usecase.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/widgets/currency_input_field.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_type_toggle.dart';
 import 'package:catat_cuan/presentation/widgets/category_grid.dart';
@@ -385,6 +387,56 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     return formatter.format(amount);
   }
 
+  /// Check budget alerts after a transaction is saved per BUD-04
+  ///
+  /// Non-blocking: errors are caught and logged, never blocking the save flow.
+  /// Only fires for expense transactions (budgets are per expense category).
+  Future<void> _checkBudgetAlertWith({
+    required int categoryId,
+    required DateTime date,
+  }) async {
+    try {
+      final controller = ref.read(budgetAlertControllerProvider);
+      final alertType = await controller.checkAlertsAfterTransaction(
+        categoryId: categoryId,
+        year: date.year,
+        month: date.month,
+      );
+
+      if (!mounted) return;
+      if (alertType == BudgetAlertType.none) return;
+
+      // Get category name for the alert message per D-01
+      final categoriesAsync = ref.read(categoryListProvider);
+      String categoryName = 'Kategori';
+      categoriesAsync.whenData((categories) {
+        final cat = categories.where((c) => c.id == categoryId).firstOrNull;
+        if (cat != null) categoryName = cat.name;
+      });
+
+      // Show SnackBar per D-01 with Indonesian messages
+      final message = switch (alertType) {
+        BudgetAlertType.warning => '⚠ Anggaran $categoryName sudah 75% terpakai',
+        BudgetAlertType.limit => '🔴 Anggaran $categoryName sudah mencapai batas',
+        BudgetAlertType.over => '🚨 Anggaran $categoryName melebihi batas!',
+        BudgetAlertType.none => '',
+      };
+
+      if (message.isEmpty) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e, stackTrace) {
+      // Per T-02-06: Must not block transaction flow
+      AppLogger.e('BudgetAlert: Error after transaction save', e, stackTrace);
+    }
+  }
+
   /// Submit button
   Widget _buildSubmitButton(TransactionFormState formState) {
     final isValid = formState.isValid;
@@ -404,6 +456,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 );
                 return;
               }
+
+              // Capture form data before submit for alert check
+              final formState = ref.read(transactionFormProvider);
+              final categoryId = formState.categoryId;
+              final transactionDate = formState.date;
+              final transactionType = formState.type;
 
               final success = await ref
                   .read(transactionFormProvider.notifier)
@@ -425,6 +483,13 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
+
+                // Check budget alerts for expense transactions only (BUD-04)
+                // Fire-and-forget: don't await, pop immediately
+                if (categoryId != null && transactionDate != null && transactionType == TransactionType.expense) {
+                  _checkBudgetAlertWith(categoryId: categoryId, date: transactionDate);
+                }
+
                 // Navigate back (AC-LOG-004.3)
                 context.pop();
               }
