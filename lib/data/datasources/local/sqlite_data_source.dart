@@ -13,10 +13,18 @@ import 'package:sqflite/sqflite.dart';
 /// 3. Follows LSP - can be substituted with any other LocalDataSource impl
 class SqliteDataSource implements LocalDataSource {
   final DatabaseHelper _dbHelper;
+  final Database? _directDb;
 
-  SqliteDataSource(this._dbHelper);
+  SqliteDataSource(this._dbHelper) : _directDb = null;
 
-  Future<Database> get _database async => await _dbHelper.database;
+  /// Creates a SqliteDataSource wrapping an existing [Database] instance.
+  ///
+  /// Useful for testing with in-memory databases from sqflite_common_ffi.
+  SqliteDataSource.fromDatabase(Database db)
+      : _dbHelper = DatabaseHelper(),
+        _directDb = db;
+
+  Future<Database> get _database async => _directDb ?? await _dbHelper.database;
 
   @override
   Future<List<Map<String, dynamic>>> query(

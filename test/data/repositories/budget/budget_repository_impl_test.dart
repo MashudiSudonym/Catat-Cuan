@@ -9,6 +9,7 @@ import 'package:catat_cuan/data/repositories/budget/budget_write_repository_impl
 import 'package:catat_cuan/data/repositories/budget/budget_query_repository_impl.dart';
 import 'package:catat_cuan/domain/entities/budget_entity.dart';
 import 'package:catat_cuan/domain/core/result.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 void main() {
   late SqliteDataSource dataSource;
@@ -20,6 +21,7 @@ void main() {
   setUpAll(() {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+    AppLogger.initialize();
   });
 
   setUp(() async {
@@ -67,7 +69,9 @@ void main() {
   });
 
   tearDown(() async {
-    await dataSource.close();
+    if (db.isOpen) {
+      await db.close();
+    }
   });
 
   group('BudgetWriteRepository', () {
