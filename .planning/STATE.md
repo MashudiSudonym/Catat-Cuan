@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
-status: completed
-stopped_at: Phase 2 context gathered
-last_updated: "2026-05-07T14:35:35.483Z"
-last_activity: 2026-05-07 — v2.0 Foundation milestone archived
+status: executing
+stopped_at: Phase 2 complete
+last_updated: "2026-05-08T09:45:00.000Z"
+last_activity: 2026-05-08 — Phase 2 Budgeting executed (3/3 plans)
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_phases: 6
+  completed_phases: 2
+  total_plans: 6
+  completed_plans: 6
+  percent: 33
 ---
 
 # Project State
@@ -21,33 +21,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.0 Foundation shipped — planning v2.1 Budgeting & Goals
+**Current focus:** v2.1 Budgeting & Goals — Phase 2 (Budgeting) complete
 
 ## Current Position
 
-Phase: 2 of 6 (Budgeting) — next milestone
-Status: v2.0 Foundation milestone complete — PR #1
-Last activity: 2026-05-07 — v2.0 Foundation milestone archived
+Phase: 2 of 6 (Budgeting) — COMPLETE
+Status: Phase 2 executed — 3/3 plans, all tests passing
+Last activity: 2026-05-08 — Phase 2 Budgeting complete
 
-Progress: [██░░░░░░░░] 17%
+Progress: [████░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration: 8min
-- Total execution time: 0.4 hours
+- Total plans completed: 6
+- Average duration: 14min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 Foundation | 3 | 24min | 8min |
+| 2 Budgeting | 3 | 40min | 13min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (8min), 01-02 (10min), 01-03 (6min)
+- Last 6 plans: 01-01 (8min), 01-02 (10min), 01-03 (6min), 02-01 (21min), 02-02 (19min), 02-03 (resumed)
 - Trend: Healthy execution pace
 
 *Updated after each plan completion*
@@ -64,6 +65,7 @@ Recent decisions affecting current work:
 - Phase 1: 2-tab layout (Transaksi + Laporan), grow to 4 tabs in Phase 2/3
 - 01-01: SQLite CHECK via repository layer (no subquery support)
 - 01-03: NavigationTabConfig enables Phase 2/3 tab additions as config changes
+- 02-02: Schema migration v3→v4 with alert_status columns on budgets table
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-07T14:35:35.478Z
-Stopped at: Phase 2 context gathered
-Next phase: Phase 2 (Budgeting) or Phase 3 (Savings Goals) — independent, may be parallelized
+Last session: 2026-05-08T09:45:00.000Z
+Stopped at: Phase 2 complete
+Next phase: Phase 3 (Savings Goals) — independent of Phase 2, ready to execute

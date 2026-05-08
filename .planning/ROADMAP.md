@@ -18,7 +18,7 @@
 
 ### 🚧 v2.1 Budgeting & Goals (Planned)
 
-- [ ] **Phase 2: Budgeting** — Per-category monthly budgets with alerts and progress tracking
+- [x] **Phase 2: Budgeting** — Per-category monthly budgets with alerts and progress tracking
 - [ ] **Phase 3: Savings Goals** — Goals with contributions, progress, and confetti celebration
 
 ### 📋 v2.2 Cloud & Reports (Planned)
@@ -45,9 +45,9 @@
 
 **Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 02-01-PLAN.md — Budget data layer: entities, repository interfaces, SQLite implementations, tests (Wave 1)
-- [ ] 02-02-PLAN.md — Budget tracking: use cases, providers, alert system, schema v3→v4 migration (Wave 2)
-- [ ] 02-03-PLAN.md — Budget UI: Anggaran tab, CRUD screens, progress bars, home card, alerts wiring (Wave 3)
+- [x] 02-01-PLAN.md — Budget data layer: entities, repository interfaces, SQLite implementations, tests (Wave 1)
+- [x] 02-02-PLAN.md — Budget tracking: use cases, providers, alert system, schema v3→v4 migration (Wave 2)
+- [x] 02-03-PLAN.md — Budget UI: Anggaran tab, CRUD screens, progress bars, home card, alerts wiring (Wave 3)
 **UI hint**: yes
 
 ### Phase 3: Savings Goals
