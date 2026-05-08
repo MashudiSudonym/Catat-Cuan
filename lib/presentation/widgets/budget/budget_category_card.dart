@@ -21,6 +21,8 @@ class BudgetCategoryCard extends ConsumerWidget {
     required this.year,
     required this.month,
     this.onToggle,
+    this.onEdit,
+    this.onDelete,
   });
 
   final BudgetWithSpentEntity budgetWithSpent;
@@ -29,6 +31,8 @@ class BudgetCategoryCard extends ConsumerWidget {
   final int year;
   final int month;
   final VoidCallback? onToggle;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,6 +92,26 @@ class BudgetCategoryCard extends ConsumerWidget {
                   ),
                 ],
               ),
+              // Edit action
+              if (onEdit != null)
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  onPressed: onEdit,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  visualDensity: VisualDensity.compact,
+                ),
+              // Delete action
+              if (onDelete != null)
+                IconButton(
+                  icon: Icon(Icons.delete_outline, size: 18,
+                    color: AppColors.error,
+                  ),
+                  onPressed: onDelete,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  visualDensity: VisualDensity.compact,
+                ),
               // Expand/collapse icon
               AnimatedRotation(
                 duration: const Duration(milliseconds: 200),

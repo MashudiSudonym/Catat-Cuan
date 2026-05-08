@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/domain/entities/budget_with_spent_entity.dart';
 import 'package:catat_cuan/domain/entities/category_entity.dart';
 import 'package:catat_cuan/presentation/providers/budget/budget_providers.dart';
@@ -9,6 +10,7 @@ import 'package:catat_cuan/presentation/utils/error/error_message_mapper.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/budget/budget_category_card.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 import 'package:catat_cuan/domain/usecases/budget/get_budgets_for_month_usecase.dart';
 
 /// Budget vs actual detail screen per D-11/D-12
@@ -139,6 +141,14 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                   isExpanded ? null : category.id;
             });
           },
+          onEdit: () {
+            context.push<bool>(
+              '${AppRoutes.budgets}/form?id=${budgetWithSpent.budget.id}&year=${widget.year}&month=${widget.month}',
+            ).then((result) {
+              if (result == true) _loadBudgets();
+            });
+          },
+          onDelete: () => _showDeleteConfirmation(budgetWithSpent),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -192,5 +202,54 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(BudgetWithSpentEntity budgetWithSpent) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Anggaran'),
+        content: const Text('Apakah Anda yakin ingin menghapus anggaran ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final controller = ref.read(budgetFormControllerProvider);
+    final result = await controller.submitDelete(budgetWithSpent.budget.id!);
+
+    if (!mounted) return;
+
+    if (result.isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Anggaran berhasil dihapus'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _loadBudgets();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorMessageMapper.getUserMessage(result.failure)),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
