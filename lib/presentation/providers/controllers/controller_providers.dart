@@ -7,8 +7,11 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:catat_cuan/presentation/controllers/transaction_delete_controller.dart';
 import 'package:catat_cuan/presentation/controllers/category_management_controller.dart';
+import 'package:catat_cuan/presentation/controllers/budget/budget_form_controller.dart';
+import 'package:catat_cuan/presentation/controllers/budget/budget_alert_controller.dart';
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
+import 'package:catat_cuan/presentation/providers/budget/budget_providers.dart';
 export 'package:catat_cuan/presentation/controllers/receipt_scanning_controller.dart'
     show ReceiptScanningController;
 
@@ -48,5 +51,30 @@ final categoryManagementControllerProvider =
     managementRepository,
     readRepository,
     writeRepository,
+  );
+});
+
+// ============================================================================
+// Budget Controller Providers
+// ============================================================================
+
+/// Provider for BudgetFormController
+///
+/// Manages budget CRUD form operations
+final budgetFormControllerProvider = Provider<BudgetFormController>((ref) {
+  return BudgetFormController(
+    createBudgetUseCase: ref.read(createBudgetUseCaseProvider),
+    updateBudgetUseCase: ref.read(updateBudgetUseCaseProvider),
+    deleteBudgetUseCase: ref.read(deleteBudgetUseCaseProvider),
+    getBudgetsForMonthUseCase: ref.read(getBudgetsForMonthUseCaseProvider),
+  );
+});
+
+/// Provider for BudgetAlertController
+///
+/// Per D-03: Alert check triggers after each transaction save
+final budgetAlertControllerProvider = Provider<BudgetAlertController>((ref) {
+  return BudgetAlertController(
+    ref.read(checkBudgetAlertsUseCaseProvider),
   );
 });
