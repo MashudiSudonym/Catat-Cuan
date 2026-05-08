@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:catat_cuan/data/datasources/local/schema_manager.dart';
 import 'package:catat_cuan/data/datasources/local/sqlite_data_source.dart';
 import 'package:catat_cuan/data/models/budget_model.dart';
@@ -8,7 +7,6 @@ import 'package:catat_cuan/data/repositories/budget/budget_read_repository_impl.
 import 'package:catat_cuan/data/repositories/budget/budget_write_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/budget/budget_query_repository_impl.dart';
 import 'package:catat_cuan/domain/entities/budget_entity.dart';
-import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 void main() {
