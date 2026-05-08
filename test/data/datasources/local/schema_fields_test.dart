@@ -18,8 +18,8 @@ void main() {
   });
 
   group('DatabaseSchemaManager version', () {
-    test('currentVersion equals 3', () {
-      expect(DatabaseSchemaManager.currentVersion, 3);
+    test('currentVersion equals 4', () {
+      expect(DatabaseSchemaManager.currentVersion, 4);
     });
   });
 
