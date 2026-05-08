@@ -59,7 +59,7 @@ const activeTabs = [
     icon: Icons.account_balance_wallet,
     activeIcon: Icons.account_balance_wallet,
     route: AppRoutes.budgets,
-    showFab: true,
+    showFab: false,
   ),
   NavigationTabConfig(
     label: 'Laporan',
@@ -302,7 +302,7 @@ class HomeNavigationShell extends ConsumerWidget {
     return Scaffold(
       body: navigationShell,
       floatingActionButton: currentTab.showFab ? _buildSeamlessFab(context) : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: _buildSeamlessBottomNav(),
     );
   }
