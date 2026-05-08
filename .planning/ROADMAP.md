@@ -43,7 +43,7 @@
   4. User receives in-app alerts exactly once when budget reaches 75% (warning), 100% (limit), and >100% (overspending)
   5. User sees budget overview card on home screen and can drill into budget vs actual comparison per category with transaction list
 
-**Plans:** 6 plans in 4 waves
+**Plans:** 7 plans in 5 waves
 Plans:
 - [x] 02-01-PLAN.md — Budget data layer: entities, repository interfaces, SQLite implementations, tests (Wave 1)
 - [x] 02-02-PLAN.md — Budget tracking: use cases, providers, alert system, schema v3→v4 migration (Wave 2)
@@ -51,6 +51,7 @@ Plans:
 - [x] 02-04-PLAN.md — Gap closure: Budget list reactivity + swipe month navigation (Wave 1, gap closure)
 - [x] 02-05-PLAN.md — Gap closure: Budget edit/delete buttons + error message fix (Wave 2, gap closure)
 - [x] 02-06-PLAN.md — Gap closure: FAB overlap fix + budget alerts in save flow (Wave 1, gap closure)
+- [ ] 02-07-PLAN.md — Gap closure: Add budget button when budgets exist + tab auto-refresh (Wave 1, gap closure)
 **UI hint**: yes
 
 ### Phase 3: Savings Goals
@@ -128,7 +129,7 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
-| 2. Budgeting | v2.1 | 6/6 | Complete ✓ | 2026-05-08 |
+| 2. Budgeting | v2.1 | 6/7 | In progress | 2026-05-08 |
 | 3. Savings Goals | v2.1 | 0/3 | Not started | - |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
