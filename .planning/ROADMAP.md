@@ -19,7 +19,7 @@
 ### 🚧 v2.1 Budgeting & Goals (Planned)
 
 - [x] **Phase 2: Budgeting** — Per-category monthly budgets with alerts and progress tracking
-- [ ] **Phase 3: Savings Goals** — Goals with contributions, progress, and confetti celebration
+- [x] **Phase 3: Savings Goals** — Goals with contributions, progress, and confetti celebration
 
 ### 📋 v2.2 Cloud & Reports (Planned)
 
@@ -68,9 +68,9 @@ Plans:
 
 **Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 03-01-PLAN.md — Savings goals data layer: entities, ISP repositories, SQLite implementations with atomic contribution writes (Wave 1)
-- [ ] 03-02-PLAN.md — Savings goals business logic: use cases with validation, auto-completion detection, Riverpod providers, controllers (Wave 2)
-- [ ] 03-03-PLAN.md — Savings goals UI: Tabungan tab, goal list with circular progress, CRUD screens, confetti celebration, home card (Wave 3)
+- [x] 03-01-PLAN.md — Savings goals data layer: entities, ISP repositories, SQLite implementations with atomic contribution writes (Wave 1)
+- [x] 03-02-PLAN.md — Savings goals business logic: use cases with validation, auto-completion detection, Riverpod providers, controllers (Wave 2)
+- [x] 03-03-PLAN.md — Savings goals UI: Tabungan tab, goal list with circular progress, CRUD screens, confetti celebration, home card (Wave 3)
 **UI hint**: yes
 
 ### Phase 4: Cloud Backup
@@ -132,13 +132,13 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
-| 3. Savings Goals | v2.1 | 0/3 | Planned | - |
+| 3. Savings Goals | v2.1 | 3/3 | Complete ✓ | 2026-05-10 |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
 | 6. Polish & Integration | v2.3 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-10 after Phase 3 Savings Goals planning*
+*Last updated: 2026-05-10 after Phase 3 Savings Goals execution complete*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*
