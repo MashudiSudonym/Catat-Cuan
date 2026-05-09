@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
-status: phase-3-context-gathered
-stopped_at: Phase 3 context gathered
-last_updated: "2026-05-09T09:00:00.000Z"
-last_activity: 2026-05-09 — Phase 3 Savings Goals context gathered
+status: phase-3-ui-spec-approved
+stopped_at: Phase 3 UI-SPEC approved
+last_updated: "2026-05-09T10:00:00.000Z"
+last_activity: 2026-05-09 — Phase 3 Savings Goals UI-SPEC approved
 progress:
   total_phases: 6
   completed_phases: 2
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-05-07)
 
 ## Current Position
 
-Phase: 3 of 6 (Savings Goals) — Context gathered
-Status: Phase 3 context gathered — ready for planning
-Last activity: 2026-05-09 — Phase 3 Savings Goals context discussion completed
+Phase: 3 of 6 (Savings Goals) — UI-SPEC approved
+Status: Phase 3 UI-SPEC approved — ready for planning
+Last activity: 2026-05-09 — Phase 3 Savings Goals UI design contract approved (6/6 dimensions passed)
 
 Progress: [████░░░░░░] 33%
 
@@ -89,5 +89,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 ## Session Continuity
 
 Last session: 2026-05-09T09:00:00.000Z
-Stopped at: Phase 3 context gathered
-Next phase: Phase 3 (Savings Goals) — context ready, proceed to planning
+Stopped at: Phase 3 UI-SPEC approved
+Resume file: .planning/phases/03-savings-goals/03-UI-SPEC.md
+Next phase: Phase 3 (Savings Goals) — UI-SPEC approved, proceed to planning
