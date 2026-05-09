@@ -21,6 +21,12 @@ class AppRoutes {
   static const String budgetForm = '/budgets/form';
   static const String budgetDetail = '/budgets/detail';
 
+  // Savings goal routes
+  static const String savings = '/savings';
+  static const String savingsForm = '/savings/add';
+  static const String savingsEdit = '/savings/edit';
+  static const String savingsDetail = '/savings/detail';
+
   // Settings (full-screen)
   static const String settings = '/settings';
 

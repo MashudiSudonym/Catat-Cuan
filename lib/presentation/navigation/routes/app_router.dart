@@ -12,6 +12,9 @@ import 'package:catat_cuan/presentation/screens/category_management_screen.dart'
 import 'package:catat_cuan/presentation/screens/budget/budget_list_screen.dart';
 import 'package:catat_cuan/presentation/screens/budget/budget_form_screen.dart';
 import 'package:catat_cuan/presentation/screens/budget/budget_detail_screen.dart';
+import 'package:catat_cuan/presentation/screens/savings/savings_goal_list_screen.dart';
+import 'package:catat_cuan/presentation/screens/savings/savings_goal_form_screen.dart';
+import 'package:catat_cuan/presentation/screens/savings/savings_goal_detail_screen.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
@@ -60,6 +63,13 @@ const activeTabs = [
     activeIcon: Icons.account_balance_wallet,
     route: AppRoutes.budgets,
     showFab: false,
+  ),
+  NavigationTabConfig(
+    label: 'Tabungan',
+    icon: Icons.savings,
+    activeIcon: Icons.savings,
+    route: AppRoutes.savings,
+    showFab: true,
   ),
   NavigationTabConfig(
     label: 'Laporan',
@@ -213,7 +223,51 @@ GoRouter createGoRouter(Ref ref) {
             ],
           ),
 
-          // Branch 3: Laporan (Reports) tab — per D-01: summary content moved here
+          // Branch 3: Tabungan (Savings) tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.savings,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: SavingsGoalListScreen(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'add',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) => MaterialPage(
+                      key: state.pageKey,
+                      child: const SavingsGoalFormScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'edit/:id',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) {
+                      final goalId = int.parse(state.pathParameters['id']!);
+                      return MaterialPage(
+                        key: state.pageKey,
+                        child: SavingsGoalFormScreen(goalId: goalId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'detail/:id',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) {
+                      final goalId = int.parse(state.pathParameters['id']!);
+                      return MaterialPage(
+                        key: state.pageKey,
+                        child: SavingsGoalDetailScreen(goalId: goalId),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Branch 4: Laporan (Reports) tab — per D-01: summary content moved here
           StatefulShellBranch(
             routes: [
               // Monthly summary as reports page (tab route)
@@ -318,6 +372,9 @@ class HomeNavigationShell extends ConsumerWidget {
       final now = DateTime.now();
       fabRoute = '${AppRoutes.budgets}/form?year=${now.year}&month=${now.month}';
       fabTooltip = 'Tambah Anggaran';
+    } else if (tab.label == 'Tabungan') {
+      fabRoute = '${AppRoutes.savings}/add';
+      fabTooltip = 'Buat Goal Tabungan';
     } else {
       fabRoute = AppRoutes.addTransaction;
       fabTooltip = 'Tambah Transaksi';

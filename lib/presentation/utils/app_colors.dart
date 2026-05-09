@@ -64,6 +64,15 @@ class AppColors {
     Color(0xFF9E9E9E), // Gray
   ];
 
+  /// Returns goal progress color based on SAV-07 4-tier gradient
+  /// Red 0-25%, Orange 25-50%, Yellow 50-75%, Green 75-100%
+  static Color getGoalProgressColor(double percentage, bool isDark) {
+    if (percentage >= 75) return isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
+    if (percentage >= 50) return isDark ? const Color(0xFFFACC15) : const Color(0xFFEAB308);
+    if (percentage >= 25) return isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316);
+    return isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
+  }
+
   /// Get income color based on theme
   static Color getIncomeColor(bool isDark) {
     return isDark ? const Color(0xFF34D399) : income;
