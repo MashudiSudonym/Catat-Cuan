@@ -12,6 +12,7 @@ import 'package:catat_cuan/presentation/widgets/transaction_filter_chip.dart';
 import 'package:catat_cuan/presentation/widgets/transaction_search_bar.dart';
 import 'package:catat_cuan/presentation/widgets/export_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/widgets/budget/budget_overview_card.dart';
+import 'package:catat_cuan/presentation/widgets/savings/goal_home_card.dart';
 import 'package:catat_cuan/presentation/screens/transaction_list/bottom_sheets/transaction_filter_bottom_sheet.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
@@ -232,6 +233,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         children: [
           // Budget overview card per D-08/D-10
           _buildBudgetOverviewCard(),
+
+          // Savings goals overview card per D-08/D-09
+          _buildGoalHomeCard(),
 
           // Search bar
           TransactionSearchBar(currentTypeFilter: filterState.type),
@@ -592,6 +596,18 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           child: BudgetOverviewCard(summary: summary),
         );
       },
+    );
+  }
+
+  /// Build savings goals overview card per D-08/D-09
+  Widget _buildGoalHomeCard() {
+    return const Padding(
+      padding: EdgeInsets.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: AppSpacing.sm,
+      ),
+      child: GoalHomeCard(),
     );
   }
 
