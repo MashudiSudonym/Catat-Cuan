@@ -51,7 +51,7 @@ Plans:
 - [x] 02-04-PLAN.md — Gap closure: Budget list reactivity + swipe month navigation (Wave 1, gap closure)
 - [x] 02-05-PLAN.md — Gap closure: Budget edit/delete buttons + error message fix (Wave 2, gap closure)
 - [x] 02-06-PLAN.md — Gap closure: FAB overlap fix + budget alerts in save flow (Wave 1, gap closure)
-- [ ] 02-07-PLAN.md — Gap closure: Add budget button when budgets exist + tab auto-refresh (Wave 1, gap closure)
+- [x] 02-07-PLAN.md — Gap closure: Add budget button when budgets exist + tab auto-refresh (Wave 1, gap closure)
 **UI hint**: yes
 
 ### Phase 3: Savings Goals
@@ -129,7 +129,7 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
-| 2. Budgeting | v2.1 | 6/7 | In progress | 2026-05-08 |
+| 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
 | 3. Savings Goals | v2.1 | 0/3 | Not started | - |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
@@ -137,6 +137,6 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-08 after Phase 2 Budgeting gap closure*
+*Last updated: 2026-05-09 after Phase 2 Budgeting full completion*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
 status: executing
-stopped_at: Phase 2 complete (gap closure)
-last_updated: "2026-05-08T12:00:00.000Z"
-last_activity: 2026-05-08 — Phase 2 Budgeting gap closure (3/3 gap plans)
+stopped_at: Phase 2 complete (all 7 plans including gap closure)
+last_updated: "2026-05-09T07:35:00.000Z"
+last_activity: 2026-05-09 — Phase 2 Budgeting fully complete (7/7 plans)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 10
+  completed_plans: 10
   percent: 33
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.1 Budgeting & Goals — Phase 2 (Budgeting) fully complete including gap closure
+**Current focus:** v2.1 Budgeting & Goals — Phase 2 (Budgeting) fully complete including all gap closure
 
 ## Current Position
 
-Phase: 2 of 6 (Budgeting) — COMPLETE (including gap closure)
-Status: Phase 2 executed — 6/6 plans, all tests passing (1035 tests)
-Last activity: 2026-05-08 — Phase 2 Budgeting gap closure complete
+Phase: 2 of 6 (Budgeting) — COMPLETE (7/7 plans including gap closure)
+Status: Phase 2 executed — 7/7 plans, all tests passing (1035 tests)
+Last activity: 2026-05-09 — Phase 2 Budgeting fully complete
 
 Progress: [████░░░░░░] 33%
 
@@ -44,11 +44,11 @@ Progress: [████░░░░░░] 33%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 Foundation | 3 | 24min | 8min |
-| 2 Budgeting | 6 | 55min | 9min |
+| 2 Budgeting | 7 | 60min | 9min |
 
 **Recent Trend:**
 
-- Last 9 plans: 01-01 (8min), 01-02 (10min), 01-03 (6min), 02-01 (21min), 02-02 (19min), 02-03 (resumed), 02-04 (4min), 02-05 (5min), 02-06 (4min)
+- Last 10 plans: 01-01 (8min), 01-02 (10min), 01-03 (6min), 02-01 (21min), 02-02 (19min), 02-03 (resumed), 02-04 (4min), 02-05 (5min), 02-06 (4min), 02-07 (5min)
 - Trend: Healthy execution pace
 
 *Updated after each plan completion*
@@ -66,6 +66,7 @@ Recent decisions affecting current work:
 - 01-01: SQLite CHECK via repository layer (no subquery support)
 - 01-03: NavigationTabConfig enables Phase 2/3 tab additions as config changes
 - 02-02: Schema migration v3→v4 with alert_status columns on budgets table
+- 02-07: Used NotifierProvider (not StateProvider) for tab state — Riverpod 3.x removed StateProvider
 
 ### Pending Todos
 
@@ -87,6 +88,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-08T09:45:00.000Z
-Stopped at: Phase 2 complete
+Last session: 2026-05-09T07:35:00.000Z
+Stopped at: Phase 2 fully complete (7/7 plans)
 Next phase: Phase 3 (Savings Goals) — independent of Phase 2, ready to execute
