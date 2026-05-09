@@ -303,7 +303,7 @@ class HomeNavigationShell extends ConsumerWidget {
       body: navigationShell,
       floatingActionButton: currentTab.showFab ? _buildSeamlessFab(context) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _buildSeamlessBottomNav(),
+      bottomNavigationBar: _buildSeamlessBottomNav(ref),
     );
   }
 
@@ -333,12 +333,15 @@ class HomeNavigationShell extends ConsumerWidget {
 
   /// Build seamless bottom navigation with glassmorphism
   /// Built dynamically from activeTabs config for easy Phase 2/3 additions
-  Widget _buildSeamlessBottomNav() {
+  Widget _buildSeamlessBottomNav(WidgetRef ref) {
     return AppGlassNavigation(
       showTopBorder: true,
       child: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
-        onTap: (index) => navigationShell.goBranch(index),
+        onTap: (index) {
+          ref.read(activeTabIndexProvider.notifier).setIndex(index);
+          navigationShell.goBranch(index);
+        },
         backgroundColor: Colors.transparent,
         elevation: 0,
         type: BottomNavigationBarType.fixed,

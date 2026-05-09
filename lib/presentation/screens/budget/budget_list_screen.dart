@@ -30,6 +30,7 @@ class BudgetListScreen extends ConsumerStatefulWidget {
 class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
   late DateTime _currentMonth;
   Future<List<BudgetWithSpentEntity>>? _budgetsFuture;
+  int _lastSeenTabIndex = 1;
 
   @override
   void initState() {
@@ -62,6 +63,14 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeTabIndex = ref.watch(activeTabIndexProvider);
+    if (activeTabIndex == 1 && _lastSeenTabIndex != 1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadBudgets();
+      });
+    }
+    _lastSeenTabIndex = activeTabIndex;
+
     return FutureBuilder<List<BudgetWithSpentEntity>>(
       future: _budgetsFuture,
       builder: (context, snapshot) {
@@ -69,6 +78,17 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
           appBar: AppBar(
             title: _buildMonthSelector(),
             actions: [
+              if (snapshot.hasData && (snapshot.data?.isNotEmpty ?? false))
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Tambah Anggaran',
+                  onPressed: () async {
+                    final result = await context.push<bool>(
+                      '${AppRoutes.budgets}/form?year=${_currentMonth.year}&month=${_currentMonth.month}',
+                    );
+                    if (result == true) _loadBudgets();
+                  },
+                ),
               if (!_isCurrentMonth())
                 TextButton(
                   onPressed: _goToCurrentMonth,

@@ -94,3 +94,17 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
   // Keep the provider alive even when no one is listening
   ref.keepAlive();
 });
+
+/// Tracks the currently active bottom navigation tab index.
+/// Used by tab screens to detect re-activation and refresh stale data.
+final activeTabIndexProvider =
+    NotifierProvider<ActiveTabIndexNotifier, int>(
+  ActiveTabIndexNotifier.new,
+);
+
+class ActiveTabIndexNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void setIndex(int index) => state = index;
+}
