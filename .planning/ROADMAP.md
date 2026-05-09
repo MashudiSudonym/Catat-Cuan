@@ -53,6 +53,7 @@ Plans:
 - [x] 02-06-PLAN.md — Gap closure: FAB overlap fix + budget alerts in save flow (Wave 1, gap closure)
 - [x] 02-07-PLAN.md — Gap closure: Add budget button when budgets exist + tab auto-refresh (Wave 1, gap closure)
 **UI hint**: yes
+**UI hint**: yes
 
 ### Phase 3: Savings Goals
 **Goal**: Users can create savings goals, track progress with contributions, and celebrate completions
@@ -65,10 +66,11 @@ Plans:
   4. Goal auto-completes when current amount reaches target, triggering confetti celebration
   5. User sees goals overview card on home screen with quick-add button and can view full contribution history per goal
 
+**Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 03-01: Savings goals data layer — entities, repository interfaces, SQLite implementation
-- [ ] 03-02: Contribution system — atomic writes, contribution/withdrawal recording, running balance
-- [ ] 03-03: Goals UI — goal list, CRUD screens, progress indicators, confetti celebration, home screen card
+- [ ] 03-01-PLAN.md — Savings goals data layer: entities, ISP repositories, SQLite implementations with atomic contribution writes (Wave 1)
+- [ ] 03-02-PLAN.md — Savings goals business logic: use cases with validation, auto-completion detection, Riverpod providers, controllers (Wave 2)
+- [ ] 03-03-PLAN.md — Savings goals UI: Tabungan tab, goal list with circular progress, CRUD screens, confetti celebration, home card (Wave 3)
 **UI hint**: yes
 
 ### Phase 4: Cloud Backup
@@ -130,13 +132,13 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
-| 3. Savings Goals | v2.1 | 0/3 | Not started | - |
+| 3. Savings Goals | v2.1 | 0/3 | Planned | - |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
 | 6. Polish & Integration | v2.3 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-09 after Phase 2 Budgeting full completion*
+*Last updated: 2026-05-10 after Phase 3 Savings Goals planning*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*
