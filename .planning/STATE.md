@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
-status: executing
-stopped_at: Phase 2 complete (all 7 plans including gap closure)
-last_updated: "2026-05-09T07:35:00.000Z"
-last_activity: 2026-05-09 — Phase 2 Budgeting fully complete (7/7 plans)
+status: phase-2-shipped
+stopped_at: Phase 2 shipped — v2.1 tagged and released
+last_updated: "2026-05-09T08:00:00.000Z"
+last_activity: 2026-05-09 — Phase 2 Budgeting shipped (v2.1 release)
 progress:
   total_phases: 6
   completed_phases: 2
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-05-07)
 
 ## Current Position
 
-Phase: 2 of 6 (Budgeting) — COMPLETE (7/7 plans including gap closure)
-Status: Phase 2 executed — 7/7 plans, all tests passing (1035 tests)
-Last activity: 2026-05-09 — Phase 2 Budgeting fully complete
+Phase: 2 of 6 (Budgeting) — SHIPPED (v2.1 release)
+Status: Phase 2 shipped — v2.1 tagged and released on GitHub
+Last activity: 2026-05-09 — Phase 2 Budgeting shipped as v2.1
 
 Progress: [████░░░░░░] 33%
 
