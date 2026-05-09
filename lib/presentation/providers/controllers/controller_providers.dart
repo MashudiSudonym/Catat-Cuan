@@ -9,9 +9,12 @@ import 'package:catat_cuan/presentation/controllers/transaction_delete_controlle
 import 'package:catat_cuan/presentation/controllers/category_management_controller.dart';
 import 'package:catat_cuan/presentation/controllers/budget/budget_form_controller.dart';
 import 'package:catat_cuan/presentation/controllers/budget/budget_alert_controller.dart';
+import 'package:catat_cuan/presentation/controllers/savings_goal/savings_goal_form_controller.dart';
+import 'package:catat_cuan/presentation/controllers/savings_goal/savings_goal_contribution_controller.dart';
 import 'package:catat_cuan/presentation/providers/usecases/transaction_usecase_providers.dart';
 import 'package:catat_cuan/presentation/providers/repositories/repository_providers.dart';
 import 'package:catat_cuan/presentation/providers/budget/budget_providers.dart';
+import 'package:catat_cuan/presentation/providers/savings_goal/savings_goal_providers.dart';
 export 'package:catat_cuan/presentation/controllers/receipt_scanning_controller.dart'
     show ReceiptScanningController;
 
@@ -76,5 +79,24 @@ final budgetFormControllerProvider = Provider<BudgetFormController>((ref) {
 final budgetAlertControllerProvider = Provider<BudgetAlertController>((ref) {
   return BudgetAlertController(
     ref.read(checkBudgetAlertsUseCaseProvider),
+  );
+});
+
+// ============================================================================
+// Savings Goal Controller Providers
+// ============================================================================
+
+final savingsGoalFormControllerProvider = Provider<SavingsGoalFormController>((ref) {
+  return SavingsGoalFormController(
+    createGoalUseCase: ref.read(createSavingsGoalUseCaseProvider),
+    updateGoalUseCase: ref.read(updateSavingsGoalUseCaseProvider),
+    softDeleteGoalUseCase: ref.read(softDeleteSavingsGoalUseCaseProvider),
+  );
+});
+
+final savingsGoalContributionControllerProvider = Provider<SavingsGoalContributionController>((ref) {
+  return SavingsGoalContributionController(
+    addContributionUseCase: ref.read(addContributionUseCaseProvider),
+    withdrawFromGoalUseCase: ref.read(withdrawFromGoalUseCaseProvider),
   );
 });
