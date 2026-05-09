@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
-status: phase-2-shipped
-stopped_at: Phase 2 shipped — v2.1 tagged and released
-last_updated: "2026-05-09T08:00:00.000Z"
-last_activity: 2026-05-09 — Phase 2 Budgeting shipped (v2.1 release)
+status: phase-3-context-gathered
+stopped_at: Phase 3 context gathered
+last_updated: "2026-05-09T09:00:00.000Z"
+last_activity: 2026-05-09 — Phase 3 Savings Goals context gathered
 progress:
   total_phases: 6
   completed_phases: 2
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.1 Budgeting & Goals — Phase 2 (Budgeting) fully complete including all gap closure
+**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) context gathered, ready for planning
 
 ## Current Position
 
-Phase: 2 of 6 (Budgeting) — SHIPPED (v2.1 release)
-Status: Phase 2 shipped — v2.1 tagged and released on GitHub
-Last activity: 2026-05-09 — Phase 2 Budgeting shipped as v2.1
+Phase: 3 of 6 (Savings Goals) — Context gathered
+Status: Phase 3 context gathered — ready for planning
+Last activity: 2026-05-09 — Phase 3 Savings Goals context discussion completed
 
 Progress: [████░░░░░░] 33%
 
@@ -75,7 +75,7 @@ None yet.
 ### Blockers/Concerns
 
 - **Phase 4 (Cloud Backup):** Google Cloud Console OAuth Client ID setup is a manual step outside the codebase — must be done before Phase 4 can test on real devices
-- **Phase 3 (Savings Goals):** Contribution semantics decision needed — earmarks (visual tracking) vs real transactions (reduce available balance). Research recommends earmarks.
+- **Phase 3 (Savings Goals):** Contribution semantics decided — earmarks (visual tracking only, no transaction/balance impact). See 03-CONTEXT.md D-01.
 
 ## Deferred Items
 
@@ -84,10 +84,10 @@ Items acknowledged and carried forward from v2.0 milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | blocker | Phase 4 OAuth Client ID setup (manual) | Open | 2026-05-07 |
-| decision | Phase 3 contribution semantics (earmarks vs transactions) | Open | 2026-05-07 |
+| decision | Phase 3 contribution semantics (earmarks vs transactions) | Resolved (earmarks) | 2026-05-07 |
 
 ## Session Continuity
 
-Last session: 2026-05-09T07:35:00.000Z
-Stopped at: Phase 2 fully complete (7/7 plans)
-Next phase: Phase 3 (Savings Goals) — independent of Phase 2, ready to execute
+Last session: 2026-05-09T09:00:00.000Z
+Stopped at: Phase 3 context gathered
+Next phase: Phase 3 (Savings Goals) — context ready, proceed to planning
