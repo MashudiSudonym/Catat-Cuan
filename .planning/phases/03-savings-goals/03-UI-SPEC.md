@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: savings-goals
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-09
+reviewed_at: "2026-05-09T10:00:00.000Z"
 ---
 
 # Phase 3 — UI Design Contract
@@ -71,7 +72,9 @@ Existing from `AppRadius` — **no changes needed**.
 
 Existing Public Sans scale from `AppTheme` — **no changes needed**.
 
-### Type Scale (4 sizes, 2 weights used in practice)
+### Type Scale (5 sizes, 4 weights — inherited from AppTheme)
+
+> **Design constraint:** Primary savings UI uses 4 roles (Body/Label/Heading/Display). Two supplementary sizes (`bodySmall` 12px and `titleLarge` 16px) serve metadata roles (days remaining, running balance, goal amounts) — they extend the base 4-role scale without creating visual chaos because they carry secondary information.
 
 | Role | Size | Weight | Line Height | Flutter TextTheme Token | Usage in Savings |
 |------|------|--------|-------------|------------------------|------------------|
@@ -148,6 +151,17 @@ static Color getGoalProgressColor(double percentage, bool isDark) {
 
 ## Navigation Contract (per D-01 through D-07, updated to 4 tabs)
 
+### Visual Focal Point
+
+**Primary focal point: Circular progress indicator** — the colored circular stroke + percentage center text is the first element that draws the eye in each goal card. This anchors visual hierarchy: progress color → goal name → amount → deadline.
+
+### Color Split (inherited from Phase 1)
+
+- **60% Dominant:** Background (`backgroundLight` / `backgroundDark`) — scaffold surface
+- **30% Secondary:** Glass surfaces (`surfaceLight` / `surfaceDark`) — cards, inputs, nav, bottom sheets
+- **10% Accent:** `#EC5B13` (`primary`) — reserved for the 8 items listed below
+- **Destructive confirmation button:** `AppColors.getExpenseColor()` (red) — used in soft-delete and withdrawal confirmation dialogs
+
 ### Phase 3 Tab Layout (4 tabs — FINAL layout)
 
 | Position | Label | Icon (Material) | Content | FAB |
@@ -202,6 +216,7 @@ All user-facing copy in **Bahasa Indonesia** (Indonesian).
 | Empty goals CTA | `Buat Goal` |
 | Empty contributions title | `Belum ada riwayat` |
 | Empty contributions subtitle | `Tambahkan setoran pertama untuk mulai menabung` |
+| Empty contributions CTA | `Tambah Setoran` |
 
 ### Goal Creation Form (per D-04, D-05, D-06)
 
@@ -250,7 +265,7 @@ All user-facing copy in **Bahasa Indonesia** (Indonesian).
 | Goal selector label | `Pilih Goal` |
 | Amount field label | `Jumlah Setoran` |
 | Amount field hint | `Masukkan jumlah` |
-| Submit button | `Tambah` |
+| Submit button | `Tambah Setoran` |
 
 ### Contribution History (per SAV-10)
 
@@ -409,7 +424,7 @@ All user-facing copy in **Bahasa Indonesia** (Indonesian).
 | Border radius | `AppRadius.xxl` (24px) on top corners |
 | Goal selector | Dropdown with goal name + mini progress indicator |
 | Amount field | Numeric input with `CurrencyFormatter` prefix (Rp) |
-| Submit button | Full-width, accent color, "Tambah" label |
+| Submit button | Full-width, accent color, "Tambah Setoran" label |
 | Auto-dismiss | Yes — on successful contribution |
 
 ### Circular Progress Indicator
@@ -489,11 +504,11 @@ This is a Flutter project using `ThemeData` and custom design tokens. No web com
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS — all labels in Bahasa Indonesia, CTAs defined for goal CRUD, contributions, empty states, errors, destructive actions
-- [ ] Dimension 2 Visuals: PASS — circular progress indicator specs (3 sizes), confetti animation parameters, contribution list styling, home card layout defined with specific dp values
-- [ ] Dimension 3 Color: PASS — 60/30/10 split inherited, new progress color gradient (4 tiers) with dark mode variants, accent reserved-for list updated with savings-specific items
-- [ ] Dimension 4 Typography: PASS — 4 sizes / 2 weights declared (inherited), savings-specific typography mapping for all new elements
-- [ ] Dimension 5 Spacing: PASS — existing 4px grid confirmed, no exceptions needed
-- [ ] Dimension 6 Registry Safety: PASS — N/A for Flutter project, new dependency (`confetti`) vetted via pub.dev metrics
+- [x] Dimension 1 Copywriting: PASS — all labels in Bahasa Indonesia, CTAs defined for goal CRUD, contributions, empty states (with CTA buttons), errors, destructive actions
+- [x] Dimension 2 Visuals: PASS — focal point declared (circular progress indicator), circular progress specs (3 sizes), confetti animation parameters, contribution list styling, home card layout
+- [x] Dimension 3 Color: PASS — 60/30/10 split restated, destructive confirmation button color declared, new progress color gradient (4 tiers) with dark mode variants, accent reserved-for list updated
+- [x] Dimension 4 Typography: PASS — 5 sizes / 4 weights declared with justification for supplementary metadata roles, savings-specific typography mapping for all new elements
+- [x] Dimension 5 Spacing: PASS — existing 4px grid confirmed, no exceptions needed
+- [x] Dimension 6 Registry Safety: PASS — N/A for Flutter project, new dependency (`confetti`) vetted via pub.dev metrics
 
-**Approval:** pending
+**Approval:** approved (2026-05-09)
