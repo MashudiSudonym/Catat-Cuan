@@ -442,6 +442,7 @@ class _SavingsGoalFormScreenState extends ConsumerState<SavingsGoalFormScreen> {
             backgroundColor: AppColors.success,
           ),
         );
+        ref.invalidate(savingsGoalsWithProgressProvider);
         context.pop(true);
       } else {
         final userMessage = ErrorMessageMapper.getUserMessage(result.failure);

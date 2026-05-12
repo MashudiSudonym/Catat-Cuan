@@ -78,7 +78,6 @@ class CategoryColorPickerDialog extends StatelessWidget {
           selectedColor: selectedColor,
           onColorSelected: (color) {
             onColorSelected(color);
-            Navigator.of(context).pop();
           },
         ),
       ),

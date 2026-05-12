@@ -144,7 +144,6 @@ class CategoryIconPickerDialog extends StatelessWidget {
           type: type,
           onIconSelected: (icon) {
             onIconSelected(icon);
-            Navigator.of(context).pop();
           },
         ),
       ),
