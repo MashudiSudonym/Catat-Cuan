@@ -5,12 +5,12 @@ milestone_name: Budgeting & Goals
 status: phase-3-complete
 stopped_at: Phase 3 complete
 last_updated: "2026-05-10T12:00:00.000Z"
-last_activity: 2026-05-10 — Phase 3 Savings Goals executed (3/3 plans)
+last_activity: 2026-05-13 — Phase 3 gap closure (03-04) executed, icon/color picker double-pop + stale goal list fixed
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 14
+  completed_plans: 14
   percent: 50
 ---
 
@@ -21,13 +21,8 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) COMPLETE
-
-## Current Position
-
-Phase: 3 of 6 (Savings Goals) — COMPLETE
-Status: Phase 3 executed successfully, all 3 plans complete
-Last activity: 2026-05-10 — Phase 3 Savings Goals executed (3/3 plans, 1103 tests pass)
+**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) gap closure COMPLETE
+Last activity: 2026-05-13 — Phase 3 gap closure (03-04) executed, icon/color picker double-pop + stale goal list fixed
 
 Progress: [█████░░░░░] 50%
 
@@ -35,7 +30,7 @@ Progress: [█████░░░░░] 50%
 
 **Velocity:**
 
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 11min
 - Total execution time: 2.4 hours
 
@@ -45,7 +40,7 @@ Progress: [█████░░░░░] 50%
 |-------|-------|-------|----------|
 | 1 Foundation | 3 | 24min | 8min |
 | 2 Budgeting | 7 | 60min | 9min |
-| 3 Savings Goals | 3 | 58min | 19min |
+| 3 Savings Goals | 4 | 58min | 15min |
 
 **Recent Trend:**
 
@@ -90,6 +85,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-10T12:00:00.000Z
-Stopped at: Phase 3 complete
+Last session: 2026-05-13T06:43:00.000Z
+Stopped at: Phase 3 gap closure complete
 Next phase: Phase 4 (Cloud Backup) — requires OAuth setup before execution

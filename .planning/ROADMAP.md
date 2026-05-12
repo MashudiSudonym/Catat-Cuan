@@ -66,11 +66,12 @@ Plans:
   4. Goal auto-completes when current amount reaches target, triggering confetti celebration
   5. User sees goals overview card on home screen with quick-add button and can view full contribution history per goal
 
-**Plans:** 3 plans in 3 waves
+**Plans:** 4 plans in 3 waves
 Plans:
 - [x] 03-01-PLAN.md — Savings goals data layer: entities, ISP repositories, SQLite implementations with atomic contribution writes (Wave 1)
 - [x] 03-02-PLAN.md — Savings goals business logic: use cases with validation, auto-completion detection, Riverpod providers, controllers (Wave 2)
 - [x] 03-03-PLAN.md — Savings goals UI: Tabungan tab, goal list with circular progress, CRUD screens, confetti celebration, home card (Wave 3)
+- [x] 03-04-PLAN.md — Gap closure: Fix icon/color picker double-pop + stale goal list after save (Wave 1, gap closure)
 **UI hint**: yes
 
 ### Phase 4: Cloud Backup
@@ -132,13 +133,13 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 |-------|-----------|----------------|--------|-----------|
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
-| 3. Savings Goals | v2.1 | 3/3 | Complete ✓ | 2026-05-10 |
+| 3. Savings Goals | v2.1 | 4/4 | Complete ✓ | 2026-05-13 |
 | 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
 | 6. Polish & Integration | v2.3 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-10 after Phase 3 Savings Goals execution complete*
+*Last updated: 2026-05-13 after Phase 3 gap closure (03-04) complete*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*
