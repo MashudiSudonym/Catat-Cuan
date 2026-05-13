@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Budgeting & Goals
-status: phase-3-complete
-stopped_at: Phase 3 complete
-last_updated: "2026-05-10T12:00:00.000Z"
-last_activity: 2026-05-13 — Phase 3 gap closure (03-04) executed, icon/color picker double-pop + stale goal list fixed
+status: phase-3-shipped
+stopped_at: Phase 3 shipped — PR #2
+last_updated: "2026-05-13T12:00:00.000Z"
+last_activity: 2026-05-13 — Phase 3 (Savings Goals) shipped as PR #2
 progress:
   total_phases: 6
   completed_phases: 3
@@ -21,8 +21,8 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) gap closure COMPLETE
-Last activity: 2026-05-13 — Phase 3 gap closure (03-04) executed, icon/color picker double-pop + stale goal list fixed
+**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) SHIPPED PR #2
+Last activity: 2026-05-13 — Phase 3 (Savings Goals) shipped as PR #2
 
 Progress: [█████░░░░░] 50%
 
