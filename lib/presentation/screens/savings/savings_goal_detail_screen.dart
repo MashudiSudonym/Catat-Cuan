@@ -578,6 +578,7 @@ class _SavingsGoalDetailScreenState extends ConsumerState<SavingsGoalDetailScree
       if (!mounted) return;
 
       if (result.isSuccess) {
+        ref.invalidate(savingsGoalsWithProgressProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Goal dibatalkan'),
