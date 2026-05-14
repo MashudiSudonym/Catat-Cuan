@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.1
-milestone_name: Budgeting & Goals
-status: phase-3-shipped
-stopped_at: Phase 3 shipped — PR #2
-last_updated: "2026-05-13T12:00:00.000Z"
-last_activity: 2026-05-13 — Phase 3 (Savings Goals) shipped as PR #2
+milestone: v2.2
+milestone_name: Cloud & Reports
+status: phase-4-context-gathered
+stopped_at: Phase 4 context gathered
+last_updated: "2026-05-14T12:00:00.000Z"
+last_activity: 2026-05-14 — Phase 4 (Cloud Backup) context gathered
 progress:
   total_phases: 6
   completed_phases: 3
@@ -21,8 +21,8 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.1 Budgeting & Goals — Phase 3 (Savings Goals) SHIPPED PR #2
-Last activity: 2026-05-13 — Phase 3 (Savings Goals) shipped as PR #2
+**Current focus:** v2.2 Cloud & Reports — Phase 4 (Cloud Backup) context gathered
+Last activity: 2026-05-14 — Phase 4 (Cloud Backup) context gathered
 
 Progress: [█████░░░░░] 50%
 
@@ -85,6 +85,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-13T06:43:00.000Z
-Stopped at: Phase 3 gap closure complete
-Next phase: Phase 4 (Cloud Backup) — requires OAuth setup before execution
+Last session: 2026-05-14T12:00:00.000Z
+Stopped at: Phase 4 context gathered
+Next phase: Phase 4 (Cloud Backup) — ready for planning, requires OAuth Client ID setup for device testing
