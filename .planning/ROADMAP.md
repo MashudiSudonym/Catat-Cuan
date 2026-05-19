@@ -85,10 +85,11 @@ Plans:
   4. User can restore from backup with conflict handling (replace all or cancel)
   5. System handles OAuth token expiry with automatic refresh and all errors (network, quota, auth, corrupted file) with user-friendly Indonesian messages
 
+**Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 04-01: Auth layer — Google Sign-In OAuth, secure token storage, token refresh + retry pattern
-- [ ] 04-02: Backup engine — serialize all tables to versioned JSON, upload to Drive with progress
-- [ ] 04-03: Restore + management — backup list, preview, restore with conflict handling, auto-cleanup
+- [ ] 04-01-PLAN.md — Auth layer: Google Sign-In OAuth, secure token storage, Drive API client, token refresh + retry pattern (Wave 1)
+- [ ] 04-02-PLAN.md — Backup engine: serialize all tables to versioned JSON, upload to Drive with progress, auto-cleanup (Wave 2)
+- [ ] 04-03-PLAN.md — Restore + management UI: backup list, preview, restore with conflict handling, Settings integration (Wave 3)
 **UI hint**: yes
 
 ### Phase 5: Enhanced Reports
