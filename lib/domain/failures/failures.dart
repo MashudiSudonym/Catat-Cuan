@@ -21,3 +21,5 @@ export 'not_found_failure.dart';
 export 'export_failure.dart';
 export 'import_failure.dart';
 export 'user_cancelled_failure.dart';
+export 'auth_failure.dart';
+export 'backup_failure.dart';
