@@ -93,6 +93,12 @@ dependencies:
   # Freezed for immutable data classes
   freezed_annotation: ^3.1.0
 
+  # Google Drive Backup
+  google_sign_in: ^6.2.1
+  googleapis: ^13.2.0
+  flutter_secure_storage: ^9.2.4
+  http: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

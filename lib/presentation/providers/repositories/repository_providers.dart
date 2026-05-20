@@ -12,11 +12,14 @@ import 'package:catat_cuan/data/repositories/transaction/transaction_analytics_r
 import 'package:catat_cuan/data/repositories/transaction/transaction_export_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_query_repository_impl.dart';
 import 'package:catat_cuan/data/repositories/transaction/transaction_search_repository_impl.dart';
+import 'package:catat_cuan/data/repositories/backup/auth_repository_impl.dart';
 import 'package:catat_cuan/domain/repositories/category/category_read_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_write_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_management_repository.dart';
 import 'package:catat_cuan/domain/repositories/category/category_seeding_repository.dart';
 import 'package:catat_cuan/domain/repositories/transaction/transaction_repositories.dart';
+import 'package:catat_cuan/domain/repositories/backup/auth_repository.dart';
+import 'package:catat_cuan/presentation/providers/services/service_providers.dart';
 
 /// Provider untuk DatabaseHelper
 final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
@@ -144,4 +147,15 @@ final categoryManagementRepositoryProvider =
 final categorySeedingRepositoryProvider =
     Provider<CategorySeedingRepository>((ref) {
   return CategorySeedingRepositoryImpl(ref.read(localDataSourceProvider));
+});
+
+/// ============================================================================
+/// Cloud Backup Repository Providers
+/// ============================================================================
+
+/// Provider for AuthRepository (abstract type - DIP)
+///
+/// Following DIP: Depends on AuthService abstraction from service_providers.
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepositoryImpl(ref.read(authServiceProvider));
 });
