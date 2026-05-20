@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/backup/auth_user.dart';
 import 'package:catat_cuan/domain/entities/backup/backup_data.dart';
-import 'package:catat_cuan/domain/entities/backup/backup_metadata.dart';
 import 'package:catat_cuan/domain/failures/auth_failure.dart';
 import 'package:catat_cuan/domain/failures/backup_failure.dart';
 import 'package:catat_cuan/domain/repositories/backup/auth_repository.dart';
@@ -49,15 +48,6 @@ void main() {
       savingsGoals: [],
       goalContributions: [],
       settings: {},
-    );
-
-    final testMetadata = BackupMetadata(
-      version: 1,
-      schemaVersion: 4,
-      appVersion: '1.0.0',
-      deviceModel: 'Test Device',
-      createdAt: DateTime(2026, 5, 20),
-      dataCounts: {'transactions': 5},
     );
 
     final testBytes = [1, 2, 3, 4, 5];

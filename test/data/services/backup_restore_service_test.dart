@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/backup/backup_data.dart';
 import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
+import 'package:catat_cuan/data/datasources/local/database_helper.dart';
 import 'package:catat_cuan/data/services/backup_restore_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -44,11 +44,11 @@ void main() {
       // Arrange
       when(mockLocalDataSource.transaction(any)).thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0]
-            as Future<void> Function(LocalDataSource);
-        await action(mockLocalDataSource);
+            as Future<void> Function();
+        await action();
       });
       // Delete all from each table
-      when(mockLocalDataSource.rawDelete(any, any))
+      when(mockLocalDataSource.delete(any))
           .thenAnswer((_) async => 0);
       // Insert for each table
       when(mockLocalDataSource.insert(any, any))
@@ -60,32 +60,27 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       // Verify deletes called for all tables in FK order
-      verify(mockLocalDataSource.rawDelete(
-        argThat(contains('goal_contributions')),
-        any,
+      verify(mockLocalDataSource.delete(
+        DatabaseHelper.tableGoalContributions,
       )).called(1);
-      verify(mockLocalDataSource.rawDelete(
-        argThat(contains('savings_goals')),
-        any,
+      verify(mockLocalDataSource.delete(
+        DatabaseHelper.tableSavingsGoals,
       )).called(1);
-      verify(mockLocalDataSource.rawDelete(
-        argThat(contains('budgets')),
-        any,
+      verify(mockLocalDataSource.delete(
+        DatabaseHelper.tableBudgets,
       )).called(1);
-      verify(mockLocalDataSource.rawDelete(
-        argThat(contains('transactions')),
-        any,
+      verify(mockLocalDataSource.delete(
+        DatabaseHelper.tableTransactions,
       )).called(1);
-      verify(mockLocalDataSource.rawDelete(
-        argThat(contains('categories')),
-        any,
+      verify(mockLocalDataSource.delete(
+        DatabaseHelper.tableCategories,
       )).called(1);
       // Verify inserts called for all tables
-      verify(mockLocalDataSource.insert('categories', any)).called(2);
-      verify(mockLocalDataSource.insert('transactions', any)).called(2);
-      verify(mockLocalDataSource.insert('budgets', any)).called(1);
-      verify(mockLocalDataSource.insert('savings_goals', any)).called(1);
-      verify(mockLocalDataSource.insert('goal_contributions', any)).called(1);
+      verify(mockLocalDataSource.insert(DatabaseHelper.tableCategories, any)).called(2);
+      verify(mockLocalDataSource.insert(DatabaseHelper.tableTransactions, any)).called(2);
+      verify(mockLocalDataSource.insert(DatabaseHelper.tableBudgets, any)).called(1);
+      verify(mockLocalDataSource.insert(DatabaseHelper.tableSavingsGoals, any)).called(1);
+      verify(mockLocalDataSource.insert(DatabaseHelper.tableGoalContributions, any)).called(1);
     });
 
     test('should return failure when transaction fails', () async {
@@ -114,10 +109,10 @@ void main() {
 
       when(mockLocalDataSource.transaction(any)).thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0]
-            as Future<void> Function(LocalDataSource);
-        await action(mockLocalDataSource);
+            as Future<void> Function();
+        await action();
       });
-      when(mockLocalDataSource.rawDelete(any, any))
+      when(mockLocalDataSource.delete(any))
           .thenAnswer((_) async => 0);
 
       // Act
