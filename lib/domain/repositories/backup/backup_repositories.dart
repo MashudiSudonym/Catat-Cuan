@@ -4,3 +4,5 @@
 library;
 
 export 'auth_repository.dart';
+export 'backup_read_repository.dart';
+export 'backup_write_repository.dart';
