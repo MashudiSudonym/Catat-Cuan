@@ -125,6 +125,7 @@ class _BackupListScreenState extends ConsumerState<BackupListScreen> {
     BuildContext context,
     bp.BackupPreview backup,
   ) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -147,24 +148,22 @@ class _BackupListScreenState extends ConsumerState<BackupListScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
-      final useCase = ref.read(deleteBackupUseCaseProvider);
-      final result = await useCase(backup.fileId);
-      if (mounted) {
-        if (result.isSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Backup dihapus')),
-          );
-          _loadBackups();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(ErrorMessageMapper.getUserMessage(result.failure)),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
-      }
+    if (confirmed != true || !mounted) return;
+    final useCase = ref.read(deleteBackupUseCaseProvider);
+    final result = await useCase(backup.fileId);
+    if (!mounted) return;
+    if (result.isSuccess) {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Backup dihapus')),
+      );
+      _loadBackups();
+    } else {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(ErrorMessageMapper.getUserMessage(result.failure)),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 }
