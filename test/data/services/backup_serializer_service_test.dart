@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/services/backup_serializer_service.dart';
 import 'package:catat_cuan/data/services/shared_preferences_service.dart';
-import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/failures/backup_failure.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -30,7 +29,7 @@ void main() {
 
   group('BackupSerializerService', () {
     group('serialize', () {
-      void _setupDefaultMocks() {
+      void setupDefaultMocks() {
         // Mock all table queries
         when(mockDataSource.rawQuery(
           'SELECT * FROM transactions',
@@ -69,7 +68,7 @@ void main() {
 
       test('should produce valid JSON with all table keys', () async {
         // Arrange
-        _setupDefaultMocks();
+        setupDefaultMocks();
 
         // Act
         final result = await service.serialize();
@@ -101,7 +100,7 @@ void main() {
       test('should include metadata with correct version and schema_version',
           () async {
         // Arrange
-        _setupDefaultMocks();
+        setupDefaultMocks();
 
         // Act
         final result = await service.serialize();
@@ -126,7 +125,7 @@ void main() {
 
       test('should include data_counts reflecting actual row counts', () async {
         // Arrange
-        _setupDefaultMocks();
+        setupDefaultMocks();
 
         // Act
         final result = await service.serialize();
