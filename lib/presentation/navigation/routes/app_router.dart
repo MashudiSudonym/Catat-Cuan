@@ -15,6 +15,9 @@ import 'package:catat_cuan/presentation/screens/budget/budget_detail_screen.dart
 import 'package:catat_cuan/presentation/screens/savings/savings_goal_list_screen.dart';
 import 'package:catat_cuan/presentation/screens/savings/savings_goal_form_screen.dart';
 import 'package:catat_cuan/presentation/screens/savings/savings_goal_detail_screen.dart';
+import 'package:catat_cuan/presentation/screens/backup_screen.dart';
+import 'package:catat_cuan/presentation/screens/backup_list_screen.dart';
+import 'package:catat_cuan/presentation/screens/backup_preview_screen.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
@@ -331,6 +334,34 @@ GoRouter createGoRouter(Ref ref) {
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           child: const SettingsScreen(),
+        ),
+      ),
+
+      // Backup routes (non-tab, full-screen)
+      GoRoute(
+        path: AppRoutes.backup,
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const BackupScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.backupList,
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const BackupListScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.backupPreview,
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: BackupPreviewScreen(
+            fileId: state.uri.queryParameters['fileId'] ?? '',
+          ),
         ),
       ),
     ],

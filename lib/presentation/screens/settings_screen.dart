@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:catat_cuan/data/services/shared_preferences_service.dart';
 import 'package:catat_cuan/presentation/providers/app_providers.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 import 'package:catat_cuan/presentation/widgets/import_result_dialog.dart';
+import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 
 /// Settings screen for app preferences
@@ -152,6 +155,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           const SizedBox(height: AppSpacing.lg),
 
+          // Backup & Restore section per D-17
+          _buildBackupSection(),
+
+          const SizedBox(height: AppSpacing.lg),
+
           // App Info Section
           _buildSectionHeader('Informasi Aplikasi'),
 
@@ -197,6 +205,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           color: AppColors.textSecondary.withValues(alpha: 0.8),
         ),
       ),
+    );
+  }
+
+  /// Backup & Restore section per D-17
+  Widget _buildBackupSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Backup & Restore'),
+        AppGlassContainer.glassCard(
+          margin: AppSpacing.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          child: ListTile(
+            leading: Icon(
+              Icons.cloud_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: const Text('Backup & Restore'),
+            subtitle: FutureBuilder<String?>(
+              future: SharedPreferencesService().getLastBackupDate(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Text(
+                    'Backup terakhir: ${AppDateFormatter.formatDayMonthYearDate(DateTime.parse(snapshot.data!))}',
+                  );
+                }
+                return const Text('Belum pernah backup');
+              },
+            ),
+            trailing: Icon(
+              Icons.chevron_right,
+              color: AppColors.textTertiary,
+            ),
+            onTap: () => context.push(AppRoutes.backup),
+          ),
+        ),
+      ],
     );
   }
 

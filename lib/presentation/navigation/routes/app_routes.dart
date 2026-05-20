@@ -30,6 +30,11 @@ class AppRoutes {
   // Settings (full-screen)
   static const String settings = '/settings';
 
+  // Backup & Restore routes
+  static const String backup = '/backup';
+  static const String backupList = '/backup/list';
+  static const String backupPreview = '/backup/preview';
+
   // Helper to generate edit transaction route with ID
   static String editTransactionPath(int id) => '$editTransaction/$id';
 
