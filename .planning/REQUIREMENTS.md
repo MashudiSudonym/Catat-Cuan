@@ -25,13 +25,13 @@ Requirements for v2 release. Each maps to roadmap phases.
 
 ### Cloud Backup
 
-- [ ] **BKP-01**: User can authenticate with Google Account via OAuth 2.0 using `drive.appdata` scope (app-specific folder only)
-- [ ] **BKP-02**: User can backup all data (transactions, categories, settings) to Google Drive in JSON format with progress indicator
+- [x] **BKP-01**: User can authenticate with Google Account via OAuth 2.0 using `drive.appdata` scope (app-specific folder only)
+- [x] **BKP-02**: User can backup all data (transactions, categories, settings) to Google Drive in JSON format with progress indicator
 - [ ] **BKP-03**: User can view list of available backups (date, size, device origin) and preview before restoring
 - [ ] **BKP-04**: User can restore data from Google Drive backup with conflict handling (replace all or cancel)
-- [ ] **BKP-05**: User can view backup info (last backup date, size, account) and manage old backups (auto-cleanup keeping 5 latest)
-- [ ] **BKP-06**: System handles OAuth token expiry with automatic refresh and re-authentication prompt when needed
-- [ ] **BKP-07**: System handles backup/restore errors gracefully (network, quota, auth, corrupted file) with user-friendly Indonesian messages
+- [x] **BKP-05**: User can view backup info (last backup date, size, account) and manage old backups (auto-cleanup keeping 5 latest)
+- [x] **BKP-06**: System handles OAuth token expiry with automatic refresh and re-authentication prompt when needed
+- [x] **BKP-07**: System handles backup/restore errors gracefully (network, quota, auth, corrupted file) with user-friendly Indonesian messages
 
 ### Budgeting
 
@@ -122,13 +122,13 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BKP-01 | Phase 4 | Pending |
-| BKP-02 | Phase 4 | Pending |
+| BKP-01 | Phase 4 | Complete |
+| BKP-02 | Phase 4 | Complete |
 | BKP-03 | Phase 4 | Pending |
 | BKP-04 | Phase 4 | Pending |
-| BKP-05 | Phase 4 | Pending |
-| BKP-06 | Phase 4 | Pending |
-| BKP-07 | Phase 4 | Pending |
+| BKP-05 | Phase 4 | Complete |
+| BKP-06 | Phase 4 | Complete |
+| BKP-07 | Phase 4 | Complete |
 | BUD-01 | Phase 2 | Pending |
 | BUD-02 | Phase 2 | Pending |
 | BUD-03 | Phase 2 | Pending |

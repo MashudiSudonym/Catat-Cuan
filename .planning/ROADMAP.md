@@ -87,8 +87,8 @@ Plans:
 
 **Plans:** 3 plans in 3 waves
 Plans:
-- [ ] 04-01-PLAN.md — Auth layer: Google Sign-In OAuth, secure token storage, Drive API client, token refresh + retry pattern (Wave 1)
-- [ ] 04-02-PLAN.md — Backup engine: serialize all tables to versioned JSON, upload to Drive with progress, auto-cleanup (Wave 2)
+- [x] 04-01-PLAN.md — Auth layer: Google Sign-In OAuth, secure token storage, Drive API client, token refresh + retry pattern (Wave 1)
+- [x] 04-02-PLAN.md — Backup engine: serialize all tables to versioned JSON, upload to Drive with progress, auto-cleanup (Wave 2)
 - [ ] 04-03-PLAN.md — Restore + management UI: backup list, preview, restore with conflict handling, Settings integration (Wave 3)
 **UI hint**: yes
 
@@ -135,12 +135,12 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
 | 3. Savings Goals | v2.1 | 4/4 | Complete ✓ | 2026-05-13 |
-| 4. Cloud Backup | v2.2 | 0/3 | Not started | - |
+| 4. Cloud Backup | v2.2 | 2/3 | In Progress | - |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
 | 6. Polish & Integration | v2.3 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-13 after Phase 3 gap closure (03-04) complete*
+*Last updated: 2026-05-20 after Phase 4 Plan 02 (Backup Creation Engine) complete*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*
