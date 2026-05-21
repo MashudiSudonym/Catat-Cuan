@@ -43,6 +43,14 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("androidx.glance:glance-appwidget:1.1.0")
+        force("androidx.glance:glance-material3:1.1.0")
+        force("androidx.glance:glance:1.1.0")
+    }
+}
+
 flutter {
     source = "../.."
 }
