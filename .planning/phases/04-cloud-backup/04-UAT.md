@@ -1,78 +1,117 @@
 ---
-status: testing
+status: diagnosed
 phase: 04-cloud-backup
 source: 04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md
-started: 2026-05-21T08:54:12Z
-updated: 2026-05-21T09:05:00Z
+started: 2026-06-03T00:00:00Z
+updated: 2026-06-03T00:00:00Z
 ---
 
 ## Current Test
 
 number: 0
-name: Build succeeds (prerequisite)
+name: [testing complete]
 expected: |
-  App builds and runs without Gradle/AAR metadata errors.
-awaiting: resolved — fix applied
+awaiting: resolved
 
 ## Tests
 
 ### 1. Settings shows Backup & Restore section
 expected: Open Settings screen. Scroll down — there should be a "Backup & Restore" section between Data and App Info sections, with a navigation item to open the backup screen.
-result: [pending]
+result: pass
 
 ### 2. Backup screen shows Google Sign-In prompt
 expected: Navigate to Backup screen from Settings. When not connected, you should see a prompt/button to sign in with your Google account (e.g., "Hubungkan Akun Google" or similar).
-result: [pending]
+result: issue
+reported: "I can't find the 'connect Google account' button, but there is a 'create backup' button. When I click the 'create backup' button, it connects to my Google account, but it fails. There's no error log that explains why the Google account connection failed."
+severity: major
 
-### 3. Google Sign-In authenticates with drive.appdata scope
-expected: Tap the sign-in button. Google Sign-In flow should appear. After authenticating, the backup screen should show the connected account email. The app should only request drive.appdata scope (no full Drive access).
-result: [pending]
+### 3. Google Sign-In authenticates successfully
+expected: Tap the sign-in button. Google Sign-In flow should appear. After authenticating, the backup screen should show the connected account email. The app should only request drive.appdata scope (no full Drive access prompt).
+result: blocked
+blocked_by: prior-phase
+reason: "Couldn't log in to Google account, blocked by auth failure from Test 2"
 
 ### 4. Create backup with progress indicator
 expected: With a connected account, tap "Buat Backup" button. You should see a progress indicator showing stages (serializing → uploading → completed). After completion, the screen should show the backup was created successfully and display the last backup date.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 5. View backup list
-expected: From Backup screen, navigate to backup list. You should see all backups listed as cards with date, size, device info, and data summary. List should be sorted newest first. Pull-to-refresh should work.
-result: [pending]
+expected: From Backup screen, navigate to backup list. You should see all backups listed as glass cards with date, size, device info, and data summary. List should be sorted newest first. Pull-to-refresh should work.
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 6. Preview backup before restore
 expected: Tap on a backup in the list. A preview screen should open showing a data comparison table — "Backup" column vs "Saat Ini" (current) column with counts for transactions, categories, budgets, goals, and contributions.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 7. Destructive restore confirm with GANTI keyword
-expected: From the preview screen, tap the restore/button. A destructive confirmation dialog should appear requiring you to type "GANTI" to proceed. The button should only become active when "GANTI" is typed exactly.
-result: [pending]
+expected: From the preview screen, tap the restore button. A destructive confirmation dialog should appear requiring you to type "GANTI" to proceed. The confirm button should only become active when "GANTI" is typed exactly.
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 8. Restore completes with progress
 expected: After confirming with GANTI, restore should show progress states (downloading → restoring → completed). After completion, all data in the app should match the backup preview (transactions, categories, budgets, goals restored).
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 9. Swipe to delete backup
 expected: In the backup list, swipe a backup card to reveal a delete action. Confirm deletion. The backup should be removed from the list.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 10. Error messages display in Indonesian
 expected: If an error occurs (e.g., no internet, token expired, quota exceeded), the error message shown to the user should be in Indonesian (not English, not technical error details). Examples: "Gagal menghubungkan", "Kuota penyimpanan penuh", etc.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 11. Auto-cleanup keeps only 5 newest backups
 expected: After creating more than 5 backups, navigate to the backup list. Only the 5 most recent backups should be visible. Older ones are automatically cleaned up on Drive.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ### 12. Auth token refresh works automatically
 expected: After signing in, close the app, wait a bit (or simulate token expiry), then reopen and try to create a backup. The app should automatically refresh the expired token and proceed without asking to sign in again.
-result: [pending]
+result: blocked
+blocked_by: prior-phase
+reason: "Blocked by auth failure from Test 2"
 
 ## Summary
 
 total: 12
-passed: 0
-issues: 0
-pending: 12
+passed: 1
+issues: 1
+pending: 0
 skipped: 0
-blocked: 0
+blocked: 10
 
 ## Gaps
 
-[none yet]
+- truth: "Backup screen shows a dedicated Google Sign-In prompt/button when not connected"
+  status: failed
+  reason: "User reported: I can't find the 'connect Google account' button, but there is a 'create backup' button. When I click the 'create backup' button, it connects to my Google account, but it fails. There's no error log that explains why the Google account connection failed."
+  severity: major
+  test: 2
+  root_cause: "Missing Google Sign-In platform configuration: no google-services.json in android/app/, no 'com.google.gms.google-services' Gradle plugin applied, no iOS REVERSED_CLIENT_ID. The google_sign_in package requires OAuth client credentials from Firebase/Google Cloud Console to be embedded in the platform project. Without these, signIn() silently fails."
+  artifacts:
+    - path: "android/app/build.gradle.kts"
+      issue: "Missing 'com.google.gms.google-services' plugin and google-services.json"
+    - path: "lib/presentation/providers/services/service_providers.dart"
+      issue: "GoogleSignIn() initialized without serverClientId — requires OAuth web client ID"
+    - path: "lib/presentation/screens/backup_screen.dart"
+      issue: "No separate sign-in button; sign-in is triggered inline during backup creation with no visible error feedback when auth fails silently"
+  missing:
+    - "Add google-services.json from Firebase/Google Cloud Console to android/app/"
+    - "Apply 'com.google.gms.google-services' plugin in android/app/build.gradle.kts"
+    - "Optionally pass serverClientId to GoogleSignIn() constructor"
+    - "Add dedicated 'Hubungkan Akun Google' button on BackupScreen when not connected"
+    - "Ensure auth errors surface to user via SnackBar or visible error state"
