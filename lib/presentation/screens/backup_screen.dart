@@ -3,16 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:catat_cuan/data/services/shared_preferences_service.dart';
 import 'package:catat_cuan/domain/entities/backup/backup_metadata.dart';
+import 'package:catat_cuan/presentation/controllers/auth_controller.dart';
 import 'package:catat_cuan/presentation/controllers/backup_controller.dart';
 import 'package:catat_cuan/presentation/navigation/routes/app_routes.dart';
 import 'package:catat_cuan/presentation/states/backup_progress.dart';
 import 'package:catat_cuan/presentation/utils/utils.dart';
 import 'package:catat_cuan/presentation/widgets/base/base.dart';
 
-/// Main backup management screen per D-17
+/// Main backup management screen per D-17.
 ///
-/// Shows connected account info, backup button, last backup info,
-/// and navigation to backup list.
+/// Shows connected account info, a dedicated Google sign-in / sign-out button,
+/// backup button, last backup info, and navigation to backup list. Auth state
+/// is reactive via [AuthController]; auth errors surface as Indonesian messages
+/// (per BKP-07), never technical details.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
 
@@ -22,29 +25,26 @@ class BackupScreen extends ConsumerStatefulWidget {
 
 class _BackupScreenState extends ConsumerState<BackupScreen> {
   String? _lastBackupDate;
-  String? _connectedEmail;
 
   @override
   void initState() {
     super.initState();
-    _loadBackupMetadata();
+    _loadLastBackupDate();
   }
 
-  Future<void> _loadBackupMetadata() async {
+  Future<void> _loadLastBackupDate() async {
     final prefs = SharedPreferencesService();
     final date = await prefs.getLastBackupDate();
-    final email = await prefs.getConnectedAccountEmail();
     if (mounted) {
-      setState(() {
-        _lastBackupDate = date;
-        _connectedEmail = email;
-      });
+      setState(() => _lastBackupDate = date);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final backupProgress = ref.watch(backupControllerProvider);
+    final authState = ref.watch(authControllerProvider);
+    final connectedEmail = authState.value?.email;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,49 +53,33 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       body: ListView(
         padding: AppSpacing.all(AppSpacing.md),
         children: [
-          // Connected account info
-          AppGlassContainer.glassCard(
-            child: Padding(
-              padding: AppSpacing.all(AppSpacing.lg),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.cloud_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: 32,
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Akun Google',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          _connectedEmail ?? 'Belum terhubung',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: _connectedEmail != null
-                                    ? AppColors.textSecondary
-                                    : AppColors.error,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          // Connected account info (reactive to auth state)
+          _buildAccountCard(context, authState, connectedEmail),
+
+          // Auth error surfacing — Indonesian message, never technical text
+          if (authState.hasError)
+            Padding(
+              padding: AppSpacing.vertical(AppSpacing.sm),
+              child: Text(
+                authState.error.toString(),
+                style: TextStyle(color: AppColors.error),
+                textAlign: TextAlign.center,
               ),
             ),
-          ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // Dedicated sign-in / sign-out controls driven by auth state
+          _buildAuthControls(context, ref, authState, connectedEmail),
 
           const SizedBox(height: AppSpacing.lg),
 
-          // Backup button
-          if (backupProgress is BackupProgressIdle ||
+          // Backup button (only meaningful once connected)
+          if (connectedEmail == null &&
+              (backupProgress is BackupProgressIdle ||
+                  backupProgress is BackupProgressFailed))
+            _buildConnectPromptButton(context, ref)
+          else if (backupProgress is BackupProgressIdle ||
               backupProgress is BackupProgressFailed)
             _buildBackupButton(context, ref),
 
@@ -108,7 +92,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           if (backupProgress is BackupProgressCompleted)
             _buildSuccessState(context, ref, backupProgress.metadata),
 
-          // Error state
+          // Backup error state (separate from auth error)
           if (backupProgress is BackupProgressFailed)
             Padding(
               padding: AppSpacing.vertical(AppSpacing.md),
@@ -167,6 +151,129 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Google account card. Shows a spinner while auth state is loading, the
+  /// connected email when signed in, or "Belum terhubung" otherwise.
+  Widget _buildAccountCard(
+    BuildContext context,
+    AuthState authState,
+    String? connectedEmail,
+  ) {
+    final bool isConnecting = authState.isLoading;
+    return AppGlassContainer.glassCard(
+      child: Padding(
+        padding: AppSpacing.all(AppSpacing.lg),
+        child: Row(
+          children: [
+            Icon(
+              Icons.cloud_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+              size: 32,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Akun Google',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  if (isConnecting)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    Text(
+                      connectedEmail ?? 'Belum terhubung',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: connectedEmail != null
+                                ? AppColors.textSecondary
+                                : AppColors.error,
+                          ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Sign-in button when not connected, sign-out button when connected.
+  /// Hidden entirely while the initial session check is loading.
+  Widget _buildAuthControls(
+    BuildContext context,
+    WidgetRef ref,
+    AuthState authState,
+    String? connectedEmail,
+  ) {
+    // Don't show auth controls while the initial session check runs — the
+    // account card already displays a spinner.
+    if (authState.isLoading) {
+      return const SizedBox.shrink();
+    }
+    if (connectedEmail != null) {
+      return SizedBox(
+        width: double.infinity,
+        child: TextButton.icon(
+          onPressed: () =>
+              ref.read(authControllerProvider.notifier).signOut(),
+          icon: Icon(Icons.logout, size: 18, color: AppColors.error),
+          label: Text(
+            'Putuskan Koneksi',
+            style: TextStyle(color: AppColors.error),
+          ),
+        ),
+      );
+    }
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => ref.read(authControllerProvider.notifier).signIn(),
+        icon: const Icon(Icons.login),
+        label: const Text('Hubungkan Akun Google'),
+        style: ElevatedButton.styleFrom(
+          padding: AppSpacing.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Shown in place of "Buat Backup" when the user is not yet connected, so
+  /// the path forward is obvious (per Task 2: trigger sign-in first).
+  Widget _buildConnectPromptButton(BuildContext context, WidgetRef ref) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Hubungkan akun Google terlebih dahulu.'),
+            ),
+          );
+          ref.read(authControllerProvider.notifier).signIn();
+        },
+        icon: const Icon(Icons.lock_outline),
+        label: const Text('Buat Backup'),
+        style: ElevatedButton.styleFrom(
+          padding: AppSpacing.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+        ),
       ),
     );
   }
