@@ -11,6 +11,7 @@ import 'package:catat_cuan/domain/entities/backup/auth_user.dart';
 import 'package:catat_cuan/domain/failures/auth_failure.dart';
 import 'package:catat_cuan/domain/services/auth_service.dart';
 import 'package:catat_cuan/data/services/backup_token_storage.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// Implementation of AuthService using Google Sign-In
 ///
@@ -52,11 +53,13 @@ class AuthServiceImpl implements AuthService {
       }
 
       return _buildAuthUser(googleUser);
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, stackTrace) {
+      AppLogger.e('Google sign-in platform error', e, stackTrace);
       return Result.failure(_mapPlatformException(e));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Google sign-in failed', e, stackTrace);
       return Result.failure(
-        AuthUnknownFailure('Gagal masuk: $e'),
+        const AuthUnknownFailure('Gagal masuk ke akun Google'),
       );
     }
   }
@@ -67,9 +70,10 @@ class AuthServiceImpl implements AuthService {
       await _googleSignIn.signOut();
       await _tokenStorage.clearAuthHeaders();
       return Result.success(null);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Google sign-out failed', e, stackTrace);
       return Result.failure(
-        AuthUnknownFailure('Gagal keluar: $e'),
+        const AuthUnknownFailure('Gagal keluar dari akun Google'),
       );
     }
   }
@@ -82,9 +86,10 @@ class AuthServiceImpl implements AuthService {
         return Result.success(null);
       }
       return _buildAuthUser(googleUser);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to get signed-in user', e, stackTrace);
       return Result.failure(
-        AuthUnknownFailure('Gagal mendapatkan pengguna: $e'),
+        const AuthUnknownFailure('Gagal mendapatkan pengguna'),
       );
     }
   }
@@ -102,9 +107,11 @@ class AuthServiceImpl implements AuthService {
         );
       }
       return _buildAuthUser(googleUser);
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, stackTrace) {
+      AppLogger.e('Token refresh platform error', e, stackTrace);
       return Result.failure(_mapPlatformException(e));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Token refresh failed', e, stackTrace);
       return Result.failure(
         AuthExpiredFailure(
           'Sesi telah berakhir. Silakan masuk kembali.',
@@ -133,9 +140,10 @@ class AuthServiceImpl implements AuthService {
           authHeaders: authHeaders,
         ),
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to build auth user', e, stackTrace);
       return Result.failure(
-        AuthUnknownFailure('Gagal mendapatkan otorisasi: $e'),
+        const AuthUnknownFailure('Gagal mendapatkan otorisasi'),
       );
     }
   }
@@ -144,17 +152,17 @@ class AuthServiceImpl implements AuthService {
   AuthFailure _mapPlatformException(PlatformException e) {
     switch (e.code) {
       case GoogleSignIn.kSignInCanceledError:
-        return AuthCancelledFailure('Pengguna membatalkan masuk');
+        return const AuthCancelledFailure('Pengguna membatalkan masuk');
       case GoogleSignIn.kNetworkError:
-        return AuthNetworkFailure('Koneksi gagal. Periksa internet Anda.');
+        return const AuthNetworkFailure('Koneksi gagal. Periksa internet Anda.');
       case GoogleSignIn.kSignInRequiredError:
-        return AuthExpiredFailure(
+        return const AuthExpiredFailure(
           'Sesi telah berakhir. Silakan masuk kembali.',
         );
       case GoogleSignIn.kSignInFailedError:
-        return AuthUnknownFailure('Gagal masuk: ${e.message}');
+        return const AuthUnknownFailure('Gagal masuk ke akun Google');
       default:
-        return AuthUnknownFailure('Gagal masuk: ${e.message}');
+        return const AuthUnknownFailure('Gagal masuk ke akun Google');
     }
   }
 }
