@@ -1,0 +1,8 @@
+{
+  "// instructions": "Replace this file with the real google-services.json from Firebase Console.",
+  "// step 1": "Go to https://console.firebase.google.com",
+  "// step 2": "Add Android app with package name: com.tigasatudesember.catat_cuan",
+  "// step 3": "Add your SHA-1 fingerprint from: keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android",
+  "// step 4": "Enable Google Sign-In in Authentication -> Sign-in method",
+  "// step 5": "Download google-services.json and replace this placeholder file"
+}
