@@ -85,11 +85,12 @@ Plans:
   4. User can restore from backup with conflict handling (replace all or cancel)
   5. System handles OAuth token expiry with automatic refresh and all errors (network, quota, auth, corrupted file) with user-friendly Indonesian messages
 
-**Plans:** 3 plans in 3 waves
+**Plans:** 4 plans in 3 waves (+1 gap closure)
 Plans:
 - [x] 04-01-PLAN.md — Auth layer: Google Sign-In OAuth, secure token storage, Drive API client, token refresh + retry pattern (Wave 1)
 - [x] 04-02-PLAN.md — Backup engine: serialize all tables to versioned JSON, upload to Drive with progress, auto-cleanup (Wave 2)
 - [x] 04-03-PLAN.md — Restore + management UI: backup list, preview, restore with conflict handling, Settings integration (Wave 3)
+- [x] 04-04-PLAN.md — Gap closure: Google Services Gradle plugin + dedicated AuthController + sign-in button + auth error surfacing (Wave 1, gap closure)
 **UI hint**: yes
 
 ### Phase 5: Enhanced Reports
@@ -141,6 +142,6 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-05-20 after Phase 4 Plan 03 (Restore & Backup Management UI) complete*
+*Last updated: 2026-06-26 after Phase 4 Plan 04 (Google Sign-In auth flow fix, gap closure) complete*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*

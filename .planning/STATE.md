@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Cloud & Reports
 status: phase-4-complete
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-05-20T02:58:14Z"
-last_activity: 2026-05-20 — Phase 4 Plan 03 (Restore & Backup Management UI) completed
+stopped_at: Completed 04-04-PLAN.md (gap closure — Google Sign-In auth fix)
+last_updated: "2026-06-26T09:35:00.000Z"
+last_activity: 2026-06-26
 progress:
-  total_phases: 6
+  total_phases: 4
   completed_phases: 4
-  total_plans: 16
-  completed_plans: 17
-  percent: 56
+  total_plans: 18
+  completed_plans: 18
+  percent: 100
 ---
 
 # Project State
@@ -21,18 +21,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** v2.2 Cloud & Reports — Phase 4 (Cloud Backup) COMPLETE
-Last activity: 2026-05-20 — Phase 4 Plan 03 completed
+**Current focus:** Phase 04 — cloud-backup (complete; gap closure 04-04 shipped)
+Last activity: 2026-06-26 — Plan 04-04 (Google Sign-In auth fix) completed
 
-Progress: [██████░░░░] 56%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 11min
-- Total execution time: 3.3 hours
+- Total execution time: 3.5 hours
 
 **By Phase:**
 
@@ -41,11 +41,11 @@ Progress: [██████░░░░] 56%
 | 1 Foundation | 3 | 24min | 8min |
 | 2 Budgeting | 7 | 60min | 9min |
 | 3 Savings Goals | 4 | 58min | 15min |
-| 4 Cloud Backup | 3 | 64min | 21min |
+| 4 Cloud Backup | 4 | 75min | 19min |
 
 **Recent Trend:**
 
-- Last 3 plans: 04-01 (15min), 04-02 (15min), 04-03 (34min)
+- Last 3 plans: 04-02 (15min), 04-03 (34min), 04-04 (11min)
 - Trend: Healthy execution pace
 
 *Updated after each plan completion*
@@ -70,6 +70,7 @@ Recent decisions affecting current work:
 - 04-01: GoogleSignIn with drive.appdata scope, FlutterSecureStorage for tokens
 - 04-02: List<Map<String,dynamic>> for backup data, non-blocking cleanup, Freezed union progress state
 - 04-03: Atomic restore via DB transaction, destructive confirm with "GANTI" text, RestoreProgress Freezed union
+- 04-04: Dedicated AuthController (AsyncValue<AuthUser?>) decoupled from backup progress; google-services.json shipped as .placeholder (creds stay local); BackupScreen driven entirely by authControllerProvider
 
 ### Pending Todos
 
@@ -77,7 +78,7 @@ None.
 
 ### Blockers/Concerns
 
-- **Phase 4 (Cloud Backup):** Google Cloud Console OAuth Client ID setup is a manual step outside the codebase — must be done before Phase 4 can test on real devices
+None. (The Phase 4 OAuth Client ID / `google-services.json` setup is a per-developer manual step documented in `android/app/google-services.json.placeholder` — not a code blocker.)
 
 ## Deferred Items
 
@@ -89,6 +90,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-20T02:58:14Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-06-26T09:35:00Z
+Stopped at: Completed 04-04-PLAN.md (gap closure)
 Next phase: Phase 5 (Enhanced Reports)
