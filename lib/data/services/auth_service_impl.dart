@@ -21,9 +21,6 @@ class AuthServiceImpl implements AuthService {
   final GoogleSignIn _googleSignIn;
   final BackupTokenStorage _tokenStorage;
 
-  static const _driveAppDataScope =
-      'https://www.googleapis.com/auth/drive.appdata';
-
   AuthServiceImpl(this._googleSignIn, this._tokenStorage);
 
   @override
@@ -35,21 +32,6 @@ class AuthServiceImpl implements AuthService {
         return Result.failure(
           AuthCancelledFailure('Pengguna membatalkan masuk'),
         );
-      }
-
-      // Request drive.appdata scope if not already granted
-      final hasScope = await _googleSignIn.canAccessScopes(
-        [_driveAppDataScope],
-      );
-      if (!hasScope) {
-        final granted = await _googleSignIn.requestScopes(
-          [_driveAppDataScope],
-        );
-        if (!granted) {
-          return Result.failure(
-            AuthCancelledFailure('Izin Drive ditolak oleh pengguna'),
-          );
-        }
       }
 
       return _buildAuthUser(googleUser);
