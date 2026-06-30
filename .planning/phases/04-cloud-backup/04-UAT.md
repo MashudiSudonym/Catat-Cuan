@@ -3,15 +3,13 @@ status: diagnosed
 phase: 04-cloud-backup
 source: 04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md
 started: 2026-06-03T00:00:00Z
-updated: 2026-06-03T00:00:00Z
+updated: 2026-06-30T00:00:00Z
+reverify_after_fix: 04-04
 ---
 
 ## Current Test
 
-number: 0
-name: [testing complete]
-expected: |
-awaiting: resolved
+[testing paused — blocker on test 2, root cause diagnosed, fix ready to plan]
 
 ## Tests
 
@@ -22,8 +20,11 @@ result: pass
 ### 2. Backup screen shows Google Sign-In prompt
 expected: Navigate to Backup screen from Settings. When not connected, you should see a prompt/button to sign in with your Google account (e.g., "Hubungkan Akun Google" or similar).
 result: issue
-reported: "I can't find the 'connect Google account' button, but there is a 'create backup' button. When I click the 'create backup' button, it connects to my Google account, but it fails. There's no error log that explains why the Google account connection failed."
-severity: major
+reverify: true
+prior_result: issue
+prior_reported: "I can't find the 'connect Google account' button, but there is a 'create backup' button. When I click the 'create backup' button, it connects to my Google account, but it fails. There's no error log that explains why the Google account connection failed."
+reported: "Dedicated 'Hubungkan Akun Google' button now shows (fix 04-04 worked), but tapping it fails: UnimplementedError: canAccessScopes() has not been implemented. Stack: AuthServiceImpl.signIn (auth_service_impl.dart:41) -> GoogleSignIn.canAccessScopes. Log: '⛔ Google sign-in failed'."
+severity: blocker
 
 ### 3. Google Sign-In authenticates successfully
 expected: Tap the sign-in button. Google Sign-In flow should appear. After authenticating, the backup screen should show the connected account email. The app should only request drive.appdata scope (no full Drive access prompt).
@@ -96,22 +97,17 @@ blocked: 10
 
 ## Gaps
 
-- truth: "Backup screen shows a dedicated Google Sign-In prompt/button when not connected"
+- truth: "Tapping 'Hubungkan Akun Google' completes Google Sign-In and connects the account"
   status: failed
-  reason: "User reported: I can't find the 'connect Google account' button, but there is a 'create backup' button. When I click the 'create backup' button, it connects to my Google account, but it fails. There's no error log that explains why the Google account connection failed."
-  severity: major
+  reason: "User reported: Dedicated button now shows (fix 04-04 worked), but tapping it fails with UnimplementedError: canAccessScopes() has not been implemented. Stack: AuthServiceImpl.signIn (auth_service_impl.dart:41) -> GoogleSignIn.canAccessScopes. Log shows '⛔ Google sign-in failed'."
+  severity: blocker
   test: 2
-  root_cause: "Missing Google Sign-In platform configuration: no google-services.json in android/app/, no 'com.google.gms.google-services' Gradle plugin applied, no iOS REVERSED_CLIENT_ID. The google_sign_in package requires OAuth client credentials from Firebase/Google Cloud Console to be embedded in the platform project. Without these, signIn() silently fails."
+  root_cause: "AuthServiceImpl.signIn() calls _googleSignIn.canAccessScopes([driveAppDataScope]) at auth_service_impl.dart:41. canAccessScopes() throws UnimplementedError on the google_sign_in platform interface (requires serverClientId, which is not set). This call is REDUNDANT: the drive.appdata scope is already declared in the GoogleSignIn constructor (service_providers.dart:99-101), and signIn() requests constructor scopes automatically during the OAuth flow. The canAccessScopes/requestScopes two-step was never reachable and is the sole cause of the sign-in failure."
   artifacts:
-    - path: "android/app/build.gradle.kts"
-      issue: "Missing 'com.google.gms.google-services' plugin and google-services.json"
+    - path: "lib/data/services/auth_service_impl.dart"
+      issue: "Lines 40-53: redundant canAccessScopes()+requestScopes() block; canAccessScopes throws UnimplementedError. Scope is already in the GoogleSignIn constructor."
     - path: "lib/presentation/providers/services/service_providers.dart"
-      issue: "GoogleSignIn() initialized without serverClientId — requires OAuth web client ID"
-    - path: "lib/presentation/screens/backup_screen.dart"
-      issue: "No separate sign-in button; sign-in is triggered inline during backup creation with no visible error feedback when auth fails silently"
+      issue: "Lines 98-102: GoogleSignIn already constructed with scopes: [drive.appdata] — this is the correct, working path."
   missing:
-    - "Add google-services.json from Firebase/Google Cloud Console to android/app/"
-    - "Apply 'com.google.gms.google-services' plugin in android/app/build.gradle.kts"
-    - "Optionally pass serverClientId to GoogleSignIn() constructor"
-    - "Add dedicated 'Hubungkan Akun Google' button on BackupScreen when not connected"
-    - "Ensure auth errors surface to user via SnackBar or visible error state"
+    - "Delete the canAccessScopes/requestScopes block (auth_service_impl.dart:40-53) — signIn() will request the constructor-declared drive.appdata scope automatically."
+  debug_session: ""
