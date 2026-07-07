@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 04-cloud-backup
 source: 04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md, 04-04-SUMMARY.md, 04-05-SUMMARY.md
 started: 2026-06-03T00:00:00Z
@@ -108,27 +108,53 @@ blocked: 0
   reason: "User reported: The restore process is taking too long, and the log also displays a message like this: \"Warning: The database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction.\""
   severity: major
   test: 8
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "SqliteDataSource.transaction() (sqlite_data_source.dart:121-124) opens db.transaction((_) async => await action()) and DISCARDS the sqflite Transaction object (_). insert() (line 67-70) and delete() (line 111-118) unconditionally target the outer Database, never a Transaction. BackupRestoreService.restoreFromData() (backup_restore_service.dart:34-81) runs all restore writes (5 deletes + 5 per-row insert loops) inside transaction(() { ... }) but every op re-enters the outer db while the txn holds its lock -> re-entrant locking, 10s lock warning, slow restore. The abstraction itself (local_data_source.dart:92 transaction(Future<void> Function())) has no way to pass a txn-bound executor into the callback."
+  artifacts:
+    - path: "lib/data/datasources/local/sqlite_data_source.dart"
+      issue: "Lines 121-124: transaction() discards the sqflite Transaction; lines 67-70 (insert) and 111-118 (delete) always use the outer db, never txn."
+    - path: "lib/data/datasources/local/local_data_source.dart"
+      issue: "Line 92: abstract transaction(Future<void> Function() action) gives the callback no txn-bound executor."
+    - path: "lib/data/services/backup_restore_service.dart"
+      issue: "Lines 34-81: sole transaction() caller; all restore writes go through _localDataSource.insert/delete (outer db) inside the txn callback."
+  missing:
+    - "Change transaction() signature to pass a txn-scoped data source into the callback: Future<void> transaction(Future<void> Function(LocalDataSource txn) action)."
+    - "In SqliteDataSource.transaction(), wrap the sqflite Transaction in an adapter whose insert/delete/update/query/batchInsert delegate to txn.*."
+    - "Update BackupRestoreService.restoreFromData() to use the txn-scoped data source for all writes."
+    - "Secondary speedup: replace per-row for(...) await insert(...) loops with txn-bound batchInsert(...) per table."
+  debug_session: .planning/debug/restore-db-lock.md
 
 - truth: "After deleting a backup via swipe, the list refreshes and exits the loading state with the deleted backup removed"
   status: failed
   reason: "User reported: swipe to delete works, but after that loading doesn't stop and gets stuck in loading state."
   severity: major
   test: 9
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "BackupListScreen uses a plain local bool _isLoading (backup_list_screen.dart:22), NOT an AsyncValue and NOT BackupController (which has no deleteBackup method and is not watched by this screen). _loadBackups() sets _isLoading=true (line 33) and resets it ONLY on the two happy paths (line 44 success, line 49 failure) with NO try/finally guarantee. After a successful delete, _confirmDelete() calls _loadBackups() fire-and-forget at line 159 (no await, no catchError/whenComplete). When the post-delete refresh throws or stalls (ListBackupsUseCase re-downloads every remaining backup header via Drive, fragile right after a delete), _isLoading is orphaned at true and _buildBody (lines 66-67) renders the CircularProgressIndicator forever."
+  artifacts:
+    - path: "lib/presentation/screens/backup_list_screen.dart"
+      issue: "Line 22 bool _isLoading=true; lines 31-53 _loadBackups() sets true (33), resets only at 44/49 with no try/finally; lines 66-67 render spinner when _isLoading; line 159 _loadBackups() called fire-and-forget after delete."
+    - path: "lib/domain/usecases/backup/list_backups_usecase.dart"
+      issue: "Lines 42-48,71: refresh re-downloads every backup header; fragile right after delete (Drive eventual consistency) — the trigger exposing the missing-reset defect."
+  missing:
+    - "Wrap _loadBackups() body in try { ... } finally { if (mounted) setState(() => _isLoading = false); } so loading is guaranteed to clear."
+    - "In _confirmDelete(), await _loadBackups() (with try/catch surfacing an Indonesian error via ErrorMessageMapper) or attach .catchError/.whenComplete."
+    - "Durable: migrate the backup list to an AsyncNotifier returning AsyncValue<List<BackupPreview>> and render via .when(data/loading/error) so transitions are correct by construction."
+  debug_session: .planning/debug/delete-stuck-loading.md
 
 - truth: "After app restart, the app silently refreshes the token / restores the signed-in Google account without asking the user to sign in again"
   status: failed
   reason: "User reported: After the application is closed and reopened, the connection to the Google account is lost, and it asks to sign in again."
   severity: major
   test: 12
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Missing silent-restore on cold start. AuthController.build()/_checkExistingUser() (auth_controller.dart:27-40) calls ONLY AuthRepository.getSignedInUser(), whose impl (auth_service_impl.dart:63-77) synchronously reads _googleSignIn.currentUser. google_sign_in does NOT hydrate currentUser across cold starts without an explicit signInSilently(), so this always yields Result.success(null) -> state AsyncData(null) -> BackupScreen renders signed-out. The correct silent-restore method AuthServiceImpl.refreshToken() (auth_service_impl.dart:79-103, calls signInSilently() at line 83) EXISTS but has ZERO callers — it is dead code. Secondary: the persisted SharedPreferences connected-email (written at auth_controller.dart:49 via setConnectedAccountEmail) is never read back — getConnectedAccountEmail() has no callers — so there is no fallback signal to even attempt a restore."
+  artifacts:
+    - path: "lib/presentation/controllers/auth_controller.dart"
+      issue: "Lines 27-40: build()/_checkExistingUser() use getSignedInUser() (sync read, null on cold start) instead of refreshToken()/signInSilently(); never consult the persisted email."
+    - path: "lib/data/services/auth_service_impl.dart"
+      issue: "Lines 63-77 getSignedInUser() is sync-read-only (cannot restore across cold starts); lines 79-103 refreshToken() is the correct restore path but is uncalled (dead code)."
+    - path: "lib/data/services/shared_preferences_service.dart"
+      issue: "Line ~70 getConnectedAccountEmail() defined but never invoked — persisted restore-hint signal unused."
+  missing:
+    - "In AuthController._checkExistingUser()/build(), read persisted connected-email via SharedPreferencesService.getConnectedAccountEmail(); if non-empty, call authRepository.refreshToken() (signInSilently) and seed state from the result."
+    - "On success -> AsyncData(authUser); on failure -> AsyncData(null) and clear the stale persisted email."
+    - "Keep initialization inside build() per AGENTS.md (do NOT move to constructor)."
+  debug_session: .planning/debug/auth-lost-on-restart.md
