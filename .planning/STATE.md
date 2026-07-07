@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Cloud & Reports
 status: phase-4-complete
-stopped_at: Completed 04-05-PLAN.md (gap closure — Google Sign-In scope-check two-step removal)
-last_updated: "2026-06-30T00:34:06Z"
-last_activity: 2026-06-30
+stopped_at: Completed 04-06-PLAN.md (3 UAT gap closures: restore DB lock, delete-stuck-loading, auth-lost-on-restart)
+last_updated: "2026-07-07T17:41:03Z"
+last_activity: 2026-07-07
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 20
+  completed_plans: 20
   percent: 100
 ---
 
@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
 **Current focus:** Phase 04 — cloud-backup
-Last activity: 2026-06-30
+Last activity: 2026-07-07
 
 Progress: [██████████] 100%
 
@@ -30,9 +30,9 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 11min
-- Total execution time: 3.6 hours
+- Total execution time: 3.8 hours
 
 **By Phase:**
 
@@ -41,12 +41,12 @@ Progress: [██████████] 100%
 | 1 Foundation | 3 | 24min | 8min |
 | 2 Budgeting | 7 | 60min | 9min |
 | 3 Savings Goals | 4 | 58min | 15min |
-| 4 Cloud Backup | 5 | 79min | 16min |
+| 4 Cloud Backup | 6 | 91min | 15min |
 
 **Recent Trend:**
 
-- Last 3 plans: 04-03 (34min), 04-04 (11min), 04-05 (4min)
-- Trend: Healthy execution pace; 04-05 was a 4-min deletion-only gap closure
+- Last 3 plans: 04-04 (11min), 04-05 (4min), 04-06 (12min)
+- Trend: Healthy execution pace; 04-06 closed 3 UAT gaps with surgical root-cause fixes
 
 *Updated after each plan completion*
 
@@ -72,6 +72,7 @@ Recent decisions affecting current work:
 - 04-03: Atomic restore via DB transaction, destructive confirm with "GANTI" text, RestoreProgress Freezed union
 - 04-04: Dedicated AuthController (AsyncValue<AuthUser?>) decoupled from backup progress; google-services.json shipped as .placeholder (creds stay local); BackupScreen driven entirely by authControllerProvider
 - 04-05: Deleted redundant canAccessScopes/requestScopes two-step from AuthServiceImpl.signIn() (it threw UnimplementedError, blocked UAT Test 2); constructor-declared drive.appdata scope is the single source of truth — no runtime scope-check, no API substitution
+- 04-06: Restored transactional integrity by threading a txn-scoped LocalDataSource through transaction() (writes hit the sqflite Transaction, not the outer Database); batched restore writes per table. _loadBackups() guaranteed to clear _isLoading via try/finally; _confirmDelete() awaits the refresh. Cold-start silent session restore wired through AuthRepository.refreshToken() (was dead code) + the persisted connected-email hint; stale hint cleared on failure
 
 ### Pending Todos
 
@@ -91,6 +92,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-30T00:34:06Z
-Stopped at: Completed 04-05-PLAN.md (gap closure — scope-check two-step removal)
-Next phase: Phase 5 (Enhanced Reports) — pending on-device UAT re-verification of Test 2 (auth flow) on a real device with google-services.json
+Last session: 2026-07-07T17:41:03Z
+Stopped at: Completed 04-06-PLAN.md (3 UAT gap closures: restore DB lock, delete-stuck-loading, auth-lost-on-restart)
+Next phase: Phase 5 (Enhanced Reports) — pending on-device UAT re-verification of Tests 2, 8, 9, 12 on a real device with google-services.json

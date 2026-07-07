@@ -85,13 +85,14 @@ Plans:
   4. User can restore from backup with conflict handling (replace all or cancel)
   5. System handles OAuth token expiry with automatic refresh and all errors (network, quota, auth, corrupted file) with user-friendly Indonesian messages
 
-**Plans:** 3 plans in 3 waves (+2 gap closures)
+**Plans:** 3 plans in 3 waves (+3 gap closures)
 Plans:
 - [x] 04-01-PLAN.md — Auth layer: Google Sign-In OAuth, secure token storage, Drive API client, token refresh + retry pattern (Wave 1)
 - [x] 04-02-PLAN.md — Backup engine: serialize all tables to versioned JSON, upload to Drive with progress, auto-cleanup (Wave 2)
 - [x] 04-03-PLAN.md — Restore + management UI: backup list, preview, restore with conflict handling, Settings integration (Wave 3)
 - [x] 04-04-PLAN.md — Gap closure: Google Services Gradle plugin + dedicated AuthController + sign-in button + auth error surfacing (Wave 1, gap closure)
 - [x] 04-05-PLAN.md — Gap closure: remove redundant scope-check two-step from AuthServiceImpl.signIn() (unblocks UAT Test 2, deletion-only)
+- [x] 04-06-PLAN.md — Gap closure: restore DB-lock fix (txn-scoped data source + batched writes), delete-stuck-loading (try/finally + await), auth-lost-on-restart (cold-start silent restore via refreshToken)
 **UI hint**: yes
 
 ### Phase 5: Enhanced Reports
@@ -137,12 +138,12 @@ Note: Phases 2 and 3 are independent and may be parallelized.
 | 1. Foundation | v2.0 | 3/3 | Complete ✓ | 2026-05-07 |
 | 2. Budgeting | v2.1 | 7/7 | Complete ✓ | 2026-05-09 |
 | 3. Savings Goals | v2.1 | 4/4 | Complete ✓ | 2026-05-13 |
-| 4. Cloud Backup | v2.2 | 5/5 | Complete ✓ | 2026-06-30 |
+| 4. Cloud Backup | v2.2 | 6/6 | Complete ✓ | 2026-06-30 |
 | 5. Enhanced Reports | v2.2 | 0/3 | Not started | - |
 | 6. Polish & Integration | v2.3 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-05-06*
-*Last updated: 2026-06-30 after Phase 4 Plan 05 (Google Sign-In scope-check two-step removal, gap closure) complete*
+*Last updated: 2026-07-07 after Phase 4 Plan 06 (3 UAT gap closures: restore DB lock, delete-stuck-loading, auth-lost-on-restart) complete*
 *Granularity: standard (6 phases)*
 *Coverage: 37/37 requirements mapped ✓*
