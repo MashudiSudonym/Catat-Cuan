@@ -3,6 +3,7 @@ import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/domain/core/result.dart';
 import 'package:catat_cuan/domain/entities/backup/backup_data.dart';
 import 'package:catat_cuan/domain/failures/backup_failure.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 
 /// Service for restoring backup data into the local database
 ///
@@ -33,58 +34,53 @@ class BackupRestoreService {
   /// 6. Insert goal_contributions (depends on savings_goals)
   Future<Result<void>> restoreFromData(BackupData data) async {
     try {
-      await _localDataSource.transaction(() async {
+      await _localDataSource.transaction((txn) async {
         // Step 1: Delete all existing data in FK order (children first)
-        await _localDataSource.delete(
-          DatabaseHelper.tableGoalContributions,
-        );
-        await _localDataSource.delete(
-          DatabaseHelper.tableSavingsGoals,
-        );
-        await _localDataSource.delete(
-          DatabaseHelper.tableBudgets,
-        );
-        await _localDataSource.delete(
+        await txn.delete(DatabaseHelper.tableGoalContributions);
+        await txn.delete(DatabaseHelper.tableSavingsGoals);
+        await txn.delete(DatabaseHelper.tableBudgets);
+        await txn.delete(DatabaseHelper.tableTransactions);
+        await txn.delete(DatabaseHelper.tableCategories);
+
+        // Steps 2-6: bulk-insert each table via the txn-bound batch (FK
+        // order). ponytail: one sqflite batch round-trip per table instead
+        // of N per-row inserts, all inside the txn so there is no lock
+        // contention with the outer database.
+        await _insertIfAny(txn, DatabaseHelper.tableCategories, data.categories);
+        await _insertIfAny(
+          txn,
           DatabaseHelper.tableTransactions,
+          data.transactions,
         );
-        await _localDataSource.delete(
-          DatabaseHelper.tableCategories,
+        await _insertIfAny(txn, DatabaseHelper.tableBudgets, data.budgets);
+        await _insertIfAny(
+          txn,
+          DatabaseHelper.tableSavingsGoals,
+          data.savingsGoals,
         );
-
-        // Step 2: Insert categories (no FK dependencies)
-        for (final category in data.categories) {
-          await _localDataSource.insert(DatabaseHelper.tableCategories, category);
-        }
-
-        // Step 3: Insert transactions (depends on categories)
-        for (final transaction in data.transactions) {
-          await _localDataSource.insert(DatabaseHelper.tableTransactions, transaction);
-        }
-
-        // Step 4: Insert budgets (depends on categories)
-        for (final budget in data.budgets) {
-          await _localDataSource.insert(DatabaseHelper.tableBudgets, budget);
-        }
-
-        // Step 5: Insert savings goals
-        for (final goal in data.savingsGoals) {
-          await _localDataSource.insert(DatabaseHelper.tableSavingsGoals, goal);
-        }
-
-        // Step 6: Insert goal contributions (depends on savings_goals)
-        for (final contribution in data.goalContributions) {
-          await _localDataSource.insert(DatabaseHelper.tableGoalContributions, contribution);
-        }
-
-        // Note: Settings restoration would be handled separately
-        // via SharedPreferencesService as part of the full restore flow
+        await _insertIfAny(
+          txn,
+          DatabaseHelper.tableGoalContributions,
+          data.goalContributions,
+        );
       });
 
       return Result.success(null);
-    } catch (e) {
-      return Result.failure(
-        BackupFailure.unknown('Gagal memulihkan data: $e'),
-      );
+    } catch (e, stackTrace) {
+      // Per AGENTS.md Rule 4: never interpolate raw exception text into a
+      // user-facing message — log it and return a static Indonesian message.
+      AppLogger.e('Restore failed', e, stackTrace);
+      return Result.failure(BackupFailure.unknown('Gagal memulihkan data'));
     }
+  }
+
+  /// Inserts [rows] into [table] via the txn-bound batch, skipping empty lists.
+  Future<void> _insertIfAny(
+    LocalDataSource txn,
+    String table,
+    List<Map<String, dynamic>> rows,
+  ) async {
+    if (rows.isEmpty) return;
+    await txn.batchInsert(table, rows);
   }
 }

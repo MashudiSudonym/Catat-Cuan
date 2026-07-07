@@ -3,6 +3,7 @@ import 'package:catat_cuan/domain/entities/backup/backup_data.dart';
 import 'package:catat_cuan/data/datasources/local/local_data_source.dart';
 import 'package:catat_cuan/data/datasources/local/database_helper.dart';
 import 'package:catat_cuan/data/services/backup_restore_service.dart';
+import 'package:catat_cuan/presentation/utils/logger/app_logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -14,6 +15,7 @@ void main() {
   late MockLocalDataSource mockLocalDataSource;
 
   setUp(() {
+    AppLogger.initialize();
     mockLocalDataSource = MockLocalDataSource();
     service = BackupRestoreService(localDataSource: mockLocalDataSource);
   });
@@ -44,14 +46,14 @@ void main() {
       // Arrange
       when(mockLocalDataSource.transaction(any)).thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0]
-            as Future<void> Function();
-        await action();
+            as Future<void> Function(LocalDataSource);
+        await action(mockLocalDataSource);
       });
       // Delete all from each table
       when(mockLocalDataSource.delete(any))
           .thenAnswer((_) async => 0);
-      // Insert for each table
-      when(mockLocalDataSource.insert(any, any))
+      // Batch insert per table
+      when(mockLocalDataSource.batchInsert(any, any))
           .thenAnswer((_) async => 1);
 
       // Act
@@ -75,12 +77,14 @@ void main() {
       verify(mockLocalDataSource.delete(
         DatabaseHelper.tableCategories,
       )).called(1);
-      // Verify inserts called for all tables
-      verify(mockLocalDataSource.insert(DatabaseHelper.tableCategories, any)).called(2);
-      verify(mockLocalDataSource.insert(DatabaseHelper.tableTransactions, any)).called(2);
-      verify(mockLocalDataSource.insert(DatabaseHelper.tableBudgets, any)).called(1);
-      verify(mockLocalDataSource.insert(DatabaseHelper.tableSavingsGoals, any)).called(1);
-      verify(mockLocalDataSource.insert(DatabaseHelper.tableGoalContributions, any)).called(1);
+      // Verify one batched insert per table (not per-row inserts)
+      verify(mockLocalDataSource.batchInsert(DatabaseHelper.tableCategories, any)).called(1);
+      verify(mockLocalDataSource.batchInsert(DatabaseHelper.tableTransactions, any)).called(1);
+      verify(mockLocalDataSource.batchInsert(DatabaseHelper.tableBudgets, any)).called(1);
+      verify(mockLocalDataSource.batchInsert(DatabaseHelper.tableSavingsGoals, any)).called(1);
+      verify(mockLocalDataSource.batchInsert(DatabaseHelper.tableGoalContributions, any)).called(1);
+      // Per-row insert is never used anymore
+      verifyNever(mockLocalDataSource.insert(any, any));
     });
 
     test('should return failure when transaction fails', () async {
@@ -109,8 +113,8 @@ void main() {
 
       when(mockLocalDataSource.transaction(any)).thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0]
-            as Future<void> Function();
-        await action();
+            as Future<void> Function(LocalDataSource);
+        await action(mockLocalDataSource);
       });
       when(mockLocalDataSource.delete(any))
           .thenAnswer((_) async => 0);
@@ -120,7 +124,8 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
-      // No inserts called for empty data
+      // No inserts/batches called for empty data
+      verifyNever(mockLocalDataSource.batchInsert(any, any));
       verifyNever(mockLocalDataSource.insert(any, any));
     });
   });
