@@ -34,20 +34,23 @@ class _BackupListScreenState extends ConsumerState<BackupListScreen> {
       _error = null;
     });
 
-    final useCase = ref.read(listBackupsUseCaseProvider);
-    final result = await useCase(NoParams());
-
-    if (mounted) {
-      if (result.isSuccess) {
-        setState(() {
+    try {
+      final useCase = ref.read(listBackupsUseCaseProvider);
+      final result = await useCase(NoParams());
+      if (!mounted) return;
+      setState(() {
+        if (result.isSuccess) {
           _backups = result.data!;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
+        } else {
           _error = ErrorMessageMapper.getUserMessage(result.failure);
-          _isLoading = false;
-        });
+        }
+      });
+    } finally {
+      // Guarantee the spinner clears on every exit path (BKP-03). The use
+      // case returns a Result rather than throwing, but the finally also
+      // covers any unexpected throw so the list is never stuck loading.
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -156,7 +159,14 @@ class _BackupListScreenState extends ConsumerState<BackupListScreen> {
       scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Backup dihapus')),
       );
-      _loadBackups();
+      try {
+        await _loadBackups();
+      } catch (e) {
+        if (!mounted) return;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(ErrorMessageMapper.getUserMessage(e))),
+        );
+      }
     } else {
       scaffoldMessenger.showSnackBar(
         SnackBar(
