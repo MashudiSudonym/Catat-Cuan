@@ -29,12 +29,42 @@ class AuthController extends _$AuthController {
     return const AsyncValue.loading();
   }
 
-  /// Check for an existing signed-in user (token may still be valid).
+  /// Restores the signed-in user on startup.
+  ///
+  /// Two stages:
+  /// 1. Fast path — in-memory session still alive (warm restart):
+  ///    getSignedInUser() returns the cached GoogleSignInAccount.
+  /// 2. Cold start — no in-memory session but a connected email is persisted:
+  ///    attempt a silent refresh via refreshToken() (signInSilently). On
+  ///    failure the stale hint is cleared so we don't retry a dead session
+  ///    every cold start.
   Future<void> _checkExistingUser() async {
-    final result = await ref.read(authRepositoryProvider).getSignedInUser();
-    if (result.isSuccess) {
-      state = AsyncValue.data(result.data);
+    final repo = ref.read(authRepositoryProvider);
+
+    // Stage 1: in-memory session (warm restart).
+    final existing = await repo.getSignedInUser();
+    if (existing.isSuccess && existing.data != null) {
+      state = AsyncValue.data(existing.data);
+      return;
+    }
+
+    // Stage 2: cold start — consult the persisted connected-email hint.
+    final prefs = SharedPreferencesService();
+    final persistedEmail = await prefs.getConnectedAccountEmail();
+    if (persistedEmail == null || persistedEmail.isEmpty) {
+      state = const AsyncValue.data(null);
+      return;
+    }
+
+    final refreshed = await repo.refreshToken();
+    if (refreshed.isSuccess) {
+      await prefs.setConnectedAccountEmail(refreshed.data!.email);
+      state = AsyncValue.data(refreshed.data);
     } else {
+      // Silent refresh failed (revoked / signed out remotely) — drop the
+      // stale hint and present the signed-out state. No error surfaced to
+      // the UI: this is an expected cold-start outcome, not a user action.
+      await prefs.clearBackupMetadata();
       state = const AsyncValue.data(null);
     }
   }

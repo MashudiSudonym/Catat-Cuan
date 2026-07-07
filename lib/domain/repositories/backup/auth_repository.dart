@@ -21,4 +21,12 @@ abstract class AuthRepository {
 
   /// Gets the currently signed-in user
   Future<Result<AuthUser?>> getSignedInUser();
+
+  /// Silently refreshes the signed-in session (signInSilently).
+  ///
+  /// Used on cold start to restore a previously-connected Google account
+  /// without prompting the user again. Returns:
+  /// - Result.success(AuthUser) if the silent refresh succeeds
+  /// - Result.failure(AuthFailure.expired) if the session is no longer valid
+  Future<Result<AuthUser>> refreshToken();
 }

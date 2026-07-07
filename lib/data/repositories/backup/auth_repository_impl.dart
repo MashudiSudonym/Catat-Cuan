@@ -27,4 +27,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<AuthUser?>> getSignedInUser() =>
       _authService.getSignedInUser();
+
+  @override
+  Future<Result<AuthUser>> refreshToken() => _authService.refreshToken();
 }
