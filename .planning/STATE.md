@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Cloud & Reports
-status: phase-4-complete
-stopped_at: Completed 04-06-PLAN.md (3 UAT gap closures: restore DB lock, delete-stuck-loading, auth-lost-on-restart)
-last_updated: "2026-07-07T17:41:03Z"
-last_activity: 2026-07-07
+status: ready-to-plan
+stopped_at: Phase 4 verified complete (UAT re-verification passed — Tests 8, 9, 12 confirmed on-device; Tests 10, 11 acknowledged)
+last_updated: "2026-07-08T00:00:00Z"
+last_activity: 2026-07-08
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 20
   completed_plans: 20
   percent: 100
@@ -18,11 +18,11 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-07)
+See: .planning/PROJECT.md (updated 2026-07-08)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
-**Current focus:** Phase 04 — cloud-backup
-Last activity: 2026-07-07
+**Current focus:** Phase 5 — Enhanced Reports
+Last activity: 2026-07-08 — Phase 04 verified complete
 
 Progress: [██████████] 100%
 
@@ -30,7 +30,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 20
+- Total plans completed: 26
 - Average duration: 11min
 - Total execution time: 3.8 hours
 
@@ -42,6 +42,7 @@ Progress: [██████████] 100%
 | 2 Budgeting | 7 | 60min | 9min |
 | 3 Savings Goals | 4 | 58min | 15min |
 | 4 Cloud Backup | 6 | 91min | 15min |
+| 04 | 6 | - | - |
 
 **Recent Trend:**
 
@@ -92,6 +93,6 @@ Items acknowledged and carried forward from v2.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T17:41:03Z
-Stopped at: Completed 04-06-PLAN.md (3 UAT gap closures: restore DB lock, delete-stuck-loading, auth-lost-on-restart)
-Next phase: Phase 5 (Enhanced Reports) — pending on-device UAT re-verification of Tests 2, 8, 9, 12 on a real device with google-services.json
+Last session: 2026-07-08
+Stopped at: Phase 4 verified complete (UAT re-verification passed — all 3 fixes confirmed on-device)
+Next phase: Phase 5 (Enhanced Reports) — ready to plan

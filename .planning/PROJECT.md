@@ -28,13 +28,13 @@ Users can control their finances — not just see them. Budgets prevent overspen
 - ✓ System Default theme follows device in real-time — v2.0
 - ✓ Material Design dark colors with maintained accents — v2.0
 - ✓ WCAG contrast ratios in both themes — v2.0
+- ✓ Full budgeting with per-category monthly budgets and alerts (BUD-01 to BUD-07) — Phase 2
+- ✓ Savings goals with contributions, progress tracking, and celebration (SAV-01 to SAV-10) — Phase 3
+- ✓ Google Drive backup/restore with OAuth (BKP-01 to BKP-007) — Phase 4
 
 ### Active
 
-- [ ] Google Drive backup/restore with OAuth (BKP-01 to BKP-007)
-- [ ] Full budgeting with per-category monthly budgets and alerts (BUD-01 to BUD-07)
-- [ ] Savings goals with contributions, progress tracking, and celebration (SAV-01 to SAV-10)
-- [ ] Enhanced reports with daily/weekly/monthly/yearly views and interactive charts (RPT-01 to RPT-07)
+- [ ] Enhanced reports with daily/weekly/monthly/yearly views and interactive charts (RPT-01 to RPT-07) — Phase 5
 
 ### Out of Scope
 
@@ -78,11 +78,11 @@ Users can control their finances — not just see them. Budgets prevent overspen
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Clean Architecture maintained | Proven pattern, 969 tests, SRP compliance | ✓ Good |
-| Repository segregation for new features | Consistency with existing codebase | — Pending (Phase 2+) |
+| Repository segregation for new features | Consistency with existing codebase | ✓ Good — Phase 2-4 |
 | SQLite for new tables (not Hive/Isar) | Consistency with existing data layer | ✓ Good |
-| Manual backup only (no auto-sync) | Simplicity for v2, deferred complexity to v3 | — Pending (Phase 4) |
+| Manual backup only (no auto-sync) | Simplicity for v2, deferred complexity to v3 | ✓ Good — Phase 4 |
 | fl_chart for enhanced reports | Already in use for v1 charts | — Pending (Phase 5) |
-| Google Drive API with `drive.appdata` scope | Privacy-preserving, no access to user files | — Pending (Phase 4) |
+| Google Drive API with `drive.appdata` scope | Privacy-preserving, no access to user files | ✓ Good — Phase 4 |
 | SQLite CHECK via repository layer | SQLite doesn't support subqueries in CHECK constraints | ✓ Good |
 | sqflite_common_ffi for DB tests | Real database integration tests, not just mocks | ✓ Good |
 | NavigationTabConfig pattern | Phase 2/3 tab additions as config changes only | ✓ Good |
@@ -107,4 +107,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-07 after v2.0 Foundation milestone*
+*Last updated: 2026-07-08 after Phase 4 (cloud-backup) verification*
