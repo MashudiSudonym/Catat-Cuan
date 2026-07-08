@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Cloud & Reports
 status: ready-to-plan
-stopped_at: Phase 4 verified complete (UAT re-verification passed — Tests 8, 9, 12 confirmed on-device; Tests 10, 11 acknowledged)
-last_updated: "2026-07-08T00:00:00Z"
+stopped_at: Phase 04 shipped — PR #3 (Cloud Backup verified, 6/6 plans)
+last_updated: "2026-07-08T14:04:20.750Z"
 last_activity: 2026-07-08
 progress:
   total_phases: 4
@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-07-08)
 
 **Core value:** Users can control their finances — not just see them. Budgets prevent overspending, savings goals create motivation, and backup ensures data safety.
 **Current focus:** Phase 5 — Enhanced Reports
-Last activity: 2026-07-08 — Phase 04 verified complete
+Last activity: 2026-07-08
 
 Progress: [██████████] 100%
 
