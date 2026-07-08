@@ -1,10 +1,10 @@
 ---
-status: diagnosed
+status: complete
 phase: 04-cloud-backup
-source: 04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md, 04-04-SUMMARY.md, 04-05-SUMMARY.md
+source: 04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md, 04-04-SUMMARY.md, 04-05-SUMMARY.md, 04-06-SUMMARY.md
 started: 2026-06-03T00:00:00Z
-updated: 2026-07-07T00:00:00Z
-reverify_after_fix: 04-05
+updated: 2026-07-08T00:00:00Z
+reverify_after_fix: 04-06
 ---
 
 ## Current Test
@@ -49,14 +49,20 @@ result: pass
 
 ### 8. Restore completes with progress
 expected: After confirming with GANTI, restore should show progress states (downloading → restoring → completed). After completion, all data in the app should match the backup preview (transactions, categories, budgets, goals restored).
-result: issue
-reported: "The restore process is taking too long, and the log also displays a message like this: \"Warning: The database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction.\""
+result: pass
+reverify: true
+resolved_by: "04-06 task 1 (txn-scoped LocalDataSource adapter + batchInsert, commit 060bb58)"
+resolved_on: "2026-07-08 — user confirmed restore completes promptly with no lock warning"
+prior_reported: "The restore process is taking too long, and the log also displays a message like this: \"Warning: The database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction.\""
 severity: major
 
 ### 9. Swipe to delete backup
 expected: In the backup list, swipe a backup card to reveal a delete action. Confirm deletion. The backup should be removed from the list.
-result: issue
-reported: "swipe to delete works, but after that loading doesn't stop and gets stuck in loading state."
+result: pass
+reverify: true
+resolved_by: "04-06 task 2 (try/finally loading guarantee + awaited refresh, commit ba77019)"
+resolved_on: "2026-07-08 — user confirmed delete works and loading spinner clears"
+prior_reported: "swipe to delete works, but after that loading doesn't stop and gets stuck in loading state."
 severity: major
 
 ### 10. Error messages display in Indonesian
@@ -71,15 +77,18 @@ reason: "User skipped — would require creating >5 backups to verify"
 
 ### 12. Auth token refresh works automatically
 expected: After signing in, close the app, wait a bit (or simulate token expiry), then reopen and try to create a backup. The app should automatically refresh the expired token and proceed without asking to sign in again.
-result: issue
-reported: "After the application is closed and reopened, the connection to the Google account is lost, and it asks to sign in again."
+result: pass
+reverify: true
+resolved_by: "04-06 task 3 (cold-start silent restore via refreshToken/signInSilently, commit ffd9cbb)"
+resolved_on: "2026-07-08 — user confirmed Google account silently restored after force-stop and reopen"
+prior_reported: "After the application is closed and reopened, the connection to the Google account is lost, and it asks to sign in again."
 severity: major
 
 ## Summary
 
 total: 12
-passed: 7
-issues: 3
+passed: 10
+issues: 0
 pending: 0
 skipped: 2
 blocked: 0
@@ -104,10 +113,12 @@ blocked: 0
   debug_session: ""
 
 - truth: "Restore completes in reasonable time with progress states (downloading → restoring → completed) and data matches the backup preview"
-  status: failed
+  status: resolved
   reason: "User reported: The restore process is taking too long, and the log also displays a message like this: \"Warning: The database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction.\""
   severity: major
   test: 8
+  resolved_by: "04-06 task 1 (txn-scoped LocalDataSource adapter + batchInsert, commit 060bb58)"
+  resolved_on: "2026-07-08 — user confirmed restore completes promptly with no lock warning"
   root_cause: "SqliteDataSource.transaction() (sqlite_data_source.dart:121-124) opens db.transaction((_) async => await action()) and DISCARDS the sqflite Transaction object (_). insert() (line 67-70) and delete() (line 111-118) unconditionally target the outer Database, never a Transaction. BackupRestoreService.restoreFromData() (backup_restore_service.dart:34-81) runs all restore writes (5 deletes + 5 per-row insert loops) inside transaction(() { ... }) but every op re-enters the outer db while the txn holds its lock -> re-entrant locking, 10s lock warning, slow restore. The abstraction itself (local_data_source.dart:92 transaction(Future<void> Function())) has no way to pass a txn-bound executor into the callback."
   artifacts:
     - path: "lib/data/datasources/local/sqlite_data_source.dart"
@@ -124,10 +135,12 @@ blocked: 0
   debug_session: .planning/debug/restore-db-lock.md
 
 - truth: "After deleting a backup via swipe, the list refreshes and exits the loading state with the deleted backup removed"
-  status: failed
+  status: resolved
   reason: "User reported: swipe to delete works, but after that loading doesn't stop and gets stuck in loading state."
   severity: major
   test: 9
+  resolved_by: "04-06 task 2 (try/finally loading guarantee + awaited refresh, commit ba77019)"
+  resolved_on: "2026-07-08 — user confirmed delete works and loading spinner clears"
   root_cause: "BackupListScreen uses a plain local bool _isLoading (backup_list_screen.dart:22), NOT an AsyncValue and NOT BackupController (which has no deleteBackup method and is not watched by this screen). _loadBackups() sets _isLoading=true (line 33) and resets it ONLY on the two happy paths (line 44 success, line 49 failure) with NO try/finally guarantee. After a successful delete, _confirmDelete() calls _loadBackups() fire-and-forget at line 159 (no await, no catchError/whenComplete). When the post-delete refresh throws or stalls (ListBackupsUseCase re-downloads every remaining backup header via Drive, fragile right after a delete), _isLoading is orphaned at true and _buildBody (lines 66-67) renders the CircularProgressIndicator forever."
   artifacts:
     - path: "lib/presentation/screens/backup_list_screen.dart"
@@ -141,10 +154,12 @@ blocked: 0
   debug_session: .planning/debug/delete-stuck-loading.md
 
 - truth: "After app restart, the app silently refreshes the token / restores the signed-in Google account without asking the user to sign in again"
-  status: failed
+  status: resolved
   reason: "User reported: After the application is closed and reopened, the connection to the Google account is lost, and it asks to sign in again."
   severity: major
   test: 12
+  resolved_by: "04-06 task 3 (cold-start silent restore via refreshToken/signInSilently, commit ffd9cbb)"
+  resolved_on: "2026-07-08 — user confirmed Google account silently restored after force-stop and reopen"
   root_cause: "Missing silent-restore on cold start. AuthController.build()/_checkExistingUser() (auth_controller.dart:27-40) calls ONLY AuthRepository.getSignedInUser(), whose impl (auth_service_impl.dart:63-77) synchronously reads _googleSignIn.currentUser. google_sign_in does NOT hydrate currentUser across cold starts without an explicit signInSilently(), so this always yields Result.success(null) -> state AsyncData(null) -> BackupScreen renders signed-out. The correct silent-restore method AuthServiceImpl.refreshToken() (auth_service_impl.dart:79-103, calls signInSilently() at line 83) EXISTS but has ZERO callers — it is dead code. Secondary: the persisted SharedPreferences connected-email (written at auth_controller.dart:49 via setConnectedAccountEmail) is never read back — getConnectedAccountEmail() has no callers — so there is no fallback signal to even attempt a restore."
   artifacts:
     - path: "lib/presentation/controllers/auth_controller.dart"
