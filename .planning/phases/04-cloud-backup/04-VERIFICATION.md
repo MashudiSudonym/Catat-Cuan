@@ -1,31 +1,25 @@
 ---
 phase: 04-cloud-backup
 verified: 2026-07-08T00:45:00Z
-status: human_needed
+status: passed
 score: 5/5 success-criteria truths verified (code + wiring; on-device happy paths passed)
-behavior_unverified: 3
+behavior_unverified: 0
 overrides_applied: 0
-behavior_unverified_items:
-  - truth: "Restore runs inside the real sqflite transaction (no DB lock warning, atomic all-or-nothing) — UAT Test 8"
-    test: "On a real device with a populated DB, restore a Drive backup; confirm restore completes quickly with NO 'database has been locked for 0:00:10' warning and all data matches the preview."
-    expected: "Restore completes in a few seconds; no sqflite lock warning in logs; transactions/categories/budgets/goals/contributions match the backup preview counts."
-    why_human: "The lock-warning symptom only manifests against the real sqflite engine under re-entrant contention. The in-process unit test cannot reproduce the platform-level lock. The txn-scoped adapter (code-verified) is necessary but not sufficient to prove the runtime invariant."
-  - truth: "After swipe-to-delete, the backup list exits loading state with the deleted backup removed — UAT Test 9"
-    test: "On a real device with >=1 Drive backup, swipe a backup card to delete, confirm, and observe the list refresh."
-    expected: "The loading spinner appears briefly then clears; the deleted backup is gone from the list; no stuck loading state."
-    why_human: "The post-delete refresh path hits Drive eventual consistency (the exact fragile trigger the diagnosis names). The try/finally guarantee + awaited refresh are unit-greppable, but the end-to-end 'spinner clears + item removed' verdict is on-device UAT."
-  - truth: "After force-stop and reopen, the app silently restores the signed-in Google account via refreshToken()/signInSilently (no re-prompt) — UAT Test 12"
-    test: "On a real device with a valid google-services.json and a previously-signed-in account, force-stop the app, reopen it, and navigate to the backup screen."
-    expected: "The backup screen shows the connected account email without prompting the user to sign in again."
-    why_human: "signInSilently() exercises live Google OAuth + the google_sign_in platform plugin; cannot be exercised in CI. Requires a real device with valid google-services.json + a previously-signed-in account."
+acknowledged_gaps:
+  - test: 10
+    name: "Error messages display in Indonesian"
+    reason: "Error condition hard to trigger on-device during UAT; partially covered by automated Rule 4 leak scan (0 matches) + ErrorMessageMapper wiring."
+  - test: 11
+    name: "Auto-cleanup keeps only 5 newest backups"
+    reason: "Would require creating >5 backups to verify Drive cleanup; auto-cleanup logic covered by unit tests."
 ---
 
 # Phase 4: Cloud Backup Verification Report
 
 **Phase Goal:** Users can backup all data to Google Drive and restore it, with proper OAuth handling and error recovery
 **Verified:** 2026-07-08T00:45:00Z
-**Status:** human_needed
-**Re-verification:** Yes — gap closure after 04-UAT.md diagnosed Tests 8, 9, 12 as failed; plan 04-06 claims to have closed them. No prior VERIFICATION.md existed; this report establishes the baseline and verifies the three gap closures against actual code.
+**Status:** passed (on-device UAT re-verification complete — Tests 8, 9, 12 confirmed fixed 2026-07-08)
+**Re-verification:** Yes — gap closure after 04-UAT.md diagnosed Tests 8, 9, 12 as failed; plan 04-06 closed them. UAT re-verification on 2026-07-08 confirmed all three fixes work on-device.
 
 ## Goal Achievement
 
@@ -49,11 +43,11 @@ These are the three UAT gaps (Tests 8, 9, 12) that plan 04-06 closed at the code
 
 | # | Truth | Code Fix Verified | Behavior Status |
 | --- | --- | --- | --- |
-| G9 | Restore runs inside the real sqflite transaction (Test 8) | ✓ `local_data_source.dart:93` txn-scoped callback `Function(LocalDataSource txn)`; `sqlite_data_source.dart:125` wraps sqflite `Transaction` in `_TxnDataSource`; `backup_restore_service.dart:37-65` routes all writes through `txn` + `batchInsert` (not per-row). Restore-service unit test 3/3 pass (batch-insert contract). | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED |
-| G10 | Backup list loading state clears after delete (Test 9) | ✓ `backup_list_screen.dart:48-55` try/finally guarantees `setState(() => _isLoading = false)` on every exit path; `:163` `await _loadBackups()` (was fire-and-forget); `:167` `ErrorMessageMapper.getUserMessage(e)` on unexpected throw. | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED |
-| G11 | Cold-start silently restores Google session (Test 12) | ✓ `auth_controller.dart:41-70` two-stage restore (in-memory fast path + persisted-email-hint silent refresh); `:59` `repo.refreshToken()`; `:67` `clearBackupMetadata()` evicts stale hint on failure; init in `build()` not constructor (Rule-compliant). `auth_repository.dart:31` + `auth_repository_impl.dart:32` expose/delegate `refreshToken()`. | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED |
+| G9 | Restore runs inside the real sqflite transaction (Test 8) | ✓ `local_data_source.dart:93` txn-scoped callback `Function(LocalDataSource txn)`; `sqlite_data_source.dart:125` wraps sqflite `Transaction` in `_TxnDataSource`; `backup_restore_service.dart:37-65` routes all writes through `txn` + `batchInsert` (not per-row). Restore-service unit test 3/3 pass (batch-insert contract). | ✓ VERIFIED ON-DEVICE (2026-07-08) |
+| G10 | Backup list loading state clears after delete (Test 9) | ✓ `backup_list_screen.dart:48-55` try/finally guarantees `setState(() => _isLoading = false)` on every exit path; `:163` `await _loadBackups()` (was fire-and-forget); `:167` `ErrorMessageMapper.getUserMessage(e)` on unexpected throw. | ✓ VERIFIED ON-DEVICE (2026-07-08) |
+| G11 | Cold-start silently restores Google session (Test 12) | ✓ `auth_controller.dart:41-70` two-stage restore (in-memory fast path + persisted-email-hint silent refresh); `:59` `repo.refreshToken()`; `:67` `clearBackupMetadata()` evicts stale hint on failure; init in `build()` not constructor (Rule-compliant). `auth_repository.dart:31` + `auth_repository_impl.dart:32` expose/delegate `refreshToken()`. | ✓ VERIFIED ON-DEVICE (2026-07-08) |
 
-**Behavior-unverified:** 3 (G9-G11) — detailed in frontmatter `behavior_unverified_items` and the Human Verification section.
+**Behavior-unverified:** 0 — all three gap closures (G9-G11) confirmed on-device during UAT re-verification on 2026-07-08.
 
 ### Required Artifacts
 
@@ -119,30 +113,32 @@ No orphaned requirements. All BKP-01..07 have implementation evidence.
 
 No blocker or warning anti-patterns in any phase-04 file.
 
-### Human Verification Required
+### On-Device Verification — PASSED (2026-07-08)
 
-The three code-level gap closures (Tests 8, 9, 12) are verified present and wired. Their runtime invariants require a real Android device with `google-services.json` + live Google OAuth — they cannot be exercised in CI. Per the verification brief, these are manual on-device confirmation steps, NOT code gaps.
+The three code-level gap closures (Tests 8, 9, 12) were verified present, wired, and behaviorally tested at code level. They then received **on-device UAT confirmation on 2026-07-08** — all three passed:
 
-**1. UAT Test 8 — Restore completes without DB lock (G9)**
-- **Test:** On a real device with a populated DB, restore a Drive backup.
-- **Expected:** Restore completes in a few seconds; NO "database has been locked for 0:00:10.000000" warning in logs; all data (transactions, categories, budgets, goals, contributions) matches the preview counts.
-- **Why human:** The sqflite lock warning only manifests under re-entrant contention against the real sqflite engine; the in-process unit test cannot reproduce it.
+| Test | Behavior Confirmed |
+| --- | --- |
+| 8 (G9) | Restore completes promptly, NO sqflite "database has been locked" warning, data matches preview. |
+| 9 (G10) | Swipe-to-delete works, loading spinner clears (no stuck state), deleted backup removed. |
+| 12 (G11) | After force-stop and reopen, Google account silently restored (no re-prompt). |
 
-**2. UAT Test 9 — Delete does not leave list stuck loading (G10)**
-- **Test:** On a real device with >=1 Drive backup, swipe a backup card, confirm delete.
-- **Expected:** Loading spinner appears briefly then clears; deleted backup removed from list; no stuck loading.
-- **Why human:** The post-delete refresh hits Drive eventual consistency (the fragile trigger). The try/finally guarantee is unit-greppable, but the end-to-end "spinner clears + item gone" verdict is on-device.
+### Acknowledged Gaps
 
-**3. UAT Test 12 — Cold-start silent session restore (G11)**
-- **Test:** On a real device with a previously-signed-in account, force-stop the app, reopen, navigate to backup screen.
-- **Expected:** Backup screen shows the connected account email without prompting sign-in again.
-- **Why human:** `signInSilently()` exercises live Google OAuth + the platform plugin; cannot run in CI.
+The following UAT tests were skipped during on-device testing and are acknowledged as acceptable gaps:
+
+| Test | Name | Reason | Mitigation |
+| --- | --- | --- | --- |
+| 10 | Error messages display in Indonesian | Error condition hard to trigger on-device | Rule 4 leak scan clean (0 `$e`/stackTrace matches); ErrorMessageMapper wired at all catch sites |
+| 11 | Auto-cleanup keeps only 5 newest backups | Would require creating >5 backups | Auto-cleanup logic covered by unit tests; BKP-05 code-verified |
+
+These are low-risk: the error-message path is the same ErrorMessageMapper code path used by all other catch sites (verified by the Rule 4 scan), and the auto-cleanup logic is unit-tested. Acknowledged per user decision on 2026-07-08.
 
 ### Gaps Summary
 
-No code gaps. All three UAT gap closures (Tests 8, 9, 12) are verified present, substantive, wired, and behaviorally unit-tested where reproducible. The full suite is green (1156/1156) and phase-04 files are analyze-clean.
+No code gaps. All three UAT gap closures (Tests 8, 9, 12) are verified present, substantive, wired, AND confirmed on-device (2026-07-08). The full suite is green (1156/1156) and phase-04 files are analyze-clean.
 
-The only outstanding items are the three on-device behavior confirmations (G9-G11), which require a real Android device with `google-services.json` and a previously-signed-in Google account. These are manual UAT steps — the code-level fixes are complete and verified. Per the verification brief, this routes to `human_needed`, not `gaps_found`.
+Two UAT tests (10, 11) skipped — acknowledged as low-risk gaps with automated mitigations in place (see Acknowledged Gaps above).
 
 Two minor non-blocking notes: (1) REQUIREMENTS.md/PROJECT.md checkboxes for BKP-03/BKP-04 are stale (doc drift); (2) one `info`-level Flutter deprecation in `category_management_screen.dart` (not a phase-04 file).
 
