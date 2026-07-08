@@ -1,14 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:catat_cuan/data/services/image_picker_service_impl.dart';
 import 'package:catat_cuan/data/services/permission_service_impl.dart';
 import 'package:catat_cuan/data/services/receipt_ocr_service_impl.dart';
 import 'package:catat_cuan/data/services/file_save_service_impl.dart';
 import 'package:catat_cuan/data/services/indonesian_merchant_pattern_service_impl.dart';
+import 'package:catat_cuan/data/services/auth_service_impl.dart';
+import 'package:catat_cuan/data/services/google_drive_service_impl.dart';
+import 'package:catat_cuan/data/services/backup_token_storage.dart';
 import 'package:catat_cuan/domain/services/ocr_service.dart';
 import 'package:catat_cuan/domain/services/image_picker_service.dart';
 import 'package:catat_cuan/domain/services/permission_service.dart';
 import 'package:catat_cuan/domain/services/file_save_service.dart';
 import 'package:catat_cuan/domain/services/merchant_pattern_service.dart';
+import 'package:catat_cuan/domain/services/auth_service.dart';
+import 'package:catat_cuan/domain/services/google_drive_service.dart';
 import 'package:catat_cuan/domain/usecases/scan_receipt.dart';
 import 'package:catat_cuan/domain/services/insight_service.dart';
 import 'package:catat_cuan/domain/parsers/receipt_merchant_parser.dart';
@@ -79,4 +85,49 @@ final merchantPatternServiceProvider = Provider<MerchantPatternService>((ref) {
 final receiptMerchantParserProvider = Provider<ReceiptMerchantParser>((ref) {
   final patternService = ref.read(merchantPatternServiceProvider);
   return ReceiptMerchantParser(patternService);
+});
+
+/// ============================================================================
+/// Cloud Backup Service Providers
+/// ============================================================================
+
+/// Provider for GoogleSignIn with drive.appdata scope
+///
+/// Only requests the drive.appdata scope — no access to user's
+/// personal Drive files (T-04-04: privacy-preserving scope).
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  return GoogleSignIn(
+    scopes: ['https://www.googleapis.com/auth/drive.appdata'],
+  );
+});
+
+/// Provider for BackupTokenStorage (encrypted at rest)
+///
+/// Uses flutter_secure_storage for platform Keychain (iOS) /
+/// EncryptedSharedPreferences (Android) — T-04-02, T-04-03.
+final backupTokenStorageProvider = Provider<BackupTokenStorage>((ref) {
+  return BackupTokenStorage();
+});
+
+/// Provider for AuthService (abstract type - DIP)
+///
+/// Following the Dependency Inversion Principle, this provider
+/// exposes the abstraction (AuthService) rather than the concrete
+/// implementation (AuthServiceImpl).
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthServiceImpl(
+    ref.read(googleSignInProvider),
+    ref.read(backupTokenStorageProvider),
+  );
+});
+
+/// Provider for GoogleDriveService (abstract type - DIP)
+///
+/// Following the Dependency Inversion Principle, this provider
+/// exposes the abstraction (GoogleDriveService) rather than the
+/// concrete implementation (GoogleDriveServiceImpl).
+final googleDriveServiceProvider = Provider<GoogleDriveService>((ref) {
+  return GoogleDriveServiceImpl(
+    () => ref.read(backupTokenStorageProvider).getAuthHeadersSync(),
+  );
 });

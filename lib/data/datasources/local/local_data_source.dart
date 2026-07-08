@@ -87,9 +87,12 @@ abstract class LocalDataSource {
 
   /// Execute multiple operations in a single transaction
   ///
-  /// All operations within [action] will be executed atomically.
-  /// If any operation fails, all changes will be rolled back.
-  Future<void> transaction(Future<void> Function() action);
+  /// The [action] callback receives a [LocalDataSource] bound to the active
+  /// transaction — every operation on it runs inside the txn and rolls back
+  /// together. If any operation fails, all changes will be rolled back.
+  Future<void> transaction(
+    Future<void> Function(LocalDataSource txn) action,
+  );
 
   /// Close the data source and release resources
   Future<void> close();

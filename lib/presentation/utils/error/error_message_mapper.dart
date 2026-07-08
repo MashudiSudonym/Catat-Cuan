@@ -1,4 +1,6 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:catat_cuan/domain/failures/auth_failure.dart';
+import 'package:catat_cuan/domain/failures/backup_failure.dart';
 import 'package:catat_cuan/domain/failures/failure.dart';
 
 /// Utility class for converting technical errors to user-friendly
@@ -39,6 +41,13 @@ class ErrorMessageMapper {
     // Handle Failure types from the domain layer — they already have
     // user-friendly Indonesian messages (DatabaseFailure, ValidationFailure, etc.)
     if (error is Failure) {
+      // Map specific backup/auth failure types to Indonesian messages
+      if (error is AuthFailure) {
+        return _mapAuthError(error);
+      }
+      if (error is BackupFailure) {
+        return _mapBackupError(error);
+      }
       return error.message;
     }
 
@@ -263,6 +272,45 @@ class ErrorMessageMapper {
     }
 
     return null;
+  }
+
+  /// Map authentication failures to user-friendly Indonesian messages.
+  /// Per BKP-07: All auth errors shown as Indonesian messages.
+  static String _mapAuthError(AuthFailure error) {
+    if (error is AuthCancelledFailure) {
+      return 'Login dibatalkan.';
+    }
+    if (error is AuthExpiredFailure) {
+      return 'Sesi Google telah berakhir. Silakan masuk kembali.';
+    }
+    if (error is AuthNetworkFailure) {
+      return 'Gagal masuk ke akun Google. Periksa koneksi internet Anda.';
+    }
+    if (error is AuthRevokedFailure) {
+      return 'Akses Google dicabut. Silakan masuk kembali.';
+    }
+    return 'Gagal masuk ke akun Google. Silakan coba lagi.';
+  }
+
+  /// Map backup failures to user-friendly Indonesian messages.
+  /// Per BKP-07: All backup errors shown as Indonesian messages.
+  static String _mapBackupError(BackupFailure error) {
+    if (error is BackupNetworkFailure) {
+      return 'Tidak dapat terhubung. Periksa koneksi internet Anda.';
+    }
+    if (error is BackupQuotaExceededFailure) {
+      return 'Penyimpanan Google Drive penuh. Hapus beberapa file dan coba lagi.';
+    }
+    if (error is BackupCorruptedFailure) {
+      return 'Data backup rusak atau tidak valid.';
+    }
+    if (error is BackupCancelledFailure) {
+      return 'Backup dibatalkan.';
+    }
+    if (error is BackupNotFoundFailure) {
+      return 'Backup tidak ditemukan.';
+    }
+    return error.message; // BackupUnknownFailure — return as-is
   }
 
   /// User-friendly error messages for common operations.

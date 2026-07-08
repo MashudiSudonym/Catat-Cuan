@@ -3,6 +3,9 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Google Services plugin — reads google-services.json to wire Google
+    // Sign-In OAuth client ID. Declared in settings.gradle.kts (per BKP-01).
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -40,6 +43,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.glance:glance-appwidget:1.1.0")
+        force("androidx.glance:glance-material3:1.1.0")
+        force("androidx.glance:glance:1.1.0")
     }
 }
 
